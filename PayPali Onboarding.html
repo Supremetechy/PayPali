@@ -1,0 +1,813 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>PayPali Onboarding</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&display=swap">
+<style>
+  /* Layout: single commission-desk column (form + sticky authorization ledger),
+     splitting to two columns on wide screens. */
+  :root {
+    --bg: #f5f7fa;
+    --surface: #ffffff;
+    --surface-2: #eef2f8;
+    --ink: #11264f;         /* PayPal navy-charcoal body text */
+    --ink-soft: #4a5873;
+    --ink-faint: #8a97b2;
+    --line: #e0e6ef;
+    --line-strong: #c6d0e0;
+    --accent: #0070e0;      /* PayPal interactive blue */
+    --accent-soft: #e4f0fd;
+    --accent-ink: #003087;  /* PayPal deep blue */
+    --accent-2: #009cde;    /* PayPal bright cyan (logo second tone) */
+    --gold: #ffc439;        /* signature PayPal checkout gold */
+    --gold-ink: #001c64;    /* PayPal midnight — text on gold */
+    --warn: #8a6d00;        /* human-approval amber */
+    --warn-soft: #fbf0d3;
+    --danger: #c5303a;
+    --danger-soft: #fbe3e3;
+    --shadow: 0 1px 2px rgba(0,28,100,.07), 0 12px 30px -18px rgba(0,28,100,.30);
+    --radius: 12px;
+    --font-display: "PayPal Open", "Mulish", "Helvetica Neue", Arial, sans-serif;
+    --font-body: "PayPal Open", "Mulish", "Helvetica Neue", Arial, sans-serif;
+    --font-data: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0a1230;
+      --surface: #10193c;
+      --surface-2: #17224b;
+      --ink: #e8edf8;
+      --ink-soft: #a9b6d4;
+      --ink-faint: #7482a4;
+      --line: #26315a;
+      --line-strong: #35416e;
+      --accent: #2b8fff;
+      --accent-soft: #112a57;
+      --accent-ink: #9cccff;
+      --accent-2: #40c4f5;
+      --gold: #ffc439;
+      --gold-ink: #001c64;
+      --warn: #e0ad4f;
+      --warn-soft: #3a2f14;
+      --danger: #ef8a84;
+      --danger-soft: #3c1d1b;
+      --shadow: 0 1px 2px rgba(0,0,0,.5), 0 14px 34px -18px rgba(0,0,0,.8);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0a1230;
+    --surface: #10193c;
+    --surface-2: #17224b;
+    --ink: #e8edf8;
+    --ink-soft: #a9b6d4;
+    --ink-faint: #7482a4;
+    --line: #26315a;
+    --line-strong: #35416e;
+    --accent: #2b8fff;
+    --accent-soft: #112a57;
+    --accent-ink: #9cccff;
+    --accent-2: #40c4f5;
+    --gold: #ffc439;
+    --gold-ink: #001c64;
+    --warn: #e0ad4f;
+    --warn-soft: #3a2f14;
+    --danger: #ef8a84;
+    --danger-soft: #3c1d1b;
+    --shadow: 0 1px 2px rgba(0,0,0,.5), 0 14px 34px -18px rgba(0,0,0,.8);
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0 0 auto;
+    height: env(safe-area-inset-top, 0px);
+    z-index: 20;
+    background: var(--surface);
+  }
+
+  .wrap {
+    max-width: 1060px;
+    margin: 0 auto;
+    padding-left: max(18px, env(safe-area-inset-left, 0px));
+    padding-right: max(18px, env(safe-area-inset-right, 0px));
+    padding-block: 0 72px;
+  }
+
+  header.bar {
+    position: sticky;
+    top: env(safe-area-inset-top, 0px);
+    z-index: 15;
+    background: color-mix(in srgb, var(--surface) 88%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+    margin-left: calc(-1 * max(18px, env(safe-area-inset-left, 0px)));
+    margin-right: calc(-1 * max(18px, env(safe-area-inset-right, 0px)));
+    padding-left: max(18px, env(safe-area-inset-left, 0px));
+    padding-right: max(18px, env(safe-area-inset-right, 0px));
+  }
+  .bar-inner {
+    max-width: 1060px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-block: 12px;
+  }
+  .brand { display: flex; align-items: baseline; gap: 9px; min-width: 0; }
+  .brand .mark {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -.02em;
+    color: var(--accent-ink);
+  }
+  .brand .mark b { color: var(--accent-2); font-weight: 800; }
+  .brand .tag {
+    font-family: var(--font-data);
+    font-size: .68rem;
+    text-transform: uppercase;
+    letter-spacing: .14em;
+    color: var(--ink-faint);
+    white-space: nowrap;
+  }
+  .bar-spacer { flex: 1; }
+  .ghost-btn {
+    font-family: var(--font-data);
+    font-size: .72rem;
+    letter-spacing: .06em;
+    color: var(--ink-soft);
+    background: transparent;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    padding: 6px 12px;
+    cursor: pointer;
+  }
+  .ghost-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .hero { padding-block: 30px 10px; max-width: 60ch; }
+  .hero h1 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(1.9rem, 1.3rem + 2.4vw, 2.9rem);
+    line-height: 1.07;
+    letter-spacing: -.025em;
+    text-wrap: balance;
+    margin: 0 0 12px;
+  }
+  .hero h1 em { font-style: normal; color: var(--accent); }
+  .hero p { color: var(--ink-soft); margin: 0; font-size: 1.02rem; }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 22px;
+    margin-top: 22px;
+    align-items: start;
+  }
+  @media (min-width: 880px) {
+    .layout { grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 28px; }
+    .ledger-col { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 74px); }
+  }
+
+  form { min-width: 0; }
+  fieldset {
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--surface);
+    padding: 18px;
+    margin: 0 0 18px;
+    box-shadow: var(--shadow);
+  }
+  legend {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 0 8px;
+    margin-left: -4px;
+    font-family: var(--font-data);
+    font-size: .72rem;
+    text-transform: uppercase;
+    letter-spacing: .13em;
+    color: var(--ink-faint);
+  }
+  legend .n {
+    display: inline-grid;
+    place-items: center;
+    width: 20px; height: 20px;
+    border-radius: 6px;
+    background: var(--accent-soft);
+    color: var(--accent-ink);
+    font-weight: 500;
+    font-size: .74rem;
+  }
+
+  /* Segmented mode control */
+  .seg { display: flex; gap: 4px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 4px; }
+  .seg button {
+    flex: 1;
+    font-family: var(--font-body);
+    font-weight: 500;
+    font-size: .92rem;
+    color: var(--ink-soft);
+    background: transparent;
+    border: 0;
+    border-radius: 7px;
+    padding: 10px 10px;
+    cursor: pointer;
+    display: flex; flex-direction: column; gap: 2px; align-items: flex-start;
+    text-align: left;
+  }
+  .seg button .sub { font-family: var(--font-data); font-size: .64rem; letter-spacing: .04em; color: var(--ink-faint); text-transform: uppercase; }
+  .seg button[aria-pressed="true"] {
+    background: var(--surface);
+    color: var(--ink);
+    box-shadow: 0 1px 2px rgba(0,0,0,.08);
+    outline: 1.5px solid var(--accent);
+  }
+  .seg button[aria-pressed="true"] .sub { color: var(--accent); }
+
+  label.field { display: block; margin-bottom: 14px; }
+  label.field:last-child { margin-bottom: 0; }
+  .lbl { display: block; font-size: .82rem; font-weight: 500; color: var(--ink); margin-bottom: 5px; }
+  .hint { font-weight: 400; color: var(--ink-faint); font-size: .76rem; }
+  input, textarea, select {
+    width: 100%;
+    font-family: var(--font-body);
+    font-size: .95rem;
+    color: var(--ink);
+    background: var(--surface);
+    border: 1px solid var(--line-strong);
+    border-radius: 9px;
+    padding: 10px 12px;
+  }
+  input:focus-visible, textarea:focus-visible, select:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+    border-color: var(--accent);
+  }
+  textarea { resize: vertical; min-height: 64px; line-height: 1.45; }
+  input.money, input.data, .data { font-family: var(--font-data); font-variant-numeric: tabular-nums; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  @media (max-width: 560px) { .row, .row-3 { grid-template-columns: 1fr; } }
+
+  .seed-amount { display: grid; grid-template-columns: 1fr 108px; gap: 10px; }
+
+  /* Objective cards */
+  .obj-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+  .obj {
+    position: relative;
+    display: block;
+    border: 1px solid var(--line-strong);
+    border-radius: 11px;
+    padding: 13px 14px 13px 15px;
+    cursor: pointer;
+    background: var(--surface);
+  }
+  .obj::before {
+    content: "";
+    position: absolute; left: 0; top: 10px; bottom: 10px;
+    width: 3px; border-radius: 3px;
+    background: var(--line-strong);
+  }
+  .obj:hover { border-color: var(--accent); }
+  .obj input { position: absolute; opacity: 0; pointer-events: none; }
+  .obj:has(input:checked) { border-color: var(--accent); background: color-mix(in srgb, var(--accent-soft) 55%, var(--surface)); }
+  .obj:has(input:checked)::before { background: var(--accent); }
+  .obj:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .obj-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .obj-name { font-weight: 600; font-size: 1rem; letter-spacing: -.01em; }
+  .obj-posture { font-family: var(--font-data); font-size: .64rem; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-faint); border: 1px solid var(--line-strong); border-radius: 999px; padding: 2px 8px; }
+  .obj:has(input:checked) .obj-posture { color: var(--accent-ink); border-color: var(--accent); }
+  .obj-desc { color: var(--ink-soft); font-size: .84rem; margin-top: 4px; }
+  .obj-phase { font-family: var(--font-data); font-size: .68rem; color: var(--ink-faint); margin-top: 6px; }
+
+  /* Ledger / payload panel */
+  .ledger {
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .ledger-h {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 13px 15px;
+    border-bottom: 1px solid var(--line);
+    background: var(--surface-2);
+  }
+  .ledger-h .t { font-family: var(--font-data); font-size: .72rem; text-transform: uppercase; letter-spacing: .12em; color: var(--ink-soft); }
+  .status-chip {
+    font-family: var(--font-data); font-size: .66rem; letter-spacing: .06em; text-transform: uppercase;
+    padding: 3px 9px; border-radius: 999px; border: 1px solid;
+  }
+  .status-chip.ok { color: var(--accent-ink); background: var(--accent-soft); border-color: transparent; }
+  .status-chip.bad { color: var(--danger); background: var(--danger-soft); border-color: transparent; }
+
+  .derived { padding: 14px 15px; border-bottom: 1px dashed var(--line); display: grid; gap: 1px; }
+  .derived h4 { margin: 0 0 7px; font-size: .72rem; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-faint); font-family: var(--font-data); font-weight: 500; }
+  .lim { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 5px 0; border-top: 1px solid var(--line); }
+  .lim:first-of-type { border-top: 0; }
+  .lim .k { font-size: .83rem; color: var(--ink-soft); }
+  .lim .v { font-family: var(--font-data); font-variant-numeric: tabular-nums; font-size: .9rem; font-weight: 500; }
+  .lim .v small { color: var(--ink-faint); font-weight: 400; }
+  .rationale { font-size: .8rem; color: var(--ink-soft); padding: 11px 15px; background: color-mix(in srgb, var(--accent-soft) 40%, transparent); border-bottom: 1px dashed var(--line); }
+  .rationale b { color: var(--accent-ink); font-weight: 600; }
+
+  .payload-h { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 11px 15px 6px; }
+  .payload-h .call { font-family: var(--font-data); font-size: .74rem; color: var(--ink); }
+  .payload-h .call b { color: var(--accent); font-weight: 500; }
+  pre.payload {
+    margin: 0; padding: 0 15px 15px;
+    font-family: var(--font-data); font-size: .78rem; line-height: 1.5;
+    color: var(--ink); white-space: pre; overflow-x: auto;
+    max-height: 340px; overflow-y: auto;
+  }
+  pre.payload .k { color: var(--accent-ink); }
+  pre.payload .s { color: var(--ink-soft); }
+  pre.payload .num { color: var(--warn); }
+
+  .copy-btn {
+    font-family: var(--font-body); font-weight: 700; font-size: .78rem; letter-spacing: .01em;
+    color: var(--gold-ink); background: var(--gold);
+    border: 1px solid transparent; border-radius: 999px; padding: 8px 16px; cursor: pointer;
+  }
+  .copy-btn:hover { filter: brightness(.96); }
+  .copy-btn:disabled { opacity: .45; cursor: not-allowed; filter: grayscale(.4); }
+
+  .issues { list-style: none; margin: 0; padding: 0 15px 14px; display: grid; gap: 5px; }
+  .issues li { font-size: .8rem; color: var(--danger); display: flex; gap: 7px; align-items: baseline; }
+  .issues li::before { content: "▸"; color: var(--danger); font-size: .7rem; }
+  .allok { font-size: .8rem; color: var(--accent-ink); padding: 0 15px 14px; }
+
+  .note { font-size: .76rem; color: var(--ink-faint); margin-top: 14px; line-height: 1.5; }
+  .note code { font-family: var(--font-data); color: var(--ink-soft); }
+  input:invalid { border-color: var(--line-strong); } /* defer to our own validation */
+  [hidden] { display: none !important; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<header class="bar">
+  <div class="bar-inner">
+    <div class="brand">
+      <span class="mark">Pay<b>Pali</b></span>
+      <span class="tag">Owner Control</span>
+    </div>
+    <span class="bar-spacer"></span>
+    <button class="ghost-btn" id="themeBtn" type="button" aria-label="Toggle color theme">Theme</button>
+  </div>
+</header>
+
+<div class="wrap">
+  <section class="hero">
+    <h1>Put an agent <em>in commission.</em></h1>
+    <p>Register one of your agents on PayPali, give it a definitive objective, and fund a seed. PayPali turns that objective into enforced spending limits — the agent only ever acts within the authority you grant here. Funds settle on PayPal's infrastructure through its SDKs, APIs, and MCP connectors.</p>
+  </section>
+
+  <div class="layout">
+    <form id="form" novalidate>
+      <fieldset>
+        <legend>Mode</legend>
+        <div class="seg" role="group" aria-label="Onboarding mode">
+          <button type="button" id="modeOnboard" aria-pressed="true">
+            Onboard my agent
+            <span class="sub">I set the limits</span>
+          </button>
+          <button type="button" id="modeGenerate" aria-pressed="false">
+            Generate an agent
+            <span class="sub">Derive from objective</span>
+          </button>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend><span class="n">1</span> Account &amp; agent</legend>
+        <label class="field">
+          <span class="lbl">Your email <span class="hint">— the owner authorizing this agent</span></span>
+          <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com">
+        </label>
+        <label class="field" id="nameField">
+          <span class="lbl">Agent name <span class="hint" id="nameHint">— a handle for this agent</span></span>
+          <input id="agentName" type="text" maxlength="120" placeholder="treasury-bot">
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend><span class="n">2</span> Objective</legend>
+        <div class="obj-grid" id="objGrid" role="radiogroup" aria-label="Agent objective">
+          <label class="obj">
+            <input type="radio" name="objective" value="GROWTH">
+            <span class="obj-head"><span class="obj-name">Growth</span><span class="obj-posture">Aggressive</span></span>
+            <span class="obj-desc">Compound the seed into durable, income-producing assets. High autonomy so the reinvestment flywheel can turn without a human on every move.</span>
+            <span class="obj-phase">Agent-economy · Phase 3+ "compound into leverage"</span>
+          </label>
+          <label class="obj">
+            <input type="radio" name="objective" value="SUSTAIN" checked>
+            <span class="obj-head"><span class="obj-name">Sustain</span><span class="obj-posture">Moderate</span></span>
+            <span class="obj-desc">Operate at self-sustaining, near-zero margin — hold value delivered ≥ cost to deliver. Transact freely enough to stay in commission without burning the seed.</span>
+            <span class="obj-phase">Agent-economy · "remain in commission at V ≥ C"</span>
+          </label>
+          <label class="obj">
+            <input type="radio" name="objective" value="MAINTAIN">
+            <span class="obj-head"><span class="obj-name">Maintain</span><span class="obj-posture">Conservative</span></span>
+            <span class="obj-desc">Preserve capital. Tight ceilings and a low approval threshold keep the agent in reconnaissance mode, spending only what it must.</span>
+            <span class="obj-phase">Agent-economy · Phase 0–1 "preserve, don't spend yet"</span>
+          </label>
+        </div>
+        <label class="field" id="mandateField" style="margin-top:14px">
+          <span class="lbl">Definitive mandate <span class="hint" id="mandateHint">— one sentence; what this agent is for</span></span>
+          <textarea id="mandate" maxlength="500" placeholder="Keep the storefront inventory funded at cost, remaining in commission."></textarea>
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend><span class="n">3</span> Seed funding</legend>
+        <label class="field">
+          <span class="lbl">Seed amount <span class="hint">— pulled from your PayPal balance; becomes the agent's starting funds</span></span>
+          <div class="seed-amount">
+            <input id="seedAmount" class="money" type="text" inputmode="decimal" placeholder="10000.00" value="10000.00">
+            <select id="currency" aria-label="Currency">
+              <option>USD</option><option>EUR</option><option>GBP</option><option>CAD</option>
+            </select>
+          </div>
+        </label>
+        <label class="field">
+          <span class="lbl">PayPal funding source <span class="hint">— opaque reference to your PayPal balance, never a raw account number</span></span>
+          <input id="funding" class="data" type="text" placeholder="paypal_bal_abc123">
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend><span class="n">4</span> Spending policy</legend>
+
+        <!-- GENERATE: read-only, derived -->
+        <div id="genPolicyNote" class="note" style="margin-top:0" hidden>
+          Limits are derived from your objective and seed — see the authorization ledger. Optionally pre-authorize who the agent may pay (leave empty for least privilege: a generated agent can transact with no one until you authorize recipients).
+        </div>
+
+        <!-- ONBOARD: explicit -->
+        <div id="explicitPolicy">
+          <div class="row-3">
+            <label class="field">
+              <span class="lbl">Per transaction</span>
+              <input id="perTx" class="money" type="text" inputmode="decimal" placeholder="1000.00" value="1000.00">
+            </label>
+            <label class="field">
+              <span class="lbl">Daily budget</span>
+              <input id="daily" class="money" type="text" inputmode="decimal" placeholder="3000.00" value="3000.00">
+            </label>
+            <label class="field">
+              <span class="lbl">Monthly budget</span>
+              <input id="monthly" class="money" type="text" inputmode="decimal" placeholder="10000.00" value="10000.00">
+            </label>
+          </div>
+          <label class="field">
+            <span class="lbl">Require human approval above <span class="hint">— 0 means approve every payment</span></span>
+            <input id="approval" class="money" type="text" inputmode="decimal" placeholder="500.00" value="500.00">
+          </label>
+        </div>
+
+        <label class="field" style="margin-top:4px">
+          <span class="lbl">Allowed recipients <span class="hint">— validated recipient/merchant IDs, comma or line separated</span></span>
+          <textarea id="recipients" placeholder="rec_trusted_1, rec_cloud_host"></textarea>
+        </label>
+        <label class="field">
+          <span class="lbl">Allowed categories <span class="hint">— merchant category codes (MCC)</span></span>
+          <input id="categories" class="data" type="text" placeholder="5812, 5734">
+        </label>
+      </fieldset>
+    </form>
+
+    <div class="ledger-col">
+      <div class="ledger" aria-live="polite">
+        <div class="ledger-h">
+          <span class="t">Authorization ledger</span>
+          <span class="status-chip" id="statusChip">Checking…</span>
+        </div>
+
+        <div class="derived" id="derivedBlock">
+          <h4 id="derivedTitle">Effective limits</h4>
+          <div class="lim"><span class="k">Per transaction</span><span class="v" id="dPerTx">—</span></div>
+          <div class="lim"><span class="k">Daily budget</span><span class="v" id="dDaily">—</span></div>
+          <div class="lim"><span class="k">Monthly budget</span><span class="v" id="dMonthly">—</span></div>
+          <div class="lim"><span class="k">Human approval above</span><span class="v" id="dApproval">—</span></div>
+        </div>
+        <div class="rationale" id="rationale" hidden></div>
+
+        <div class="payload-h">
+          <span class="call" id="callName">OnboardingService.<b>onboardAgent</b>()</span>
+          <button class="copy-btn" id="copyBtn" type="button">Copy payload</button>
+        </div>
+        <pre class="payload" id="payload"></pre>
+        <ul class="issues" id="issues" hidden></ul>
+        <div class="allok" id="allok" hidden>Payload valid — ready to send to the onboarding service.</div>
+      </div>
+      <p class="note">
+        This screen builds and validates the request your backend passes to
+        <code>OnboardingService</code>. Amounts are shown in major units and sent as
+        integer <code>minor</code> units (e.g. cents). On submit, the agent is created and the seed
+        is queued for capture from your PayPal balance; a durable funding worker pulls the funds and
+        activates the agent's spendable wallet — crash-safe, retried idempotently, and never pulled
+        twice. The policy engine and ledger then enforce every payment, settled through PayPal's
+        SDKs, APIs, and MCP connectors. Once funded, the agent can <b>receive</b>, <b>spend</b>, and
+        <b>send</b> within these limits.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  // Basis-point profiles — mirrors src/onboarding/objectiveProfiles.ts exactly.
+  var PROFILES = {
+    GROWTH:   { perTx: 2500, daily: 6000, monthly: 20000, approval: 2500,
+      rationale: "<b>Compound into leverage.</b> Aggressive limits and a high autonomy threshold let the agent reinvest revenue (Agent-economy Phase 3+)." },
+    SUSTAIN:  { perTx: 1000, daily: 3000, monthly: 10000, approval: 1000,
+      rationale: "<b>Operate at self-sustaining, near-zero margin.</b> Moderate limits let the agent transact to hold value ≥ cost without burning the seed." },
+    MAINTAIN: { perTx: 300,  daily: 800,  monthly: 2500,  approval: 200,
+      rationale: "<b>Preserve capital.</b> Tight per-transaction ceiling and a low approval threshold keep the agent in reconnaissance mode (Agent-economy Phase 0–1)." }
+  };
+  var DEFAULT_MANDATES = {
+    GROWTH:   "Compound the seed into durable, income-producing assets while remaining in commission.",
+    SUSTAIN:  "Reach and hold self-sustaining operation where delivered value covers cost, remaining in commission.",
+    MAINTAIN: "Preserve the seed and the agent standing, spending only what it takes to remain in commission."
+  };
+  var BPS = 10000n;
+
+  var $ = function (id) { return document.getElementById(id); };
+  var mode = "ONBOARD"; // or GENERATE
+
+  // ---- money helpers: major-unit string -> integer minor units (BigInt) ----
+  function parseMinor(str) {
+    if (typeof str !== "string") return null;
+    var s = str.trim().replace(/[, ]+/g, "");
+    if (s === "") return null;
+    if (!/^\d+(\.\d{0,2})?$/.test(s)) return null;
+    var parts = s.split(".");
+    var whole = parts[0] || "0";
+    var frac = (parts[1] || "").padEnd(2, "0").slice(0, 2);
+    try { return BigInt(whole) * 100n + BigInt(frac); } catch (e) { return null; }
+  }
+  function fmtMinor(minor, currency) {
+    var neg = minor < 0n;
+    var abs = neg ? -minor : minor;
+    var whole = abs / 100n, cents = abs % 100n;
+    var ws = whole.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    var body = ws + "." + cents.toString().padStart(2, "0");
+    return (neg ? "-" : "") + body + " " + currency;
+  }
+  function scale(seedMinor, bps) { return (seedMinor * BigInt(bps)) / BPS; }
+  function atLeastOne(v) { return v > 0n ? v : 1n; }
+
+  function splitList(str) {
+    if (!str) return [];
+    var seen = Object.create(null), out = [];
+    str.split(/[\n,]+/).forEach(function (raw) {
+      var t = raw.trim();
+      if (t && !seen[t]) { seen[t] = 1; out.push(t); }
+    });
+    return out;
+  }
+
+  function selectedObjective() {
+    var r = document.querySelector('input[name="objective"]:checked');
+    return r ? r.value : "SUSTAIN";
+  }
+
+  // ---- derive limits for current state ----
+  function currentLimits() {
+    var currency = $("currency").value;
+    var seedMinor = parseMinor($("seedAmount").value);
+    var obj = selectedObjective();
+    if (mode === "GENERATE") {
+      if (seedMinor === null || seedMinor <= 0n) return null;
+      var p = PROFILES[obj];
+      return {
+        perTx: atLeastOne(scale(seedMinor, p.perTx)),
+        daily: atLeastOne(scale(seedMinor, p.daily)),
+        monthly: atLeastOne(scale(seedMinor, p.monthly)),
+        approval: scale(seedMinor, p.approval),
+        currency: currency
+      };
+    }
+    return {
+      perTx: parseMinor($("perTx").value),
+      daily: parseMinor($("daily").value),
+      monthly: parseMinor($("monthly").value),
+      approval: parseMinor($("approval").value),
+      currency: currency
+    };
+  }
+
+  // ---- validation mirroring OnboardingService ----
+  var EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  function validate(state) {
+    var e = [];
+    if (!EMAIL.test(state.email)) e.push("Enter a valid owner email.");
+    if (mode === "ONBOARD" && !state.agentName) e.push("Give the agent a name.");
+    if (!state.mandate && mode === "ONBOARD") e.push("Write a one-sentence mandate.");
+    if (state.seedMinor === null || state.seedMinor <= 0n) e.push("Seed amount must be greater than zero.");
+    if (!state.funding) e.push("Add a funding source reference.");
+    var L = state.limits;
+    if (!L || L.perTx === null || L.daily === null || L.monthly === null || L.approval === null) {
+      if (mode === "ONBOARD") e.push("Enter all four policy amounts.");
+    } else {
+      if (L.perTx <= 0n || L.daily <= 0n || L.monthly <= 0n) e.push("Per-transaction, daily, and monthly limits must be positive.");
+      if (L.approval < 0n) e.push("Approval threshold cannot be negative.");
+      if (L.perTx !== null && L.daily !== null && L.monthly !== null && L.perTx > 0n && L.daily > 0n && L.monthly > 0n) {
+        if (L.perTx > L.daily || L.daily > L.monthly) e.push("Limits must satisfy per-transaction ≤ daily ≤ monthly.");
+      }
+    }
+    return e;
+  }
+
+  function gather() {
+    return {
+      email: $("email").value.trim().toLowerCase(),
+      agentName: $("agentName").value.trim(),
+      objective: selectedObjective(),
+      mandate: $("mandate").value.trim(),
+      seedMinor: parseMinor($("seedAmount").value),
+      currency: $("currency").value,
+      funding: $("funding").value.trim(),
+      recipients: splitList($("recipients").value),
+      categories: splitList($("categories").value),
+      limits: currentLimits()
+    };
+  }
+
+  function buildPayload(state) {
+    var owner = { email: state.email || "you@example.com" };
+    var seed = {
+      amountMinor: state.seedMinor !== null ? Number(state.seedMinor) : 0,
+      currency: state.currency,
+      fundingSourceReference: state.funding || "vault_src_…"
+    };
+    if (mode === "GENERATE") {
+      var g = { owner: owner, objective: { type: state.objective }, seed: seed };
+      if (state.agentName) g.agentName = state.agentName;
+      if (state.mandate) g.objective.mandate = state.mandate;
+      g.allowedRecipients = state.recipients;
+      g.allowedCategories = state.categories;
+      return g;
+    }
+    var L = state.limits || {};
+    return {
+      owner: owner,
+      agentName: state.agentName || "agent",
+      objective: { type: state.objective, mandate: state.mandate || DEFAULT_MANDATES[state.objective] },
+      seed: seed,
+      policy: {
+        maxPerTransactionMinor: L.perTx !== null && L.perTx !== undefined ? Number(L.perTx) : 0,
+        maxDailyBudgetMinor: L.daily !== null && L.daily !== undefined ? Number(L.daily) : 0,
+        maxMonthlyBudgetMinor: L.monthly !== null && L.monthly !== undefined ? Number(L.monthly) : 0,
+        requireHumanApprovalAboveMinor: L.approval !== null && L.approval !== undefined ? Number(L.approval) : 0,
+        allowedRecipients: state.recipients,
+        allowedCategories: state.categories
+      }
+    };
+  }
+
+  // Minimal JSON syntax highlighter (string/key/number) — escapes HTML first.
+  function highlight(json) {
+    var esc = json.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    return esc.replace(/("(\\.|[^"\\])*")(\s*:)?|\b(-?\d+)\b/g, function (m, str, _c, colon, num) {
+      if (num !== undefined) return '<span class="num">' + num + "</span>";
+      if (colon) return '<span class="k">' + str + "</span>" + colon;
+      return '<span class="s">' + str + "</span>";
+    });
+  }
+
+  var lastJson = "";
+  function render() {
+    var state = gather();
+    var L = state.limits;
+
+    // Derived/effective limits panel
+    $("derivedTitle").textContent = mode === "GENERATE" ? "Derived limits" : "Effective limits";
+    function setLim(id, v) { $(id).innerHTML = (v === null || v === undefined) ? '<small>—</small>' : fmtMinor(v, state.currency); }
+    if (L) {
+      setLim("dPerTx", L.perTx); setLim("dDaily", L.daily); setLim("dMonthly", L.monthly);
+      if (L.approval !== null && L.approval !== undefined && L.approval === 0n) {
+        $("dApproval").innerHTML = '<small>every payment</small>';
+      } else { setLim("dApproval", L.approval); }
+    } else { ["dPerTx","dDaily","dMonthly","dApproval"].forEach(function (id){ $(id).innerHTML='<small>—</small>'; }); }
+
+    var rat = $("rationale");
+    if (mode === "GENERATE") { rat.hidden = false; rat.innerHTML = PROFILES[state.objective].rationale; }
+    else { rat.hidden = true; }
+
+    // Payload
+    var payload = buildPayload(state);
+    var json = JSON.stringify(payload, null, 2);
+    lastJson = json;
+    $("payload").innerHTML = highlight(json);
+    $("callName").innerHTML = mode === "GENERATE"
+      ? 'OnboardingService.<b>generateAgent</b>()'
+      : 'OnboardingService.<b>onboardAgent</b>()';
+
+    // Validation
+    var errs = validate(state);
+    var chip = $("statusChip"), issues = $("issues"), allok = $("allok");
+    if (errs.length === 0) {
+      chip.textContent = "Ready"; chip.className = "status-chip ok";
+      issues.hidden = true; issues.innerHTML = "";
+      allok.hidden = false;
+      $("copyBtn").disabled = false;
+    } else {
+      chip.textContent = errs.length + (errs.length === 1 ? " issue" : " issues");
+      chip.className = "status-chip bad";
+      allok.hidden = true;
+      issues.hidden = false;
+      issues.innerHTML = errs.map(function (x) { return "<li>" + x.replace(/</g,"&lt;") + "</li>"; }).join("");
+      $("copyBtn").disabled = true;
+    }
+    saveDraft(state);
+  }
+
+  // ---- mode switch ----
+  function setMode(next) {
+    mode = next;
+    var on = next === "ONBOARD";
+    $("modeOnboard").setAttribute("aria-pressed", String(on));
+    $("modeGenerate").setAttribute("aria-pressed", String(!on));
+    $("explicitPolicy").hidden = !on;
+    $("genPolicyNote").hidden = on;
+    $("nameHint").textContent = on ? "— a handle for this agent" : "— optional; auto-named from the objective";
+    $("mandateHint").textContent = on ? "— one sentence; what this agent is for" : "— optional; a default is derived from the objective";
+    render();
+  }
+  $("modeOnboard").addEventListener("click", function () { setMode("ONBOARD"); });
+  $("modeGenerate").addEventListener("click", function () { setMode("GENERATE"); });
+
+  // ---- copy ----
+  $("copyBtn").addEventListener("click", function () {
+    var btn = this, text = lastJson;
+    function done() { var o = btn.textContent; btn.textContent = "Copied ✓"; setTimeout(function(){ btn.textContent = o; }, 1400); }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done).catch(selectFallback);
+    } else { selectFallback(); }
+    function selectFallback() {
+      var r = document.createRange(); r.selectNodeContents($("payload"));
+      var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+      try { document.execCommand("copy"); done(); } catch (e) { btn.textContent = "Press ⌘/Ctrl+C"; }
+    }
+  });
+
+  // ---- theme toggle (per-viewer convenience) ----
+  var themeBtn = $("themeBtn");
+  function readLS(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function writeLS(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  var savedTheme = readLS("pp_theme");
+  if (savedTheme === "dark" || savedTheme === "light") document.documentElement.setAttribute("data-theme", savedTheme);
+  themeBtn.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var isDark = cur ? cur === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+    var next = isDark ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", next);
+    writeLS("pp_theme", next);
+  });
+
+  // ---- draft persistence (per-viewer convenience only) ----
+  var DRAFT_FIELDS = ["email","agentName","mandate","seedAmount","currency","funding","perTx","daily","monthly","approval","recipients","categories"];
+  function saveDraft() {
+    try {
+      var d = { mode: mode, objective: selectedObjective() };
+      DRAFT_FIELDS.forEach(function (f){ d[f] = $(f).value; });
+      localStorage.setItem("pp_draft", JSON.stringify(d));
+    } catch (e) {}
+  }
+  function loadDraft() {
+    var raw = readLS("pp_draft"); if (!raw) return;
+    try {
+      var d = JSON.parse(raw);
+      DRAFT_FIELDS.forEach(function (f){ if (typeof d[f] === "string") $(f).value = d[f]; });
+      if (d.objective && PROFILES[d.objective]) {
+        var r = document.querySelector('input[name="objective"][value="' + d.objective + '"]');
+        if (r) r.checked = true;
+      }
+      if (d.mode === "GENERATE") mode = "GENERATE";
+    } catch (e) {}
+  }
+
+  loadDraft();
+  document.getElementById("form").addEventListener("input", render);
+  document.getElementById("form").addEventListener("change", render);
+  setMode(mode);
+})();
+</script>
+
+</body></html>
