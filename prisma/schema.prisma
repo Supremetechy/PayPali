@@ -1,0 +1,345 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum IntentStatus {
+  CREATED
+  EVALUATING_POLICY
+  REJECTED
+  PENDING_APPROVAL
+  RESERVED
+  SUBMITTING
+  SETTLED
+  FAILED
+  CANCELLED
+  AMBIGUOUS_PENDING_RECONCILIATION
+}
+
+enum ReservationStatus {
+  ACTIVE
+  COMMITTED
+  RELEASED
+}
+
+enum ActorType {
+  AGENT
+  OWNER
+  SYSTEM
+  RECONCILIATION_WORKER
+}
+
+enum OutboxEventType {
+  SUBMIT
+  RECONCILE
+}
+
+enum OutboxEventStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+}
+
+// The definitive objective a human assigns an agent at onboarding. Drives the
+// derived spending posture (see src/onboarding/objectiveProfiles.ts) and is the
+// agent's terminal mandate in the Agent-economy sense ("remain in commission").
+enum ObjectiveType {
+  GROWTH   // Phase 3+: compound capital, reinvest into leverage. Aggressive limits.
+  SUSTAIN  // Reach and hold V >= C (self-sustaining, zero-margin). Moderate limits.
+  MAINTAIN // Phase 1: preserve capital, minimal spend. Conservative limits.
+}
+
+// How the agent came to exist: a human filled out the full onboarding form, or
+// the platform generated it from an objective + seed.
+enum AgentOrigin {
+  HUMAN_ONBOARDED
+  GENERATED
+}
+
+// Lifecycle of a seed (an initial, explicitly authorized funding allocation).
+// AUTHORIZED = owner-authorized, PayPal capture not yet confirmed (queued).
+// CONSUMED   = captured from PayPal and credited to the agent's wallet.
+// FUNDING_FAILED = the PayPal capture could not be completed.
+enum SeedStatus {
+  AUTHORIZED
+  CONSUMED
+  FUNDING_FAILED
+  EXPIRED
+  REVOKED
+}
+
+// Durable work item that drives a seed's PayPal capture + wallet credit. Mirrors
+// OutboxEvent so a crash between onboarding and funding is always recoverable:
+// the row survives, the lease expires, and the capture is retried idempotently.
+enum SeedFundingStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+// Direction of a wallet ledger entry (double-entry style).
+enum LedgerDirection {
+  CREDIT
+  DEBIT
+}
+
+// Why a wallet balance changed. RECEIVE/SEND/SPEND are the three agent money
+// movements; the rest are their internal legs and adjustments.
+enum LedgerEntryType {
+  SEED_FUNDING    // receive: a seed was activated into spendable balance
+  EXTERNAL_TOPUP  // receive: funds credited from an external PayPal rail
+  TRANSFER_IN     // receive: inbound leg of an agent-to-agent send
+  TRANSFER_OUT    // send: outbound leg of an agent-to-agent send
+  SPEND           // spend: funds committed to an external payment
+  REFUND          // receive: a prior spend was refunded
+  HOLD            // spend: funds reserved available->reserved for a merchant payment
+  RELEASE         // spend: a hold released reserved->available (payment did not settle)
+}
+
+enum TransferStatus {
+  COMPLETED
+}
+
+model Owner {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  agents    Agent[]
+  policies  Policy[]
+  seeds     Seed[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Agent {
+  id           String             @id @default(uuid())
+  ownerId      String
+  name         String
+  isActive     Boolean            @default(true)
+  // Definitive objective assigned by the human at onboarding. Nullable so agents
+  // created outside the onboarding flow (e.g. legacy/test fixtures) remain valid;
+  // OnboardingService always sets these.
+  objectiveType       ObjectiveType?
+  objectiveMandate    String?        // The human's one-sentence growth/sustain/maintain mandate.
+  objectiveTargetMinor BigInt?       // Optional numeric target (minor units) the mandate aims at.
+  origin       AgentOrigin        @default(HUMAN_ONBOARDED)
+  owner        Owner              @relation(fields: [ownerId], references: [id], onDelete: Restrict)
+  intents      PaymentIntent[]
+  reservations SpendReservation[]
+  seeds        Seed[]
+  accounts     AgentAccount[]
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  @@index([ownerId])
+}
+
+model Policy {
+  id                         String   @id @default(uuid())
+  ownerId                    String
+  version                    Int      @default(1)
+  currency                   String   @db.VarChar(3)
+  maxPerTransactionMinor     BigInt
+  maxDailyBudgetMinor        BigInt
+  maxMonthlyBudgetMinor      BigInt
+  requireHumanApprovalAbove  BigInt
+  allowedRecipients          String[] // Whitelist of validated recipient merchant IDs
+  allowedCategories          String[] // Permitted merchant category codes (MCCs)
+  isActive                   Boolean  @default(true)
+  owner                      Owner    @relation(fields: [ownerId], references: [id], onDelete: Restrict)
+  createdAt                  DateTime @default(now())
+  updatedAt                  DateTime @updatedAt
+
+  @@unique([ownerId, version])
+  @@index([ownerId, isActive])
+}
+
+// A seed is an initial, explicitly authorized funding allocation that gives a
+// newly onboarded agent its limited payment capacity. It records an owner's
+// authorization against a funding source; it is not itself a transfer of funds.
+model Seed {
+  id                     String     @id @default(uuid())
+  ownerId                String
+  agentId                String
+  amountMinor            BigInt
+  currency               String     @db.VarChar(3)
+  fundingSourceReference String     // Opaque vault reference, never a raw credential.
+  status                 SeedStatus @default(AUTHORIZED)
+  fundingCaptureId       String?    // PayPal capture id once the seed is activated.
+  policyVersion          Int        // Policy version in effect when the seed was authorized.
+  authorizedAt           DateTime   @default(now())
+  expiresAt              DateTime?
+  owner                  Owner      @relation(fields: [ownerId], references: [id], onDelete: Restrict)
+  agent                  Agent      @relation(fields: [agentId], references: [id], onDelete: Restrict)
+  fundingOutbox          SeedFundingOutbox?
+  createdAt              DateTime   @default(now())
+  updatedAt              DateTime   @updatedAt
+
+  @@index([ownerId])
+  @@index([agentId, status])
+}
+
+// One durable funding job per seed. `captureIdempotencyKey` is stable for the
+// seed's lifetime so every retry hits PayPal with the same key and the balance
+// is pulled at most once.
+model SeedFundingOutbox {
+  id                    String            @id @default(uuid())
+  seedId                String            @unique
+  status                SeedFundingStatus @default(PENDING)
+  attempts              Int               @default(0)
+  availableAt           DateTime          @default(now())
+  lockedAt              DateTime?
+  lockToken             String?
+  lastError             String?
+  captureIdempotencyKey String            @unique
+  seed                  Seed              @relation(fields: [seedId], references: [id], onDelete: Restrict)
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+
+  @@index([status, availableAt])
+  @@index([status, lockedAt])
+}
+
+model PaymentIntent {
+  id                    String              @id @default(uuid())
+  idempotencyKey        String              @unique
+  agentId               String
+  ownerId               String
+  recipientId           String
+  merchantCategoryCode  String?
+  amountMinor           BigInt
+  currency              String              @db.VarChar(3)
+  status                IntentStatus        @default(CREATED)
+  policyVersionApplied  Int
+  paymentMethodRef      String?              // Opaque vault reference, never a raw payment credential
+  approvalId            String?             @unique
+  providerTransactionId String?              @unique
+  failureReason         String?
+  agent                 Agent               @relation(fields: [agentId], references: [id], onDelete: Restrict)
+  reservation           SpendReservation?
+  approval              HumanApproval?      @relation(fields: [approvalId], references: [id], onDelete: Restrict)
+  outboxEvent           OutboxEvent?
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+
+  @@index([agentId, status])
+  @@index([ownerId])
+}
+
+model OutboxEvent {
+  id          String           @id @default(uuid())
+  intentId    String           @unique
+  type        OutboxEventType
+  status      OutboxEventStatus @default(PENDING)
+  attempts    Int              @default(0)
+  availableAt DateTime         @default(now())
+  lockedAt    DateTime?
+  lockToken   String?
+  lastError   String?
+  intent      PaymentIntent    @relation(fields: [intentId], references: [id], onDelete: Restrict)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@index([status, availableAt])
+  @@index([status, lockedAt])
+}
+
+model SpendReservation {
+  id          String            @id @default(uuid())
+  agentId     String
+  intentId    String            @unique
+  amountMinor BigInt
+  currency    String            @db.VarChar(3)
+  status      ReservationStatus @default(ACTIVE)
+  expiresAt   DateTime
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  agent       Agent             @relation(fields: [agentId], references: [id], onDelete: Restrict)
+  intent      PaymentIntent     @relation(fields: [intentId], references: [id], onDelete: Restrict)
+
+  @@index([agentId, status])
+}
+
+model HumanApproval {
+  id             String         @id @default(uuid())
+  ownerId        String
+  policyVersion  Int
+  fingerprint    String         // SHA-256 of: intentId, recipientId, amountMinor, currency, policyVersion
+  approvedAt     DateTime       @default(now())
+  paymentIntent  PaymentIntent?
+}
+
+model AuditLog {
+  id        String    @id @default(uuid())
+  traceId   String
+  actorId   String
+  actorType ActorType
+  action    String
+  payload   Json
+  createdAt DateTime  @default(now())
+
+  @@index([traceId])
+  @@index([actorId])
+  @@index([action])
+}
+
+// An agent's spendable on-platform balance, per currency. All three agent money
+// movements (receive, send, spend) read and mutate this under a row lock, so the
+// balance can never go negative or be double-spent by concurrent requests.
+model AgentAccount {
+  id             String        @id @default(uuid())
+  agentId        String
+  currency       String        @db.VarChar(3)
+  availableMinor BigInt        @default(0) // spendable now
+  reservedMinor  BigInt        @default(0) // held against in-flight merchant payments
+  agent          Agent         @relation(fields: [agentId], references: [id], onDelete: Restrict)
+  entries        LedgerEntry[]
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@unique([agentId, currency])
+}
+
+// Append-only record of every balance change. `balanceAfterMinor` snapshots the
+// account balance immediately after this entry so history is self-verifying.
+model LedgerEntry {
+  id                  String          @id @default(uuid())
+  accountId           String
+  agentId             String
+  currency            String          @db.VarChar(3)
+  direction           LedgerDirection
+  amountMinor         BigInt
+  type                LedgerEntryType
+  balanceAfterMinor   BigInt
+  counterpartyAgentId String?
+  transferId          String?
+  relatedIntentId     String?
+  // Set for single-sided money movements (receive, spend) to make them
+  // idempotent. Null for transfer legs, which dedupe on AgentTransfer instead.
+  idempotencyKey      String?         @unique
+  account             AgentAccount    @relation(fields: [accountId], references: [id], onDelete: Restrict)
+  createdAt           DateTime        @default(now())
+
+  @@index([agentId, createdAt])
+  @@index([transferId])
+}
+
+// One agent-to-agent transfer (a `send`). The unique idempotency key dedupes
+// retries; the two balance legs are LedgerEntry rows that reference `id`.
+model AgentTransfer {
+  id             String         @id @default(uuid())
+  idempotencyKey String         @unique
+  fromAgentId    String
+  toAgentId      String
+  amountMinor    BigInt
+  currency       String         @db.VarChar(3)
+  status         TransferStatus @default(COMPLETED)
+  createdAt      DateTime       @default(now())
+
+  @@index([fromAgentId, createdAt])
+  @@index([toAgentId, createdAt])
+}
