@@ -99,3 +99,5 @@ scripts/         stack, start, demo, PayPal smoke test, data agent kit
 - **Payouts on new apps:** the sandbox supports them. In production, Payouts and vaulting must be approved for the PayPal business account.
 - **Demo data:** fares, bot directories and Acme Freight's data are simulated and labelled as such. Seeded Bazaar tiers are marked as seed data.
 - **Settle-now shortcut:** `npm run demo` closes the newsletter's dispute window early so settlement is visible. That endpoint needs the admin token and is disabled in production.
+
+MIT LICENSE
