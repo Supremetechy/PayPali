@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Solutions Farm</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f2f4ef;--surface:#fbfcf9;--ink:#15211c;--mute:#5b6a63;--line:#d5dcd3;--field:#1f7a5c;--wheat:#b87a00;--wheat-bg:#f6e7bf;--term:#101a16;--bad:#b3392b;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0e1613;--surface:#152019;--ink:#e7efe9;--mute:#93a69b;--line:#26362d;--field:#4fc79c;--wheat:#e5b64a;--wheat-bg:#3a2f12;--term:#08100d;--bad:#ef7d6d}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0e1613;--surface:#152019;--ink:#e7efe9;--mute:#93a69b;--line:#26362d;--field:#4fc79c;--wheat:#e5b64a;--wheat-bg:#3a2f12;--term:#08100d;--bad:#ef7d6d}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Instrument Sans",system-ui,sans-serif}
+h1,h2,h3{font-family:Fraunces,Georgia,serif;font-weight:700;margin:0;line-height:1.1}
+.mono,pre,.term{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:.78rem}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+header{border-bottom:1px solid var(--line);position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);z-index:5}
+header .wrap{display:flex;align-items:center;gap:14px;justify-content:space-between;padding-top:10px;padding-bottom:10px;flex-wrap:wrap}
+.brand{font-family:Fraunces,Georgia,serif;font-weight:700;font-size:1.3rem}
+.badge{font-size:.75rem;border:1px solid var(--line);border-radius:99px;padding:2px 10px;color:var(--mute)}
+.wallet{display:flex;gap:18px;flex-wrap:wrap}
+.wallet b{font-size:1.05rem}.wallet small{color:var(--mute);display:block;font-size:.7rem}
+.hero{display:grid;grid-template-columns:1fr 1fr;gap:28px;padding:34px 0 28px}
+@media(max-width:860px){.hero,.two{grid-template-columns:1fr!important}}
+.hero h1{font-size:clamp(1.9rem,4.2vw,3rem);margin-bottom:12px}
+.hero p{color:var(--mute);max-width:54ch;margin:0 0 16px}
+label{font-size:.82rem;font-weight:600;display:block;margin-bottom:3px}
+textarea,input,select{width:100%;font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:8px 10px}
+textarea{resize:vertical;min-height:70px}
+:focus-visible{outline:2px solid var(--field);outline-offset:2px}
+.row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:10px 0}
+button{font:inherit;font-weight:600;font-size:.9rem;border:1px solid var(--ink);background:var(--ink);color:var(--bg);border-radius:6px;padding:7px 14px;cursor:pointer}
+button.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+button.sm{padding:3px 10px;font-size:.8rem}
+button.warn{background:transparent;color:var(--bad);border-color:var(--bad)}
+button:disabled{opacity:.5;cursor:default}
+.term{background:var(--term);color:#cfe8da;border-radius:10px;padding:14px;height:390px;overflow:auto;border:1px solid var(--line)}
+.term div{margin-bottom:4px;white-space:pre-wrap;word-break:break-word}
+.term .t{color:#6f8b7c}.term .ok{color:#6fe0b0}.term .buy{color:#f1c65b}.term .no{color:#f0907f}.term .h{color:#8fb7ff}.term .a{color:#cfe8da}
+.sec{padding:26px 0;border-top:1px solid var(--line)}
+.sec h2{font-size:1.5rem;margin-bottom:4px}
+.sub{color:var(--mute);margin:0 0 14px;max-width:70ch;font-size:.94rem}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-size:.88rem}.kv dt{color:var(--mute)}.kv dd{margin:0;word-break:break-all}
+pre{background:var(--term);color:#cfe8da;border-radius:8px;padding:12px;overflow:auto;margin:0;max-height:260px}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.chip{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:99px;padding:4px 12px;font-weight:500;font-size:.85rem}
+.chip[aria-pressed="true"]{background:var(--field);border-color:var(--field);color:var(--bg)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:9px}
+.card h3{font-size:1.1rem}.meta{color:var(--mute);font-size:.84rem}
+.meter{display:flex;gap:3px;align-items:center}.meter i{width:22px;height:6px;border-radius:2px;background:var(--line)}.meter i.on{background:var(--field)}.meter span{margin-left:8px;font-size:.8rem;font-weight:600}
+.bar{height:6px;background:var(--line);border-radius:3px;overflow:hidden}.bar i{display:block;height:100%;background:var(--wheat)}
+.foot{display:flex;justify-content:space-between;align-items:center;margin-top:auto;gap:8px}
+.list{list-style:none;padding:0;margin:0}
+.list li{padding:9px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}
+.inbox li{background:var(--wheat-bg);border-radius:8px;padding:9px 12px;margin-bottom:6px;border:0}
+dialog{border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);max-width:640px;width:calc(100% - 32px);padding:20px}
+dialog::backdrop{background:rgba(0,0,0,.5)}
+footer{padding:22px 0 40px;color:var(--mute);font-size:.85rem}
+nav.tabs{display:flex;gap:4px}
+nav.tabs a{color:var(--mute);text-decoration:none;font-weight:600;font-size:.9rem;padding:5px 12px;border-radius:99px}
+nav.tabs a[aria-current="page"]{background:var(--ink);color:var(--bg)}
+.pill{display:inline-block;font-size:.72rem;font-weight:600;border-radius:99px;padding:1px 8px;border:1px solid var(--line);color:var(--mute)}
+.pill.ok{border-color:var(--field);color:var(--field)}.pill.bad{border-color:var(--bad);color:var(--bad)}.pill.warm{border-color:var(--wheat);color:var(--wheat)}
+.seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-bottom:12px}
+.seg button{flex:1;border:0;border-radius:0;background:transparent;color:var(--ink);font-weight:500}
+.seg button[aria-pressed="true"]{background:var(--field);color:var(--bg)}
+.stack>*+*{margin-top:10px}
+.hint{color:var(--mute);font-size:.8rem;margin:3px 0 0}
+.pp{border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--card,transparent)}
+.pp .t{flex:1;min-width:12em;font-size:.86rem}.pp .t b{font-weight:650}.pp.on{border-color:var(--field)}
+nav.tabs a.out{border:1px solid var(--line)}
+details.alt summary{cursor:pointer;color:var(--mute);font-size:.8rem;margin-top:6px}
+.err{color:var(--bad);font-size:.85rem;min-height:1.2em;margin:6px 0 0}
+.tbl{width:100%;border-collapse:collapse;font-size:.88rem}
+.tbl th{text-align:left;color:var(--mute);font-weight:600;font-size:.76rem;text-transform:uppercase;letter-spacing:.04em;padding:6px 8px;border-bottom:1px solid var(--line)}
+.tbl td{padding:8px;border-bottom:1px solid var(--line);vertical-align:middle}
+.tbl input{padding:4px 6px;width:6.5em}
+.scroll{overflow-x:auto}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+@media(max-width:640px){.stats{grid-template-columns:repeat(2,1fr)}}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.stat small{display:block;color:var(--mute);font-size:.72rem}.stat b{font-size:1.25rem;font-family:Fraunces,Georgia,serif}
+.feed{max-height:300px;overflow:auto}
+.vendor-line{font-size:.8rem;color:var(--mute)}
+.hero>*,.two>*,.stats>*,.list li>span{min-width:0}
+.list li>span,.feed .mono,.kv dd{overflow-wrap:anywhere}
+pre{white-space:pre-wrap;word-break:break-word}
+.feed li{display:block}
+.feed .io{display:grid;grid-template-columns:auto 1fr;gap:2px 8px;margin-top:5px}
+.feed .io dt{color:var(--mute);font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;padding-top:1px}
+.feed .io dd{margin:0}
+.tbl{min-width:680px}
+body.selling .wallet{display:none}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div><span class="brand">Solutions Farm</span> <span class="badge" id="mode">starting…</span></div>
+  <nav class="tabs" aria-label="Sections"><a href="#buy" id="tabBuy" aria-current="page">Buy</a><a href="#sell" id="tabSell">Sell</a><a id="ppMarket" class="out" hidden target="_blank" rel="noopener">PayPali Marketplace ↗</a></nav>
+  <div class="wallet" aria-live="polite">
+    <div><small id="balL">Your balance</small><b id="bal">0</b></div>
+    <div><small id="heldL">Held by mandate</small><b id="held">0</b></div>
+    <div><small>Solutions owned</small><b id="ownN">0</b></div>
+  </div>
+</div></header>
+
+<main class="wrap" id="buyView">
+<section class="hero">
+  <div>
+    <h1>Every agent action is signed. Every outcome needs a human.</h1>
+    <p>You hold the principal key. Your agent holds its own key and a mandate you signed. It can only spend inside that mandate, and a solution only earns higher trust when real people confirm what happened.</p>
+    <label for="goal">Human directive</label>
+    <textarea id="goal">Maximize the return on my investment account. Reduce fees and taxes, and put idle cash to work.</textarea>
+    <div class="row">
+      <div><label for="budget">Mandate budget</label><input id="budget" type="number" value="200" min="1"></div>
+      <div><label for="cap">Cap per purchase</label><input id="cap" type="number" value="50" min="1"></div>
+      <div><label for="mint">Minimum tier</label><select id="mint"><option value="1">V1 Claimed</option><option value="2">V2 Reproduced</option><option value="3" selected>V3 Audited</option><option value="4">V4 Outcome-proven</option></select></div>
+    </div>
+    <div class="row" id="payRow" hidden style="grid-template-columns:1.4fr 1fr">
+      <div><label>Paid by</label>
+        <div class="pp" id="ppBuy"><span class="t" id="ppBuyT">Not linked. Connect your PayPali account and pick the agent whose wallet pays.</span><button class="sm" id="ppBuyBtn" type="button">Connect PayPali</button></div>
+        <details class="alt"><summary>Or paste a PayPali grant id</summary><input id="grant" placeholder="from PayPali: POST /api/agents/:id/merchant-grants" autocomplete="off" spellcheck="false" aria-label="PayPali grant id"></details></div>
+      <div><label for="conf">Agent confidence: <span id="confV">80</span>%</label><input id="conf" type="range" min="1" max="99" value="80" style="padding:0">
+        <p class="hint">Each purchase is Score-gated at PayPali on this stated probability.</p></div>
+    </div>
+    <button id="run">Run agent</button> <button class="ghost" id="reset">New session</button>
+  </div>
+  <div class="term" id="log" role="log" aria-label="Signed calls"></div>
+</section>
+
+<section class="sec">
+  <div class="two">
+    <div class="panel"><h3 style="margin-bottom:10px">Identity and mandate</h3>
+      <dl class="kv" id="ident"></dl>
+      <details id="idBox" style="margin-top:12px"><summary class="meta" style="cursor:pointer">Identity credential</summary>
+        <p class="hint" id="idHint" style="margin:8px 0"></p>
+        <label for="idCred" class="meta">Credential (JSON from your identity issuer)</label>
+        <textarea id="idCred" rows="3" spellcheck="false" autocomplete="off" placeholder='{"body":{"kind":"identity","issuer":"paypali",…},"sig":"…"}'></textarea>
+        <p style="margin:8px 0 0"><button class="sm" id="idAttach">Attach credential</button> <button class="ghost sm" id="idCopy">Copy my human key</button></p>
+        <p class="err" id="idErr" role="alert"></p></details>
+      <p style="margin:12px 0 0"><button class="warn sm" id="revoke">Revoke mandate</button></p></div>
+    <div class="panel"><h3 style="margin-bottom:10px">Last signed request</h3><pre id="insp">Nothing sent yet.</pre></div>
+  </div>
+</section>
+
+<section class="sec">
+  <h2>Waiting for your confirmation</h2>
+  <p class="sub">Your agent’s reports are provisional. They do not change any solution’s trust level until you sign a verdict. If you dispute a report, your verdict replaces the agent’s. When a solution measures a number, enter what you saw yourself: your number decides the result and is compared with your agent’s.</p>
+  <ul class="list inbox" id="inbox"></ul>
+  <p><button class="sm" id="confirmAll">Confirm all</button></p>
+</section>
+
+<section class="sec">
+  <h2>Catalog</h2>
+  <p class="sub">Trust comes from evidence, not claims. V2 needs a passing reproduction by a registered lab, V3 an audit by a second lab. V4 adds 12 confirmed outcomes from at least 3 people, at most 4 per person, each weighted by the price they paid. Built-in listings carry seed tiers and say so.</p>
+  <div class="filters" id="chips"></div>
+  <div class="grid" id="grid"></div>
+</section>
+
+<section class="sec">
+  <h2>Purchased by your agent</h2>
+  <p class="sub">To see a solution climb to V4: run the agent, then press “Run and report” on the Fee Auditor four times and confirm each report above. Then add two simulated principals to supply the other 8 confirmed outcomes.</p>
+  <ul class="list" id="own"></ul>
+  <p><button class="ghost" id="sim">Simulate two other principals</button></p>
+</section>
+</main>
+
+<main class="wrap" id="sellView" hidden>
+<section class="hero" style="grid-template-columns:1.1fr .9fr">
+  <div>
+    <h1>Sell to agents. Earn trust from outcomes, not claims.</h1>
+    <p>Your listing starts at V1 no matter what you claim. Every run is a signed webhook to your endpoint, and your signed answer goes back to the agent as evidence. Trust rises only when the buyers’ humans confirm results.</p>
+    <div class="stats">
+      <div class="stat"><small>Listings</small><b id="vsN">0</b></div>
+      <div class="stat"><small>Runs delivered</small><b id="vsRuns">0</b></div>
+      <div class="stat"><small>Earned</small><b id="vsEarn">0</b> <small style="display:inline">cr</small></div>
+      <div class="stat"><small>Confirmed outcomes</small><b id="vsConf">0</b></div>
+    </div>
+  </div>
+  <div class="panel stack" id="vIdent">
+    <h3>Vendor identity</h3>
+    <div id="vStatus" class="meta">Not registered yet.</div>
+    <div class="pp" id="ppSell" hidden><span class="t" id="ppSellT">Get verified and paid through PayPali: pick the agent that receives your sales.</span><button class="sm" id="ppSellBtn" type="button">Connect PayPali</button></div>
+    <div class="seg" role="group" aria-label="Endpoint"><button id="segSand" aria-pressed="true">Sandbox endpoint</button><button id="segOwn" aria-pressed="false">My own endpoint</button></div>
+    <div id="ownFields" hidden class="stack">
+      <div><label for="vUrl">Webhook URL</label><input id="vUrl" placeholder="https://vendor.example.com/webhooks/market" autocomplete="off"></div>
+      <div><label for="vKey">Vendor private key (PKCS#8, base64url)</label><textarea id="vKey" rows="2" placeholder="From vendor-kit: new Identity().exportPkcs8()" autocomplete="off" spellcheck="false"></textarea>
+        <p class="hint">Stays in this tab. It signs your API calls; your endpoint must sign with the same key.</p></div>
+    </div>
+    <p class="hint" id="sandHint">A throwaway key and an endpoint that answers every run with a sample result. Good for trying the flow.</p>
+    <div class="row" style="grid-template-columns:1fr 1fr;margin:0">
+      <div><label for="vName">Display name</label><input id="vName" value="Ledgerline Labs" maxlength="80"></div>
+      <div><label for="vPayout">PayPali payout agent <span class="meta">(optional)</span></label><input id="vPayout" placeholder="agent id" autocomplete="off"></div>
+    </div>
+    <details id="vIdBox"><summary class="meta" style="cursor:pointer">Identity and payout verification</summary>
+      <p class="hint" id="vIdHint" style="margin:8px 0"></p>
+      <p style="margin:0 0 8px"><button class="ghost sm" id="vKeyBtn" type="button">Show my vendor key</button> <span class="mono meta" id="vPub" style="word-break:break-all"></span></p>
+      <label for="vCred" class="meta">Identity credential for the vendor key (JSON)</label>
+      <textarea id="vCred" rows="2" spellcheck="false" autocomplete="off" placeholder='{"body":{"kind":"identity",…},"sig":"…"}'></textarea>
+      <label for="vBind" class="meta" style="display:block;margin-top:8px">Payout binding (JSON, needed with a payout agent)</label>
+      <textarea id="vBind" rows="2" spellcheck="false" autocomplete="off" placeholder='{"body":{"kind":"payout_binding",…},"sig":"…"}'></textarea>
+    </details>
+    <div><button id="vReg">Register vendor</button></div>
+    <p class="err" id="vErr" role="alert"></p>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="two">
+    <form class="panel stack" id="lForm" autocomplete="off">
+      <h3>New listing</h3>
+      <div><label for="lName">Name</label><input id="lName" required maxlength="80" placeholder="Subscription Leak Finder"></div>
+      <div class="row" style="margin:0">
+        <div><label for="lCat">Category</label><input id="lCat" list="cats" required value="Finance"><datalist id="cats"></datalist></div>
+        <div><label for="lPrice">Price (cr)</label><input id="lPrice" type="number" min="0.01" max="10000" step="0.01" value="25" required></div>
+        <div><label for="lRuns">Runs included</label><input id="lRuns" type="number" min="1" max="100" value="3" required></div>
+      </div>
+      <div><label for="lClaim">Claimed success rate: <span id="lClaimV">90</span>%</label><input id="lClaim" type="range" min="1" max="99" value="90" style="padding:0"></div>
+      <p class="hint" style="margin-top:-4px">Reaching V4 needs the confirmed rate within 5 points of this claim. Overclaiming keeps you at V3.</p>
+      <div><label for="lBlurb">What it does</label><textarea id="lBlurb" maxlength="280" rows="2" placeholder="One or two sentences an agent can match against a goal."></textarea></div>
+      <div><label for="lSchema">Input schema <span class="meta">(optional JSON)</span></label><textarea id="lSchema" rows="2" spellcheck="false" placeholder='{"type":"object","properties":{"rows":{"type":"array"}}}'></textarea></div>
+      <div><label for="lOut">Output schema <span class="meta">(optional JSON; responses that break it are refused and never consume a run)</span></label><textarea id="lOut" rows="2" spellcheck="false" placeholder='{"type":"object","required":["matched"],"properties":{"matched":{"type":"integer"}}}'></textarea></div>
+      <fieldset class="stack" style="border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:0"><legend class="meta">Outcome metric <span class="meta">(optional: buyers then record the number they observed)</span></legend>
+        <div class="row" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr))">
+          <div><label for="mName">Name</label><input id="mName" placeholder="annual_gain" maxlength="40"></div>
+          <div><label for="mUnit">Unit</label><input id="mUnit" placeholder="USD" maxlength="20"></div>
+          <div><label for="mDir">Better is</label><select id="mDir"><option value="higher">higher</option><option value="lower">lower</option></select></div>
+          <div><label for="mThr">Success at</label><input id="mThr" type="number" step="any" placeholder="0.01"></div>
+        </div></fieldset>
+      <div><label for="lVer">Independent verifier <span class="meta">(optional: then only its measurements count)</span></label><select id="lVer"><option value="">None</option></select></div>
+      <p class="hint" style="margin:0">Registered labs lift a listing to V2 and V3 by signing reproductions and audits against its listing hash (auditor-kit.js). Changing the endpoint, schemas, metric, claim or runs changes the hash and those reports stop counting.</p>
+      <div><button type="submit" id="lSubmit" disabled>Publish at V1</button></div>
+      <p class="err" id="lErr" role="alert"></p>
+    </form>
+    <div class="panel">
+      <h3 style="margin-bottom:6px">Your endpoint’s inbox</h3>
+      <p class="sub" style="margin-bottom:10px">Events the marketplace delivered, as your endpoint saw them, newest first.</p>
+      <ul class="list feed" id="vFeed"></ul>
+    </div>
+  </div>
+</section>
+
+<section class="sec">
+  <h2>Your listings</h2>
+  <p class="sub">Change the price or pause a listing at any time. Agents holding a quote at the old price are refused, never silently charged. Tier and claim cannot be edited.</p>
+  <div class="scroll"><table class="tbl"><thead><tr><th>Listing</th><th>Trust</th><th>Evidence</th><th>Price</th><th>Status</th><th></th></tr></thead><tbody id="vList"></tbody></table></div>
+</section>
+
+<section class="sec">
+  <h2>Delivery log</h2>
+  <p class="sub">Every webhook the marketplace sent you. A failed run delivery is not charged to the agent’s run count, so a flaky endpoint costs you trust, not them.</p>
+  <div class="scroll"><table class="tbl"><thead><tr><th>When</th><th>Event</th><th>Result</th><th>HTTP</th><th>Latency</th><th>Event id</th></tr></thead><tbody id="vDeliv"></tbody></table></div>
+</section>
+</main>
+<dialog id="dlg"><div id="dbody"></div><p style="text-align:right;margin:12px 0 0"><button class="ghost" id="dx">Close</button></p></dialog>
+<footer class="wrap">Prototype. Credits are simulated unless the server is connected to PayPali. Signatures are real Ed25519 produced by your browser’s WebCrypto. Tax is not calculated; receipts say so.</footer>
+
+<script>
+/*@@CORE@@*/
+</script>
+<script>
+"use strict";
+const $=i=>document.getElementById(i);
+const esc=x=>String(x).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const {canon,sha,b64u}=Core, enc=new TextEncoder();
+const rnd=n=>b64u(crypto.getRandomValues(new Uint8Array(n)));
+const KEY={Finance:/invest|portfolio|return|fee|tax|cash|account|saving|stock/,Legal:/contract|legal|clause|sign|lease/,Energy:/energy|power|electric|bill|solar|utility/,Operations:/supplier|procure|negotiat|vendor/,Consumer:/warranty|refund|claim|repair/};
+const SAMPLE={holdings:[{value:10000,expense_ratio:0.008}],appliance:"ev_charger",cash:5000,apy_now:0.01,apy_best:0.045};
+const TIERS=["","Claimed","Reproduced","Audited","Outcome-proven"];
+const pp={url:null,buy:null,sell:null,pending:null};
+const st={trust:null,me:null,payments:"credits",mode:"local",mp:null,mkey:null,human:null,agent:null,mid:null,mform:null,m:null,principalId:"",agentId:"",owned:[],pending:[],sol:[],cat:"All",last:null,balance:0};
+
+class Ident{
+  static async make(){const k=await crypto.subtle.generateKey({name:"Ed25519"},true,["sign","verify"]);const i=new Ident();i.priv=k.privateKey;i.pub=b64u(new Uint8Array(await crypto.subtle.exportKey("spki",k.publicKey)));return i}
+  async sign(m){return b64u(new Uint8Array(await crypto.subtle.sign({name:"Ed25519"},this.priv,enc.encode(m))))}
+}
+function log(t,c){const d=document.createElement("div");d.className=c||"";d.textContent=t;$("log").appendChild(d);$("log").scrollTop=1e9}
+
+async function send(id,method,path,body,mid){
+  const raw=body?JSON.stringify(body):"",ts=Date.now(),nonce=rnd(12);
+  const sig=id?await id.sign([method,path,ts,nonce,await sha(raw)].join("\n")):"";
+  const headers=id?{"x-key":id.pub,"x-ts":String(ts),"x-nonce":nonce,"x-sig":sig}:{};
+  if(mid)headers["x-mandate"]=mid;
+  let out;
+  if(st.mode==="http"){const r=await fetch(path,{method,headers:{"content-type":"application/json",...headers},body:raw||undefined});out={status:r.status,body:await r.json()}}
+  else out=await st.mp.handle({method,url:path,headers,raw});
+  return {...out,headers,raw,sig};
+}
+function summ(b){
+  if(b.error)return b.error+(b.reasons?" ("+b.reasons.join(", ")+")":"");
+  if(b.body&&b.body.kind==="quote")return "quote "+cur(b.body.price)+", "+(b.body.allowed?"allowed":"refused: "+b.body.reasons.join(", "));
+  if(b.body&&b.body.kind==="receipt")return "receipt "+b.body.rid;
+  if(b.results)return b.results.length+" results";
+  if(b.run_id&&b.output)return "run "+b.run_id;
+  if(b.attested)return "attested, counts as "+(b.final_success?"success":"failure");
+  if(b.vendor_id&&b.verified_at)return "vendor "+b.vendor_id+" verified";
+  if(b.id&&b.verification)return "listing "+b.id+" at V"+b.verification.tier+", "+b.status;
+  return "";
+}
+async function rpc(who,id,method,path,body,mid,quiet){
+  const r=await send(id,method,path,body,mid);
+  st.last={method,path,headers:r.headers,raw:r.raw,status:r.status,resp:r.body};renderInsp();
+  if(!quiet)log(`[${who}] ${method} ${path.split("?")[0]} → ${r.status} ${summ(r.body)}`+(r.sig?`  sig ${r.sig.slice(0,10)}…`:"  (unsigned)"),r.status<300?(who==="human"?"h":"a"):"no");
+  return r;
+}
+function renderInsp(){
+  const l=st.last;if(!l)return;
+  const h=Object.entries(l.headers).map(([k,v])=>k+": "+(v.length>44?v.slice(0,44)+"…":v)).join("\n");
+  $("insp").textContent=`${l.method} ${l.path}\n${h}\nbody: ${l.raw||"(none)"}\n\n← ${l.status}\n${JSON.stringify(l.resp,null,1).slice(0,900)}`;
+}
+
+async function makeMandate(h,a,f){
+  const body={mid:"m_"+rnd(8),principal_pub:h.pub,agent_pub:a.pub,budget:f.budget,cap:f.cap,min_tier:f.min_tier,categories:["*"],exp:Date.now()+36e5};
+  if(f.grant)body.funding={provider:"paypali",grant_id:f.grant};
+  return {body,sig:await h.sign(canon(body))};
+}
+const localMarket=()=>Core.createMarketplace({minOutcomes:12,fetch:sandboxFetch,allowInsecureWebhooks:true});
+async function newSession(){
+  if(st.mode==="local"){st.mp=await localMarket();Object.assign(vs,{profile:null,key:null,feed:[],seen:new Map()})}
+  st.marketPub=st.mode==="local"?st.mp.publicKey:st.marketPub;
+  st.human=await Ident.make();st.agent=await Ident.make();Object.assign(st,{mid:null,mform:null,m:null,owned:[],pending:[]});
+  if(pp.buy){pp.buy=null;$("grant").value="";renderPP()}   // a PayPali grant is bound to the old human key
+  $("log").innerHTML="";
+  log("Generated two Ed25519 key pairs in this browser: a human principal and an agent.","t");
+  let r=await rpc("human",st.human,"POST","/v1/principals",{});st.principalId=r.body.principal_id;
+  if(st.payments!=="paypali"){r=await rpc("human",st.human,"POST","/v1/principals/me/fund",{amount:500});st.balance=r.body.balance}
+  else log("Purchases are charged to a PayPali agent's wallet. Press Connect PayPali to pick which agent pays; no demo credits are used.","t");
+  await refreshAll();
+}
+async function ensureMandate(){
+  const f={budget:+$("budget").value,cap:+$("cap").value,min_tier:+$("mint").value},paid=st.payments==="paypali";
+  if(paid){f.grant=$("grant").value.trim();if(!f.grant){log("This marketplace is paid through PayPali. Press Connect PayPali above and pick the agent that pays.","no");$("ppBuyBtn").focus();return false}}
+  const key=JSON.stringify(f);
+  if(st.mid&&st.mform===key&&st.m&&!st.m.revoked&&st.m.remaining>0)return true;
+  if(st.mid&&st.m&&!st.m.revoked)await rpc("human",st.human,"POST",`/v1/mandates/${st.mid}/revoke`,{});
+  const mand=await makeMandate(st.human,st.agent,f);
+  log(`Signing a mandate: up to ${cur(f.budget)}, ${cur(f.cap)} per purchase, minimum V${f.min_tier}`+(f.grant?", funded by PayPali grant "+f.grant.slice(0,8)+"…":"")+".","t");
+  const r=await rpc("human",st.human,"POST","/v1/mandates",{mandate:mand});
+  if(r.status!==200){log("Mandate refused: "+r.body.error+". Lower the budget or start a new session.","no");return false}
+  st.mid=mand.body.mid;st.mform=key;st.agentId=r.body.agent_id;await refreshAll();return true;
+}
+async function refreshAll(){
+  if(!st.trust){const t=await send(null,"GET","/v1/trust");st.trust=t.status===200?t.body:{verified_evidence_required:false,identity_issuers:[],verifiers:[],auditors:[]}}
+  if(st.human){const me=await rpc("human",st.human,"GET","/v1/principals/me",null,null,true);st.me=me.status===200?me.body:null}
+  if(st.mid){const r=await rpc("human",st.human,"GET","/v1/mandates/"+st.mid,null,null,true);st.m=r.body;st.balance=r.body.principal_balance}
+  const c=await send(null,"GET","/v1/search");st.sol=c.body.results;
+  const p=await rpc("human",st.human,"GET","/v1/principals/me/pending",null,null,true);st.pending=p.body.pending||[];
+  render();
+}
+
+async function buyFlow(sid,quiet,agent,mid){
+  agent=agent||st.agent;mid=mid||st.mid;
+  const q=await rpc("agent",agent,"POST","/v1/quote",{solution_id:sid},mid,quiet);
+  if(q.status!==200)return {ok:false,why:q.body.error};
+  if(!q.body.body.allowed)return {ok:false,why:q.body.body.reasons.join(", ")};
+  const p=await rpc("agent",agent,"POST","/v1/purchase",st.payments==="paypali"?{quote_id:q.body.body.qid,confidence_pct:+$("conf").value}:{quote_id:q.body.body.qid},mid,quiet);
+  if(p.status!==200)return {ok:false,why:p.body.error};
+  return {ok:true,doc:p.body,valid:await Core.verifyDoc(p.body,st.marketPub)};
+}
+function addOwned(b,name){
+  st.owned.push({doc:b.doc,name,runs_left:b.doc.body.runs_included,valid:b.valid});
+  log(`  receipt signature ${b.valid?"verified":"INVALID"} against the marketplace key`,b.valid?"ok":"no");
+}
+async function acquire(sid){
+  if(!(await ensureMandate()))return;
+  const s=st.sol.find(x=>x.id===sid),b=await buyFlow(sid);
+  if(!b.ok)log("  refused: "+b.why,"no");else{addOwned(b,s.name);log("  purchased "+s.name,"buy")}
+  await refreshAll();
+}
+async function runAgent(){
+  $("run").disabled=true;
+  try{
+    const goal=$("goal").value.toLowerCase(),cats=Object.keys(KEY).filter(c=>KEY[c].test(goal));
+    log("$ directive: "+$("goal").value.trim(),"t");
+    if(!cats.length){log("No category matches this goal. Try naming a problem: fees, energy bills, contracts.","no");return}
+    if(!(await ensureMandate()))return;
+    let bought=0;
+    for(const c of cats){
+      log("Agent searches "+c+" and asks for quotes on the top candidates. The marketplace, not the agent, enforces the mandate.","t");
+      const r=await rpc("agent",null,"GET","/v1/search?category="+c);
+      const ranked=r.body.results.slice().sort((a,b)=>(b.verification.tier*20+b.claimed_success*100-b.price/4)-(a.verification.tier*20+a.claimed_success*100-a.price/4)).slice(0,3);
+      let got=0;
+      for(const s of ranked){
+        if(got>=2||st.owned.some(o=>o.doc.body.solution_id===s.id))continue;
+        const b=await buyFlow(s.id);
+        if(b.ok){got++;bought++;addOwned(b,s.name);log("  bought "+s.name,"buy")}
+      }
+    }
+    log(bought?`Done. ${bought} solution(s) bought. Run each one, and your agent reports the result for you to confirm.`:"Done. Nothing was allowed by the mandate. Lower the minimum tier or raise the cap.",bought?"ok":"no");
+    await refreshAll();
+  }finally{$("run").disabled=false}
+}
+async function runReport(rid){
+  const o=st.owned.find(x=>x.doc.body.rid===rid);
+  const inv=await rpc("agent",st.agent,"POST","/v1/invoke",{receipt_id:rid,input:SAMPLE},st.mid);
+  if(inv.status!==200){if(inv.body&&inv.body.refund_eligible){o.refundable=true;log("  the vendor failed to deliver. You can now claim a refund for this receipt.","no")}await refreshAll();return}
+  o.runs_left=inv.body.runs_left;log("  output "+JSON.stringify(inv.body.output),"t");
+  const s=st.sol.find(x=>x.id===o.doc.body.solution_id),mt=s&&s.outcome_metric,out=inv.body.output||{};
+  const ov=mt&&typeof out[mt.name]==="number"?out[mt.name]:null;
+  await rpc("agent",st.agent,"POST","/v1/outcomes",{run_id:inv.body.run_id,success:true,...(ov!==null?{observed:ov}:{})},st.mid);
+  log("  agent reported success"+(ov!==null?` (${mt.name} = ${ov} ${mt.unit})`:"")+". This is provisional until you confirm it.","t");
+  await refreshAll();
+}
+async function attest(run,verdict,quiet,observed){
+  const pend=st.pending.find(x=>x.run_id===run);
+  const r=await rpc("human",st.human,"POST","/v1/outcomes/attest",{run_id:run,...(verdict?{verdict}:{}),...(observed!=null?{observed}:{})},null,quiet);
+  if(r.status!==200)return r;
+  if(r.body.observation_mismatch)log(`You observed ${r.body.human_observed}, your agent reported ${r.body.agent_observed}. The mismatch is recorded against the run.`,"no");
+  else if(observed!=null)log(`Recorded ${observed}: counts as ${r.body.final_success?"a success":"a failure"}.`,"h");
+  if(r.body.counts_as_evidence===false&&!quiet)log("Recorded, but it does not count toward trust until you attach an identity credential.","t");
+  if(r.body.tier_after!==r.body.tier_before)log(`Trust change: ${pend?pend.solution_name:run} moved from V${r.body.tier_before} to V${r.body.tier_after} on confirmed evidence.`,"buy");
+  return r;
+}
+async function attestAll(){
+  const yes=st.pending.filter(p=>!p.outcome_metric),skip=st.pending.length-yes.length;
+  for(const p of yes)await attest(p.run_id,"confirm",true);
+  log(`You confirmed ${yes.length} report(s).`+(skip?` ${skip} need the value you observed; enter it on each.`:""),"h");await refreshAll();
+}
+async function refund(rid){
+  const o=st.owned.find(x=>x.doc.body.rid===rid),r=await rpc("agent",st.agent,"POST",`/v1/receipts/${rid}/refund`,{},st.mid);
+  if(r.status===200){o.refunded=true;o.runs_left=0;log(`  refunded ${cur(o.doc.body.price)}`+(st.payments==="paypali"?" through PayPali":" to the mandate")+".","ok")}
+  else log("  refund refused: "+(r.body.reason||r.body.error),"no");
+  await refreshAll();
+}
+async function attachIdentity(){
+  $("idErr").textContent="";let cred;
+  try{cred=JSON.parse($("idCred").value.trim())}catch(e){$("idErr").textContent="That is not valid JSON.";return}
+  const r=await rpc("human",st.human,"POST","/v1/principals/me/identity",{credential:cred});
+  if(r.status!==200){$("idErr").textContent=(r.body.error||("HTTP "+r.status))+(r.body.hint?": "+r.body.hint:"");return}
+  $("idCred").value="";log(`Identity attached (${r.body.identity.issuer}, ${r.body.identity.assurance}). Your confirmations now count as evidence.`,"ok");await refreshAll();
+}
+async function simulate(){
+  $("sim").disabled=true;
+  try{for(let n=0;n<2;n++){
+    const h=await Ident.make(),a=await Ident.make();
+    await rpc("human",h,"POST","/v1/principals",{},null,true);await rpc("human",h,"POST","/v1/principals/me/fund",{amount:200},null,true);
+    const mand=await makeMandate(h,a,{budget:100,cap:50,min_tier:3});await rpc("human",h,"POST","/v1/mandates",{mandate:mand},null,true);
+    const b=await buyFlow("sf-0152",true,a,mand.body.mid);
+    if(!b.ok){log(`Simulated principal ${n+2} could not buy: ${b.why}`,"no");continue}
+    let dis=0,tc="";
+    for(let i=0;i<4;i++){
+      const inv=await rpc("agent",a,"POST","/v1/invoke",{receipt_id:b.doc.body.rid,input:SAMPLE},mand.body.mid,true);
+      await rpc("agent",a,"POST","/v1/outcomes",{run_id:inv.body.run_id,success:true},mand.body.mid,true);
+      const verdict=(n===1&&i===3)?"dispute":"confirm";if(verdict==="dispute")dis++;
+      const at=await rpc("human",h,"POST","/v1/outcomes/attest",{run_id:inv.body.run_id,verdict},null,true);
+      if(at.body.tier_after!==at.body.tier_before)tc=`V${at.body.tier_before} to V${at.body.tier_after}`;
+    }
+    log(`Simulated principal ${n+2}: bought the Fee Auditor, ran it 4 times, attested 4 (${dis} disputed).`+(tc?` Trust change: ${tc}.`:""),tc?"buy":"ok");
+  }}finally{$("sim").disabled=false}
+  await refreshAll();
+}
+
+function idLine(){
+  const id=st.me&&st.me.identity,need=st.trust&&st.trust.verified_evidence_required;
+  if(id)return `${esc(id.issuer)} · ${esc(id.assurance)} · ${id.counts_as_evidence?"your confirmations count":"below this market’s minimum assurance"}`;
+  return need?"none. Your confirmations are recorded but do not count toward trust.":"not required on this market";
+}
+const cur=n=>st.payments==="paypali"?"$"+(+n).toFixed(2):n+" cr";
+function meter(t){let h=`<div class="meter" title="${TIERS[t]}">`;for(let i=1;i<=4;i++)h+=`<i class="${i<=t?"on":""}"></i>`;return h+`<span>V${t} ${TIERS[t]}</span></div>`}
+function render(){
+  const paid=st.payments==="paypali",left=st.m&&!st.m.revoked?st.m.remaining:0;
+  $("balL").textContent=paid?"Paid by":"Your balance";$("heldL").textContent=paid?"Mandate left":"Held by mandate";
+  $("bal").textContent=paid?"PayPali":cur(st.balance);$("held").textContent=cur(left);$("ownN").textContent=st.owned.length;
+  const m=st.m;
+  $("ident").innerHTML=`<dt>Human</dt><dd class="mono">${esc(st.principalId)}</dd><dt>Agent</dt><dd class="mono">${esc(st.agentId||"not authorised yet")}</dd>`+
+    `<dt>Identity</dt><dd>${idLine()}</dd>`+
+    `<dt>Mandate</dt><dd>${m?`${m.revoked?"revoked":"active"}: ${cur(m.spent)} of ${cur(m.budget)} spent`:"none yet. Run the agent to sign one."}</dd>`+(m?`<dt>Expires</dt><dd>${new Date(m.exp).toLocaleTimeString()}</dd>`:"")+
+    `<dt>Market key</dt><dd class="mono">${esc((st.marketPub||"").slice(-16))}</dd>`;
+  $("revoke").disabled=!m||m.revoked;
+  const iss=(st.trust&&st.trust.identity_issuers)||[];
+  $("idHint").textContent=iss.length?`Accepted issuers: ${iss.map(i=>i.id).join(", ")} (minimum assurance: ${st.trust.min_assurance}). One person can back one principal, and at most ${st.trust.max_outcomes_per_identity} of their outcomes count per listing. With PayPali, Connect PayPali above does this for you. Otherwise copy your human key, ask your issuer for a credential for it, and paste it here. With PayPali: POST /api/owners/:ownerId/identity-credentials {"principalPub": "<key>"}. PayPali issues dev assurance for an account, and kyc assurance once you link a verified PayPal account (POST /api/owners/:ownerId/kyc/sessions).`
+    :"This market has no identity issuers configured, so confirmations count without one (demo mode).";
+  $("inbox").innerHTML=st.pending.length?st.pending.map(p=>{const mt=p.outcome_metric;
+    const head=`<span><b>${esc(p.solution_name)}</b> <span class="meta">your agent reported ${p.agent_reported_success?"success":"failure"}${mt&&p.observed!=null?`, ${esc(mt.name)} = ${esc(p.observed)} ${esc(mt.unit)}`:""} · ${esc(p.run_id)}</span></span>`;
+    return `<li>${head}<span>`+(mt?`<input type="number" step="any" id="obs_${esc(p.run_id)}" style="width:9em" aria-label="${esc(mt.name)} you observed, in ${esc(mt.unit)}" placeholder="you saw (${esc(mt.unit)})"> <button class="sm" data-obs="${esc(p.run_id)}">Record</button>`
+      :`<button class="sm" data-a="confirm" data-r="${p.run_id}">Confirm</button> <button class="sm warn" data-a="dispute" data-r="${p.run_id}">Dispute</button>`)+`</span></li>`}).join(""):`<li class="meta" style="background:none">Nothing waiting. Reports from your agent will appear here.</li>`;
+  $("confirmAll").disabled=!st.pending.length;
+  const cats=["All",...new Set(st.sol.map(s=>s.category))];
+  $("chips").innerHTML=cats.map(c=>`<button class="chip" aria-pressed="${st.cat===c}" data-c="${c}">${c}</button>`).join("");
+  $("grid").innerHTML=st.sol.filter(s=>st.cat==="All"||s.category===st.cat).map(s=>{
+    const v=s.verification,own=st.owned.some(o=>o.doc.body.solution_id===s.id),pct=Math.min(100,Math.round(v.n/v.needed*100));
+    const promo=s.tier_history.length?`<div class="meta">History: ${s.tier_history.map(h=>`V${h.from} to V${h.to} (${esc(h.basis)})`).join("; ")}</div>`:"";
+    const mt=s.outcome_metric,extra=[v.unverified_excluded&&`${v.unverified_excluded} without identity`,v.capped&&`${v.capped} over the per-person cap`,v.observation_mismatches&&`${v.observation_mismatches} observation mismatch${v.observation_mismatches>1?"es":""}`,v.measured&&`${v.measured} measured`,v.non_deliveries&&`${v.non_deliveries} refunded for non-delivery`].filter(Boolean);
+    return `<article class="card"><div class="meta">${esc(s.category)}</div><h3>${esc(s.name)}</h3>${s.vendor?`<div class="vendor-line">by ${esc(s.vendor.display_name)} · delivered by signed webhook</div>`:""}${meter(v.tier)}<div class="meta">Basis: ${esc(v.basis)}</div><p class="meta" style="margin:0">${esc(s.blurb)}</p>`+
+      (mt?`<div class="meta">Measures ${esc(mt.name)} in ${esc(mt.unit)}${mt.success_threshold!=null?`, success when ${mt.direction==="higher"?"≥":"≤"} ${esc(mt.success_threshold)}`:""}${s.verifier_id?` · measured by ${esc(s.verifier_id)}`:""}</div>`:(s.verifier_id?`<div class="meta">Measured by ${esc(s.verifier_id)}</div>`:""))+
+      `<div><div class="bar" title="Weighted confirmed outcomes toward V4"><i style="width:${pct}%"></i></div><div class="meta">${v.n} of ${v.needed} weighted outcomes · ${v.distinct_principals} of 3 people${v.provisional?` · ${v.provisional} awaiting a human`:""}${v.disputed?` · ${v.disputed} disputed`:""}${v.rate!==null?` · observed ${Math.round(v.rate*100)}% vs claimed ${Math.round(s.claimed_success*100)}%`:` · claimed ${Math.round(s.claimed_success*100)}%`}${extra.length?` · ${extra.join(" · ")}`:""}</div></div>${promo}`+
+      `<div class="foot"><b>${cur(s.price)}</b>${own?'<button class="ghost sm" disabled>Owned</button>':`<button class="sm" data-buy="${s.id}">Acquire</button>`}</div></article>`}).join("");
+  $("own").innerHTML=st.owned.length?st.owned.map(o=>`<li><span><b>${esc(o.name)}</b> <span class="meta">${o.doc.body.rid} · ${o.refunded?"refunded":o.runs_left+" runs left"} · signature ${o.valid?"✓":"✗"}</span></span><span><button class="sm" data-run="${o.doc.body.rid}"${o.runs_left&&!o.refunded?"":" disabled"}>Run and report</button>${o.refundable&&!o.refunded?` <button class="sm warn" data-refund="${o.doc.body.rid}">Claim refund</button>`:""} <button class="ghost sm" data-rc="${o.doc.body.rid}">Receipt</button></span></li>`).join(""):`<li class="meta">Nothing yet. Run the agent or acquire a solution.</li>`;
+}
+async function showReceipt(rid){
+  const o=st.owned.find(x=>x.doc.body.rid===rid),bad=JSON.parse(JSON.stringify(o.doc));bad.body.price=1;
+  const okNow=await Core.verifyDoc(o.doc,st.marketPub),okBad=await Core.verifyDoc(bad,st.marketPub);
+  $("dbody").innerHTML=`<h3 style="margin-bottom:8px">Signed receipt</h3><p class="meta">Anyone can check this with the marketplace public key. The receipt names your principal, your agent and the mandate it spent under.</p><pre>${esc(JSON.stringify(o.doc,null,1))}</pre>`+
+    `<p>Verification: <b>${okNow?"valid":"invalid"}</b>. The same receipt with the price edited to 1 cr: <b>${okBad?"valid (bad!)":"invalid, as it should be"}</b>.</p>`;
+  $("dlg").showModal();
+}
+// ---------------------------------------------------------------- Sell (vendor screen)
+// The vendor key lives only in this tab. Two endpoint options:
+//  * Sandbox: standalone page -> an in-page endpoint (the marketplace's fetch is routed to sandboxFetch);
+//             served page (demo) -> the server hosts a vendor-kit endpoint and hands us its throwaway key.
+//  * Own:     paste your vendor-kit key (Identity#exportPkcs8) and your public webhook URL.
+const SANDBOX_URL="https://sandbox.vendor.invalid/hook";
+const vs={key:null,profile:null,sandboxId:null,useOwn:false,feed:[],seen:new Map(),poll:null,busy:false};
+Ident.fromPkcs8=async b64=>{
+  const priv=await crypto.subtle.importKey("pkcs8",Core.unb64u(b64.trim()),{name:"Ed25519"},true,["sign"]);
+  const jwk=await crypto.subtle.exportKey("jwk",priv);
+  const pubK=await crypto.subtle.importKey("jwk",{kty:"OKP",crv:"Ed25519",x:jwk.x},{name:"Ed25519"},true,["verify"]);
+  const i=new Ident();i.priv=priv;i.pub=b64u(new Uint8Array(await crypto.subtle.exportKey("spki",pubK)));return i;
+};
+function sandboxAnswer(ev){
+  if(ev.type==="endpoint.verify")return {challenge:ev.data.challenge};
+  if(ev.type==="solution.invoke")return {output:{sandbox:true,solution_id:ev.data.solution_id,run_id:ev.data.run_id,received_fields:Object.keys(ev.data.input||{}),result:"ok",
+    note:"Sample answer from the in-page sandbox endpoint. Point your listing at your own endpoint for real results."}};
+  return {received:ev.type};
+}
+// Standalone mode: the in-page marketplace delivers webhooks through this fetch. It checks the marketplace
+// signature exactly like vendor-kit.js and signs its answer with the vendor key held in this tab.
+async function sandboxFetch(url,init){
+  if(!String(url).startsWith(SANDBOX_URL))return fetch(url,init);
+  const h=init.headers,body=init.body,id=h["x-market-event"];
+  const fresh=Math.abs(Date.now()-(+h["x-market-ts"]))<3e5;
+  if(!fresh||!(await Core.verify(`${h["x-market-ts"]}\n${id}\n${await sha(body)}`,h["x-market-sig"],st.marketPub)))
+    return new Response('{"error":"bad_market_signature"}',{status:401,headers:{"content-type":"application/json"}});
+  let text=vs.seen.get(id);
+  if(!text){const ev=JSON.parse(body),out=sandboxAnswer(ev);text=JSON.stringify(out);vs.seen.set(id,text);
+    vs.feed.unshift({id,type:ev.type,at:Date.now(),data:ev.data,status:200,response:out});vs.feed.length=Math.min(vs.feed.length,50);
+    if(location.hash==="#sell")queueMicrotask(renderFeed)}
+  return new Response(text,{status:200,headers:{"content-type":"application/json","x-vendor-sig":await vs.key.sign(`${id}\n${await sha(text)}`)}});
+}
+const vErr=(id,m)=>{$(id).textContent=m||""};
+function why(r){const b=r.body||{};return (b.error||("HTTP "+r.status))+(b.detail?": "+b.detail:"")+(b.field?": "+b.field:"")}
+
+async function ensureVendorKey(){
+  if(vs.useOwn){
+    const url=$("vUrl").value.trim();
+    if(!url)throw new Error("Enter your webhook URL.");
+    try{vs.key=await Ident.fromPkcs8($("vKey").value)}catch(e){throw new Error("That is not a valid Ed25519 PKCS#8 key.")}
+    vs.sandboxId=null;return url;
+  }
+  if(st.mode==="local"){if(!vs.key)vs.key=await Ident.make();return SANDBOX_URL}
+  if(!vs.sandboxId){
+    const r=await fetch("/dev/sandbox-vendors",{method:"POST"});
+    if(r.status!==200)throw new Error(r.status===404?"Sandbox endpoints are off on this server (DEMO=0). Use your own endpoint.":"Could not create a sandbox endpoint.");
+    const j=await r.json();vs.sandboxId=j.id;vs.sandboxUrl=j.url;vs.key=await Ident.fromPkcs8(j.pkcs8);
+  }
+  return vs.sandboxUrl;
+}
+async function showVendorKey(){
+  vErr("vErr");
+  try{await ensureVendorKey();$("vPub").textContent=vs.key.pub;try{await navigator.clipboard.writeText(vs.key.pub);log("Copied your vendor public key.","h")}catch(e){}}
+  catch(e){vErr("vErr",e.message)}
+}
+async function registerVendor(){
+  vErr("vErr");$("vReg").disabled=true;
+  try{
+    let url;try{url=await ensureVendorKey()}catch(e){return vErr("vErr",e.message)}
+    $("vPub").textContent=vs.key.pub;
+    const credTxt=$("vCred").value.trim(),bindTxt=$("vBind").value.trim();
+    if(credTxt){
+      let cred;try{cred=JSON.parse(credTxt)}catch(e){return vErr("vErr","The identity credential is not valid JSON.")}
+      await rpc("vendor",vs.key,"POST","/v1/principals",{},null,true);
+      const ir=await rpc("vendor",vs.key,"POST","/v1/principals/me/identity",{credential:cred,as:"vendor"});   // a vendor key, not a second buying principal
+      if(ir.status!==200)return vErr("vErr","Identity: "+why(ir));
+      $("vCred").value="";log(`Vendor identity attached (${ir.body.identity.issuer}, ${ir.body.identity.assurance}).`,"ok");
+    }
+    const body={display_name:$("vName").value.trim(),webhook_url:url};
+    if($("vPayout").value.trim())body.payout_agent_id=$("vPayout").value.trim();
+    if(bindTxt){try{body.payout_binding=JSON.parse(bindTxt)}catch(e){return vErr("vErr","The payout binding is not valid JSON.")}}
+    log(`Registering vendor. The marketplace sends a signed challenge to ${vs.useOwn?"your endpoint":"the sandbox endpoint"}; it must sign the answer with your key.`,"t");
+    const r=await rpc("vendor",vs.key,"POST","/v1/vendors",body);
+    if(r.status!==200){
+      if(r.body&&r.body.error==="vendor_identity_required"){$("vIdBox").open=true;return vErr("vErr","This market only lists verified vendors. Copy your vendor key below, get an identity credential for it from your issuer, paste it, and register again.")}
+      if(r.body&&/payout_binding/.test(r.body.error||"")){$("vIdBox").open=true}
+      if(r.body&&r.body.error==="seller_agent_required"){$("ppSellBtn").focus();return vErr("vErr","Every seller here is a PayPali agent. Press Connect PayPali above and pick the agent that sells and gets paid.")}
+      return vErr("vErr",why(r));
+    }
+    $("vBind").value="";vs.profile=r.body;await refreshVendor();
+  }finally{$("vReg").disabled=false}
+}
+async function refreshVendor(){
+  if(!vs.key||!vs.profile){renderVendor();return}
+  const r=await rpc("vendor",vs.key,"GET","/v1/vendors/me",null,null,true);
+  if(r.status===200)vs.profile=r.body;
+  if(vs.sandboxId&&st.mode==="http"){try{const f=await (await fetch(`/dev/sandbox-vendors/${vs.sandboxId}/log`)).json();vs.feed=f.events||[]}catch(e){}}
+  renderVendor();
+}
+async function publishListing(e){
+  e.preventDefault();vErr("lErr");
+  const body={name:$("lName").value.trim(),category:$("lCat").value.trim(),price:+$("lPrice").value,runs_included:+$("lRuns").value,
+    claimed_success:+$("lClaim").value/100,blurb:$("lBlurb").value.trim()};
+  const sch=$("lSchema").value.trim();
+  if(sch){try{body.input_schema=JSON.parse(sch)}catch(x){return vErr("lErr","Input schema is not valid JSON.")}}
+  const osch=$("lOut").value.trim();
+  if(osch){try{body.output_schema=JSON.parse(osch)}catch(x){return vErr("lErr","Output schema is not valid JSON.")}}
+  const mn=$("mName").value.trim();
+  if(mn){body.outcome_metric={name:mn,unit:$("mUnit").value.trim()||"units",direction:$("mDir").value};if($("mThr").value!=="")body.outcome_metric.success_threshold=+$("mThr").value}
+  if($("lVer").value)body.verifier_id=$("lVer").value;
+  $("lSubmit").disabled=true;
+  try{
+    const r=await rpc("vendor",vs.key,"POST","/v1/solutions",body);
+    if(r.status!==200)return vErr("lErr",why(r));
+    log(`Published ${r.body.name} at V1 for ${cur(r.body.price)}. Trust rises only from lab reproductions and audits, then confirmed outcomes.`,"ok");
+    for(const k of ["lName","lBlurb","lSchema","lOut","mName","mUnit","mThr"])$(k).value="";$("lVer").value="";
+    await refreshVendor();
+  }finally{$("lSubmit").disabled=!vs.profile}
+}
+async function patchListing(id,patch){
+  const r=await rpc("vendor",vs.key,"PATCH","/v1/solutions/"+id,patch);
+  if(r.status!==200)log("  edit refused: "+why(r),"no");
+  await refreshVendor();
+}
+function renderFeed(){
+  const f=vs.feed;
+  const cut=(o,n)=>{const t=JSON.stringify(o);return t.length>n?t.slice(0,n)+"…":t};
+  $("vFeed").innerHTML=f.length?f.map(e=>`<li><span class="pill ${e.status<300?"ok":"bad"}">${esc(e.type)}</span> <span class="meta">${new Date(e.at).toLocaleTimeString()} · ${esc(e.id)}</span>`+
+    `<dl class="io mono"><dt>In</dt><dd>${esc(cut(e.type==="solution.invoke"?e.data.input:e.data,160))}</dd><dt>Out</dt><dd>${esc(cut(e.response,160))}</dd></dl></li>`).join("")
+    :`<li class="meta">${vs.useOwn?"Using your own endpoint: its logs live on your server.":"Nothing yet. Register, publish a listing, then buy and run it from the Buy tab."}</li>`;
+}
+function renderVendor(){
+  const p=vs.profile,ls=p&&p.listings||[],dl=p&&p.deliveries||[];
+  $("vStatus").innerHTML=p?`<span class="pill ok">endpoint verified</span> ${p.identity_verified?'<span class="pill ok">identity verified</span>':p.identity_required?'<span class="pill bad">identity lapsed: not selling</span>':'<span class="pill warm">no identity</span>'} <b>${esc(p.display_name)}</b> <span class="mono meta">${esc(p.vendor_id)}</span><div class="hint">Endpoint ${esc(p.webhook_url)}${p.payout_agent_id?` · payouts to PayPali agent <span class="mono">${esc(p.payout_agent_id)}</span> ${p.payout_verified?"(binding verified)":p.payout_hold?`(held: ${esc(p.payout_hold.replace(/_/g," "))})`:"(not verified on this market)"}`:""}</div>`
+    :"Not registered yet. Choose an endpoint and register.";
+  $("vReg").textContent=p?"Update registration":"Register vendor";
+  $("lSubmit").disabled=!p;
+  $("vsN").textContent=ls.length;
+  $("vsRuns").textContent=dl.filter(d=>d.type==="solution.invoke"&&d.ok).length;
+  $("vsEarn").textContent=p?(Math.round((p.earnings||0)*100)/100):0;
+  $("vsConf").textContent=ls.reduce((a,s)=>a+s.verification.successes,0);
+  const tr=st.trust||{},vIss=(tr.identity_issuers||[]).map(i=>i.id);
+  $("vIdHint").textContent=tr.require_vendor_identity?`This market lists verified vendors only (issuers: ${vIss.join(", ")}). Connect PayPali above fills both of these for you. Or show your vendor key, ask your issuer for an identity credential for it (PayPali: POST /api/owners/:ownerId/identity-credentials {"principalPub": "<key>"}), and paste it. To be paid into a PayPali agent, also paste a payout binding (POST /api/owners/:ownerId/payout-bindings {"agentId", "vendorPub"}).`
+    :"This market does not require vendor identity (demo mode).";
+  const vers=(st.trust&&st.trust.verifiers)||[],cv=$("lVer").value;
+  $("lVer").innerHTML=`<option value="">None</option>`+vers.map(x=>`<option value="${esc(x.id)}">${esc(x.id)}</option>`).join("");$("lVer").value=cv;$("lVer").disabled=!vers.length;
+  $("cats").innerHTML=[...new Set(["Finance","Legal","Energy","Operations","Consumer",...st.sol.map(s=>s.category)])].map(c=>`<option value="${esc(c)}">`).join("");
+  $("vList").innerHTML=ls.length?ls.map(s=>{const v=s.verification,paused=s.status==="paused";
+    const reps=v.reproductions.filter(r=>r.current),auds=v.audits.filter(a=>a.current);
+    const labs=`${reps.length?reps.map(r=>`${esc(r.auditor)} reproduced ${r.passed}/${r.runs}${r.pass?"":" (fail)"}`).join(", "):"no reproduction yet"}${auds.length?" · "+auds.map(a=>`${esc(a.auditor)} audit ${a.pass?"pass":"fail"}`).join(", "):""}`;
+    return `<tr><td><b>${esc(s.name)}</b><div class="mono meta">${esc(s.id)} · ${esc(s.category)} · ${s.runs_included} runs</div>${s.listing_hash?`<div class="mono meta" title="${esc(s.listing_hash)}">hash ${esc(s.listing_hash.slice(0,12))}…</div>`:""}</td><td>${meter(v.tier)}<div class="meta">${esc(v.basis)}</div><div class="meta">${labs}</div></td>`+
+      `<td class="meta">${v.n} of ${v.needed} attested · ${v.distinct_principals} principals${v.provisional?` · ${v.provisional} awaiting`:""}${v.disputed?` · ${v.disputed} disputed`:""}<br>${v.rate!==null?`observed ${Math.round(v.rate*100)}% vs claimed `:"claimed "}${Math.round(s.claimed_success*100)}%</td>`+
+      `<td><input type="number" min="0.01" step="0.01" value="${s.price}" id="pr_${esc(s.id)}" aria-label="Price for ${esc(s.name)}"> <button class="ghost sm" data-save="${esc(s.id)}">Save</button></td>`+
+      `<td><span class="pill ${paused?"warm":"ok"}">${paused?"paused":"live"}</span></td>`+
+      `<td><button class="sm ${paused?"":"ghost"}" data-toggle="${esc(s.id)}" data-to="${paused?"active":"paused"}">${paused?"Resume":"Pause"}</button></td></tr>`}).join("")
+    :`<tr><td colspan="6" class="meta">No listings yet.</td></tr>`;
+  $("vDeliv").innerHTML=dl.length?dl.map(d=>`<tr><td class="meta">${new Date(d.at).toLocaleTimeString()}</td><td>${esc(d.type)}</td>`+
+    `<td>${d.ok?'<span class="pill ok">delivered</span>':`<span class="pill bad">${esc(d.error||"failed")}</span>`}</td><td class="mono">${d.status||"–"}</td><td class="mono">${d.ms} ms</td><td class="mono meta">${esc(d.event_id)}</td></tr>`).join("")
+    :`<tr><td colspan="6" class="meta">No deliveries yet.</td></tr>`;
+  renderFeed();
+}
+function setEndpointMode(own){
+  vs.useOwn=own;$("segOwn").setAttribute("aria-pressed",own);$("segSand").setAttribute("aria-pressed",!own);
+  $("ownFields").hidden=!own;$("sandHint").hidden=own;renderFeed();
+}
+// ---------------------------------------------------------------- Connect PayPali (Buy and Sell)
+// Opens PayPali's /bazaar/link in a popup. The owner signs in there and picks an agent; PayPali posts the
+// result back to this window only (postMessage to this origin), and we accept it only from PayPali's origin
+// with the state we sent. Buy: a grant bound to this tab's human key + an identity credential.
+// Sell: an identity credential for the vendor key + a payout binding to the agent.
+async function connectPayPali(role){
+  if(!pp.url)return;
+  const w=window.open("about:blank","paypali_link","popup,width=540,height=760");
+  if(!w){(role==="sell"?vErr.bind(null,"vErr"):m=>log(m,"no"))("Allow pop-ups for this page, then press Connect PayPali again.");return}
+  try{
+    let pub;
+    if(role==="sell"){vErr("vErr");await ensureVendorKey();pub=vs.key.pub;$("vPub").textContent=pub}else pub=st.human.pub;
+    const state=rnd(12);pp.pending={state,role,pub};
+    const q=new URLSearchParams({role,pub,state,origin:location.origin});
+    if(role==="buy")q.set("budget",String(Math.max(1,+$("budget").value||100)));
+    w.location.href=pp.url+"/bazaar/link?"+q;
+    log(`Opened PayPali to link this ${role==="buy"?"buyer":"vendor"} key. Sign in there and choose an agent.`,"t");
+  }catch(e){w.close();role==="sell"?vErr("vErr",e.message):log(e.message,"no")}
+}
+async function onPayPaliLink(e){
+  if(!pp.url||e.origin!==new URL(pp.url).origin)return;
+  const d=e.data,p=pp.pending;
+  if(!d||d.type!=="paypali-link"||!p||d.state!==p.state)return;
+  pp.pending=null;
+  if(d.cancelled){log("PayPali link cancelled. Nothing changed.","t");return}
+  if(d.role==="buy"&&p.role==="buy"){
+    if(p.pub!==st.human.pub){log("You started a new session while linking. Press Connect PayPali again.","no");return}
+    pp.buy={agent:d.agent,grantId:d.grantId,budget:+d.budgetMinor/100,expiresAt:d.expiresAt,marketplaceUrl:d.marketplaceUrl};
+    $("grant").value=d.grantId;
+    if(+$("budget").value>pp.buy.budget)$("budget").value=pp.buy.budget;
+    if(+$("cap").value>+$("budget").value)$("cap").value=$("budget").value;
+    log(`Linked to PayPali: ${d.agent.name} pays, up to $${pp.buy.budget.toFixed(2)} (grant ${d.grantId.slice(0,8)}…, usable only with this tab's human key).`,"ok");
+    if(d.credential){const r=await rpc("human",st.human,"POST","/v1/principals/me/identity",{credential:d.credential});
+      if(r.status===200)log(`PayPali vouched for your human key (${r.body.identity.assurance}). Your confirmations count as evidence.`,"ok");
+      else if(r.body&&r.body.error==="identity_already_bound")log("PayPali already vouches for another buying key of yours on this market (for example your agents' account in the PayPali Marketplace). One person has one buying identity here, so purchases from this tab work but your confirmations from it do not count toward trust.","t");}
+    renderPP();await refreshAll();
+  }
+  if(d.role==="sell"&&p.role==="sell"){
+    if(!vs.key||p.pub!==vs.key.pub){vErr("vErr","Your vendor key changed while linking. Press Connect PayPali again.");return}
+    pp.sell={agent:d.agent,vendorId:d.vendorId,marketplaceUrl:d.marketplaceUrl};
+    $("vPayout").value=d.agent.id;
+    if(d.credential)$("vCred").value=JSON.stringify(d.credential);
+    if(d.binding)$("vBind").value=JSON.stringify(d.binding);
+    log(`Linked to PayPali: sales are paid into ${d.agent.name}. Registering your vendor now.`,"ok");
+    renderPP();await registerVendor();
+  }
+}
+function renderPP(){
+  const on=!!pp.url;
+  $("ppMarket").hidden=!on;if(on)$("ppMarket").href=pp.url+"/marketplace";
+  $("ppSell").hidden=!on;
+  const b=pp.buy;
+  $("ppBuy").classList.toggle("on",!!b);
+  $("ppBuyT").innerHTML=b?`<b>${esc(b.agent.name)}</b> pays through PayPali · up to $${b.budget.toFixed(2)} · grant <span class="mono">${esc(b.grantId.slice(0,8))}…</span>`
+    :"Not linked. Connect your PayPali account and pick the agent whose wallet pays.";
+  $("ppBuyBtn").textContent=b?"Change":"Connect PayPali";
+  const s=pp.sell;
+  $("ppSell").classList.toggle("on",!!s);
+  $("ppSellT").innerHTML=s?`Verified by PayPali · sales paid into <b>${esc(s.agent.name)}</b>. Your listings also appear in the <a href="${esc(pp.url)}/marketplace#bazaar" target="_blank" rel="noopener">PayPali Marketplace</a>.`
+    :"Get verified and paid through PayPali: pick the agent that receives your sales. Your listings then show up in the PayPali Marketplace.";
+  $("ppSellBtn").textContent=s?"Change agent":"Connect PayPali";
+}
+
+function route(){
+  const sell=location.hash==="#sell";
+  $("buyView").hidden=sell;$("sellView").hidden=!sell;document.body.classList.toggle("selling",sell);
+  $("tabSell").setAttribute("aria-current",sell?"page":"false");$("tabBuy").setAttribute("aria-current",sell?"false":"page");
+  clearInterval(vs.poll);
+  if(sell){refreshVendor();vs.poll=setInterval(()=>{if(vs.profile)refreshVendor()},3000)}
+  else if(st.mode)refreshAll();
+}
+
+document.addEventListener("click",async e=>{
+  const t=e.target.closest("button");if(!t)return;const d=t.dataset;
+  if(d.c){st.cat=d.c;render()}
+  if(d.buy)await acquire(d.buy);
+  if(d.run)await runReport(d.run);
+  if(d.rc)await showReceipt(d.rc);
+  if(d.a){await attest(d.r,d.a);await refreshAll()}
+  if(d.obs){const x=$("obs_"+d.obs).value;if(x===""){log("Enter the value you observed first.","no");return}await attest(d.obs,undefined,false,+x);await refreshAll()}
+  if(d.refund)await refund(d.refund);
+  if(d.save){const v=+$("pr_"+d.save).value;await patchListing(d.save,{price:v})}
+  if(d.toggle)await patchListing(d.toggle,{status:d.to});
+});
+$("run").onclick=runAgent;$("sim").onclick=simulate;$("confirmAll").onclick=attestAll;$("dx").onclick=()=>$("dlg").close();
+$("reset").onclick=newSession;
+$("idAttach").onclick=attachIdentity;
+$("idCopy").onclick=async()=>{try{await navigator.clipboard.writeText(st.human.pub);log("Copied your human public key.","h")}catch(e){$("idCred").value="";log("Your human key: "+st.human.pub,"t")}};
+$("vReg").onclick=registerVendor;
+$("ppBuyBtn").onclick=()=>connectPayPali("buy");$("ppSellBtn").onclick=()=>connectPayPali("sell");
+window.addEventListener("message",e=>{onPayPaliLink(e).catch(x=>log("PayPali link: "+x.message,"no"))});$("vKeyBtn").onclick=showVendorKey;$("lForm").onsubmit=publishListing;
+$("segSand").onclick=()=>setEndpointMode(false);$("segOwn").onclick=()=>setEndpointMode(true);
+$("lClaim").oninput=()=>{$("lClaimV").textContent=$("lClaim").value};
+$("conf").oninput=()=>{$("confV").textContent=$("conf").value};
+window.addEventListener("hashchange",route);
+setInterval(()=>{if(st.mode==="local"&&st.mp)st.mp.tick()},1000);   // in-page outbox (vendor notifications)
+$("revoke").onclick=async()=>{await rpc("human",st.human,"POST",`/v1/mandates/${st.mid}/revoke`,{});log("You revoked the mandate. The unspent hold returned to your balance.","h");await refreshAll()};
+(async function boot(){
+  try{await crypto.subtle.generateKey({name:"Ed25519"},false,["sign","verify"])}
+  catch(e){$("mode").textContent="unsupported browser";log("This browser lacks Ed25519 in WebCrypto. Use a current Chrome, Safari or Firefox.","no");return}
+  try{const r=await fetch("/.well-known/market-keys"),j=await r.json();if(j&&j.keys){st.mode="http";st.marketPub=j.keys[0].public_key;st.payments=j.payments||"credits";pp.url=j.paypali_url?String(j.paypali_url).replace(/\/$/,""):null}}catch(e){}
+  if(st.payments==="paypali"){$("payRow").hidden=false;$("sim").disabled=true;$("sim").title="Simulated principals need their own PayPali grants"}
+  if(st.mode==="http"){try{const t=await (await fetch("/v1/trust")).json();st.trust=t;if(t.verified_evidence_required){$("sim").disabled=true;$("sim").title="Simulated principals have no identity credentials, so their confirmations would not count here"}}catch(e){}}
+  if(st.mode!=="http"){st.mp=await localMarket();st.marketPub=st.mp.publicKey}
+  $("mode").textContent=st.mode==="http"?(st.payments==="paypali"?"Live API · paid through PayPali":"Live API, same origin"):"In-browser engine, same code as the server";
+  renderPP();
+  await newSession();
+  route();
+})();
+</script>
+</body>
+</html>

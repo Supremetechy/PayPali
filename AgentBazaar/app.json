@@ -1,0 +1,13 @@
+{
+  "expo": {
+    "name": "Agent Bazaar",
+    "slug": "agent-bazaar",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": false
+    },
+    "android": {}
+  }
+}

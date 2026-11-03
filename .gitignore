@@ -4,3 +4,4 @@ tests/.generated/
 *.log
 .data/
 .DS_Store
+.dockerignore
