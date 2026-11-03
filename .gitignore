@@ -2,3 +2,5 @@ node_modules/
 tests/.generated/
 .env
 *.log
+.data/
+.DS_Store

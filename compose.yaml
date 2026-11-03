@@ -1,0 +1,58 @@
+# Shared Postgres for local PayPali: the web app (npm start) and the MCP server
+# (npm run mcp:agent) both point at this so Claude drives the same funded agent.
+# Matches DATABASE_URL in .env — postgresql://paypali:paypali@localhost:5432/paypali
+#
+#   npm run db:up      start it and wait until it's accepting connections
+#   npm run db:down    stop it (data kept in the named volume)
+#   npm run db:logs    tail its logs
+#   npm run db:nuke    stop it AND delete the volume (wipes all agents/wallets)
+#
+# The `app` service builds the PayPali image and points at this Postgres, so the
+# whole thing is one command:
+#
+#   docker compose up -d --build        web app on http://localhost:4000, backed by Postgres
+#
+# PayPal credentials, the public URL and the portal-webhook secret come from the
+# host environment (or an .env file next to this one); without PayPal creds the
+# app runs with a local funding page standing in for PayPal.
+services:
+  app:
+    build: .
+    container_name: paypali-app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PAYPALI_DATABASE_URL: postgres://paypali:paypali@postgres:5432/paypali
+      PAYPALI_PUBLIC_URL: ${PAYPALI_PUBLIC_URL:-http://localhost:4000}
+      PORT: 4000
+      PAYPAL_CLIENT_ID: ${PAYPAL_CLIENT_ID:-}
+      PAYPAL_CLIENT_SECRET: ${PAYPAL_CLIENT_SECRET:-}
+      PAYPAL_ENV: ${PAYPAL_ENV:-sandbox}
+      PAYPALI_PORTAL_WEBHOOK_SECRET: ${PAYPALI_PORTAL_WEBHOOK_SECRET:-}
+      PAYPALI_MCP_ALLOWED_ORIGINS: ${PAYPALI_MCP_ALLOWED_ORIGINS:-}
+      PAYPALI_LEGAL_ENTITY: ${PAYPALI_LEGAL_ENTITY:-}
+      PAYPALI_LEGAL_CONTACT: ${PAYPALI_LEGAL_CONTACT:-}
+    ports:
+      - "4000:4000"
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16
+    container_name: paypali-pg
+    environment:
+      POSTGRES_USER: paypali
+      POSTGRES_PASSWORD: paypali
+      POSTGRES_DB: paypali
+    ports:
+      - "5432:5432"
+    volumes:
+      - paypali-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U paypali -d paypali"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  paypali-pgdata:

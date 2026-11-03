@@ -7,20 +7,35 @@
   "scripts": {
     "prisma:generate": "prisma generate",
     "schema:sql": "node scripts/gen-schema-sql.mjs",
+    "predev": "npm run prisma:generate && npm run schema:sql",
+    "dev": "node scripts/serve.mjs",
+    "premcp": "npm run prisma:generate && npm run schema:sql",
+    "mcp": "node scripts/mcp.mjs",
+    "premcp:agent": "npm run prisma:generate && npm run schema:sql",
+    "mcp:agent": "node scripts/mcp-agent.mjs",
+    "db:up": "docker compose up -d --wait",
+    "db:down": "docker compose down",
+    "db:logs": "docker compose logs -f postgres",
+    "db:nuke": "docker compose down -v",
+    "prestack": "npm run prisma:generate && npm run schema:sql",
+    "stack": "node scripts/dev-stack.mjs",
     "pretest": "npm run prisma:generate && npm run schema:sql",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "demo": "node scripts/demo-scenarios.mjs",
+    "paypal:smoke": "node scripts/paypal-sandbox-smoke.mjs",
+    "prestart": "npm run prisma:generate && npm run schema:sql",
+    "start": "node scripts/start.mjs"
   },
   "dependencies": {
     "@electric-sql/pglite": "0.5.11",
     "@paypal/paypal-server-sdk": "^2.5.0",
     "@prisma/client": "6.19.3",
-    "pglite-prisma-adapter": "0.6.1",
-    "prisma-client": "^0.0.0"
+    "pglite-prisma-adapter": "0.6.1"
   },
   "devDependencies": {
     "@types/node": "22.10.2",
-    "prisma": "^6.19.3",
+    "prisma": "6.19.3",
     "typescript": "5.6.3",
     "vitest": "3.2.4"
   },
@@ -28,6 +43,7 @@
     "@prisma/client@6.19.3": true,
     "@prisma/engines@6.19.3": true,
     "esbuild@0.28.2": true,
-    "prisma@6.19.3": true
+    "prisma@6.19.3": true,
+    "fsevents@2.3.3": true
   }
 }

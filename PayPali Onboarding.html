@@ -111,8 +111,6 @@
     background: color-mix(in srgb, var(--surface) 88%, transparent);
     backdrop-filter: blur(8px);
     border-bottom: 1px solid var(--line);
-    margin-left: calc(-1 * max(18px, env(safe-area-inset-left, 0px)));
-    margin-right: calc(-1 * max(18px, env(safe-area-inset-right, 0px)));
     padding-left: max(18px, env(safe-area-inset-left, 0px));
     padding-right: max(18px, env(safe-area-inset-right, 0px));
   }
@@ -213,6 +211,33 @@
   }
 
   /* Segmented mode control */
+  /* ---- bring an agent you already use ---- */
+  .plat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; margin-top: 10px; }
+  .plat { font: inherit; text-align: left; border: 1.5px solid var(--line-strong); background: var(--surface); color: var(--ink); border-radius: 10px; padding: 9px 10px; cursor: pointer; }
+  .plat b { display: block; font-size: .9rem; }
+  .plat small { color: var(--ink-faint); font-size: .72rem; }
+  .plat[aria-pressed="true"] { border-color: var(--accent); background: color-mix(in srgb, var(--accent-soft) 55%, var(--surface)); }
+  .surf { display: flex; gap: 10px; align-items: flex-start; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin-top: 8px; cursor: pointer; }
+  .surf:has(input:checked) { border-color: var(--accent); }
+  .surf input { margin-top: 4px; width: auto; }
+  .surf .k { display: inline-block; font-size: .68rem; text-transform: uppercase; letter-spacing: .06em; color: var(--accent-ink); margin-right: 6px; }
+  .perm { display: flex; gap: 8px; align-items: flex-start; font-size: .88rem; margin-top: 6px; }
+  .perm input { width: auto; margin-top: 4px; }
+  .warnbox { background: color-mix(in srgb, var(--warn) 14%, var(--surface)); border: 1px solid color-mix(in srgb, var(--warn) 40%, var(--line)); border-radius: 10px; padding: 10px 12px; font-size: .84rem; margin-top: 10px; }
+  .connect-done { position: fixed; inset: 0; z-index: 50; background: rgba(8, 14, 36, .55); display: grid; place-items: center; padding: 16px; }
+  .connect-card { background: var(--surface); color: var(--ink); border-radius: 16px; width: min(640px, 100%); max-height: 92vh; overflow: auto; padding: 22px; box-shadow: 0 30px 80px -30px rgba(0,0,0,.6); }
+  .connect-card h3 { margin: 0 0 4px; font-size: 1.25rem; }
+  .connect-card ol { padding-left: 20px; }
+  .connect-card li { margin: 6px 0; }
+  .connect-card pre { background: var(--surface-2); border-radius: 10px; padding: 10px 12px; white-space: pre-wrap; word-break: break-all; font-size: .78rem; }
+  .connect-status { margin-top: 12px; padding: 10px 12px; border-radius: 10px; background: var(--surface-2); font-size: .9rem; }
+  .connect-status.ok { background: color-mix(in srgb, var(--ok, #127a4a) 16%, var(--surface)); }
+  .connect-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+  .connect-actions button, .connect-actions a { font: inherit; font-weight: 700; border-radius: 999px; padding: 9px 16px; border: 1.5px solid var(--accent); background: var(--accent); color: #fff; text-decoration: none; cursor: pointer; }
+  .connect-actions .ghost { background: transparent; color: var(--accent); }
+  fieldset { min-width: 0; }
+  .layout > * { min-width: 0; }
+  .bar-inner { flex-wrap: wrap; }
   .seg { display: flex; gap: 4px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 4px; }
   .seg button {
     flex: 1;
@@ -351,6 +376,52 @@
   .issues li::before { content: "▸"; color: var(--danger); font-size: .7rem; }
   .allok { font-size: .8rem; color: var(--accent-ink); padding: 0 15px 14px; }
 
+  .send-row { padding: 2px 15px 15px; }
+  .send-btn {
+    width: 100%;
+    font-family: var(--font-body); font-weight: 700; font-size: .92rem; letter-spacing: .01em;
+    color: var(--gold-ink); background: var(--gold);
+    border: 1px solid transparent; border-radius: 999px; padding: 12px 16px; cursor: pointer;
+  }
+  .send-btn:hover { filter: brightness(.96); }
+  .send-btn:disabled { opacity: .45; cursor: not-allowed; filter: grayscale(.4); }
+  .result-err { color: var(--danger); font-size: .82rem; padding: 0 15px 16px; }
+  .result { padding: 2px 15px 16px; display: grid; gap: 1px; border-top: 1px dashed var(--line); }
+  .result h4 { margin: 10px 0 7px; font-family: var(--font-data); font-size: .72rem; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-faint); font-weight: 500; }
+  .result .v.mono { font-family: var(--font-data); font-size: .8rem; word-break: break-all; text-align: right; }
+  .funded-pill { font-family: var(--font-data); font-size: .66rem; letter-spacing: .06em; text-transform: uppercase; padding: 3px 9px; border-radius: 999px; border: 1px solid transparent; }
+  .funded-pill.pending { color: var(--warn); background: var(--warn-soft); }
+  .funded-pill.ok { color: var(--accent-ink); background: var(--accent-soft); }
+  .funded-pill.bad { color: var(--danger); background: var(--danger-soft); }
+
+  /* Money-movement console (agent skills) */
+  .console { margin-top: 26px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow); overflow: hidden; }
+  .console-h { padding: 14px 16px; border-bottom: 1px solid var(--line); background: var(--surface-2); }
+  .console-h .t { font-family: var(--font-display); font-weight: 700; font-size: 1.05rem; color: var(--accent-ink); }
+  .console-h .hint { display: block; margin-top: 2px; font-size: .8rem; color: var(--ink-faint); }
+  .console-body { padding: 16px; }
+  .bal-line { display: flex; align-items: center; gap: 12px; padding: 10px 0 16px; border-bottom: 1px dashed var(--line); margin-bottom: 16px; }
+  .bal-line .k { font-size: .82rem; color: var(--ink-soft); }
+  .bal-line .v { font-family: var(--font-data); font-variant-numeric: tabular-nums; font-size: 1.15rem; font-weight: 700; color: var(--ink); }
+  .bal-line .bar-spacer2 { flex: 1; }
+  .ops { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+  @media (max-width: 760px) { .ops { grid-template-columns: 1fr; } }
+  .op { border: 1px solid var(--line-strong); border-radius: 11px; padding: 13px; background: var(--surface); }
+  .op h5 { margin: 0 0 10px; font-family: var(--font-data); font-size: .72rem; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-faint); font-weight: 500; }
+  .op-row { display: grid; gap: 8px; }
+  .op-btn { font-family: var(--font-body); font-weight: 700; font-size: .84rem; color: #fff; background: var(--accent); border: 1px solid transparent; border-radius: 999px; padding: 9px 14px; cursor: pointer; }
+  .op-btn:hover { filter: brightness(1.05); }
+  .op-btn:disabled { opacity: .5; cursor: not-allowed; }
+  .op-btn.danger { background: var(--danger); }
+  .op-btn.send { background: var(--accent-2); color: var(--gold-ink); }
+  .log { margin-top: 16px; display: grid; gap: 6px; }
+  .log-entry { font-family: var(--font-data); font-size: .76rem; padding: 8px 11px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink-soft); display: flex; gap: 8px; align-items: baseline; }
+  .log-entry.ok { border-color: color-mix(in srgb, var(--accent) 35%, var(--line)); }
+  .log-entry.bad { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 35%, var(--line)); background: var(--danger-soft); }
+  .log-entry .op-tag { font-weight: 700; text-transform: uppercase; letter-spacing: .05em; font-size: .68rem; color: var(--accent-ink); }
+  .log-entry.bad .op-tag { color: var(--danger); }
+  .log-entry .replay { font-size: .64rem; text-transform: uppercase; letter-spacing: .06em; color: var(--warn); }
+
   .note { font-size: .76rem; color: var(--ink-faint); margin-top: 14px; line-height: 1.5; }
   .note code { font-family: var(--font-data); color: var(--ink-soft); }
   input:invalid { border-color: var(--line-strong); } /* defer to our own validation */
@@ -365,6 +436,7 @@
       <span class="tag">Owner Control</span>
     </div>
     <span class="bar-spacer"></span>
+    <a class="ghost-btn" href="/marketplace">Marketplace</a>
     <button class="ghost-btn" id="themeBtn" type="button" aria-label="Toggle color theme">Theme</button>
   </div>
 </header>
@@ -401,6 +473,29 @@
           <span class="lbl">Agent name <span class="hint" id="nameHint">— a handle for this agent</span></span>
           <input id="agentName" type="text" maxlength="120" placeholder="treasury-bot">
         </label>
+      </fieldset>
+
+      <fieldset id="bringSet">
+        <legend><span class="n">1b</span> Where your agent lives</legend>
+        <div class="seg" role="group" aria-label="Agent source">
+          <button type="button" id="srcNew" aria-pressed="true">New PayPali agent<span class="sub">PayPali runs it</span></button>
+          <button type="button" id="srcBring" aria-pressed="false">An agent I already use<span class="sub">Claude, ChatGPT, Grok, DeepSeek…</span></button>
+        </div>
+        <div id="bringBox" hidden>
+          <p class="hint" style="margin:10px 0 0">Your assistant keeps working where it is. PayPali gives it a wallet, a Score and limits, and it reaches PayPali over MCP. You can revoke it any time.</p>
+          <div class="plat-grid" id="platGrid" role="group" aria-label="Your assistant"><span class="hint">Loading assistants…</span></div>
+          <div id="surfBox"></div>
+          <div id="permBox" hidden>
+            <span class="lbl" style="margin-top:12px">What it may do <span class="hint">— within the spending limits below; every payment is Score-gated</span></span>
+            <label class="perm"><input type="checkbox" checked disabled> <span>See its wallet balance, Score and profile</span></label>
+            <label class="perm"><input type="checkbox" class="permBox" value="market:read gas:quote" checked> <span>Browse services and get prices</span></label>
+            <label class="perm"><input type="checkbox" class="permBox" value="gas:pay"> <span>Pay for services in Gas</span></label>
+            <label class="perm"><input type="checkbox" class="permBox" value="bazaar:buy"> <span>Buy agent solutions on AgentBazaar</span></label>
+            <label class="perm"><input type="checkbox" class="permBox" value="data:query"> <span>Ask company data agents (pay per answer)</span></label>
+            <label class="perm"><input type="checkbox" id="permRecurring"> <span>Allow recurring charges (subscriptions)</span></label>
+          </div>
+          <div id="urlWarn" class="warnbox" hidden></div>
+        </div>
       </fieldset>
 
       <fieldset>
@@ -442,10 +537,14 @@
             </select>
           </div>
         </label>
-        <label class="field">
-          <span class="lbl">PayPal funding source <span class="hint">— opaque reference to your PayPal balance, never a raw account number</span></span>
-          <input id="funding" class="data" type="text" placeholder="paypal_bal_abc123">
-        </label>
+        <div class="field" id="fundBox">
+          <span class="lbl">Funded with PayPal <span class="hint">— you approve the seed at PayPal; PayPali never sees your login or card</span></span>
+          <p class="hint" id="fundNote" style="margin:4px 0 8px">Checking PayPal configuration…</p>
+          <label style="display:flex;gap:8px;align-items:flex-start;font-size:.92rem"><input type="checkbox" id="savePP" style="margin-top:4px"> <span>Save this PayPal account so I can give the agent an allowance later (you can remove it any time)</span></label>
+          <details id="devRefBox" hidden style="margin-top:8px"><summary class="hint">Use a test funding reference instead (development only)</summary>
+            <input id="funding" class="data" type="text" placeholder="vault_dev_demo" style="margin-top:6px">
+          </details>
+        </div>
       </fieldset>
 
       <fieldset>
@@ -487,6 +586,22 @@
           <input id="categories" class="data" type="text" placeholder="5812, 5734">
         </label>
       </fieldset>
+
+      <fieldset>
+        <legend><span class="n">5</span> Gas rate card</legend>
+        <p class="note" style="margin-top:0">What your agent charges, in Gas, each time it acts for another agent with a skill it sells. You set it now; afterwards the agent may adjust its own fee, never above your maximum. Gas floats with network demand: <span id="rcPrice">checking the price…</span></p>
+        <div class="row-3">
+          <label class="field">
+            <span class="lbl">Fee per call (Gas)</span>
+            <input id="rcFee" class="data" type="number" min="0" step="1" value="20">
+          </label>
+          <label class="field">
+            <span class="lbl">Your maximum (Gas)</span>
+            <input id="rcMax" class="data" type="number" min="0" step="1" value="200">
+          </label>
+          <div class="field"><span class="lbl">At today’s price</span><span id="rcUsd" class="note" style="margin:6px 0 0">—</span></div>
+        </div>
+      </fieldset>
     </form>
 
     <div class="ledger-col">
@@ -512,6 +627,10 @@
         <pre class="payload" id="payload"></pre>
         <ul class="issues" id="issues" hidden></ul>
         <div class="allok" id="allok" hidden>Payload valid — ready to send to the onboarding service.</div>
+        <div class="send-row">
+          <button class="send-btn" id="sendBtn" type="button" disabled>Put agent in commission</button>
+        </div>
+        <div class="result-err" id="resultErr" hidden></div>
       </div>
       <p class="note">
         This screen builds and validates the request your backend passes to
@@ -525,6 +644,7 @@
       </p>
     </div>
   </div>
+
 </div>
 
 <script>
@@ -620,7 +740,7 @@
     if (mode === "ONBOARD" && !state.agentName) e.push("Give the agent a name.");
     if (!state.mandate && mode === "ONBOARD") e.push("Write a one-sentence mandate.");
     if (state.seedMinor === null || state.seedMinor <= 0n) e.push("Seed amount must be greater than zero.");
-    if (!state.funding) e.push("Add a funding source reference.");
+    if (BRING.on && !BRING.surface) e.push("Pick the assistant you already use, or switch to a new PayPali agent.");
     var L = state.limits;
     if (!L || L.perTx === null || L.daily === null || L.monthly === null || L.approval === null) {
       if (mode === "ONBOARD") e.push("Enter all four policy amounts.");
@@ -633,6 +753,67 @@
     }
     return e;
   }
+
+  // ---- bring an agent you already use ----
+  var BRING = { on: false, platform: "", surface: "", providers: null };
+  function setSource(bring) {
+    BRING.on = bring;
+    $("srcNew").setAttribute("aria-pressed", String(!bring));
+    $("srcBring").setAttribute("aria-pressed", String(bring));
+    $("bringBox").hidden = !bring;
+    if (bring && !BRING.providers) loadProviders(); else renderBring();
+    render();
+  }
+  function loadProviders() {
+    fetch("/api/connect/providers").then(function (r) { return r.json(); }).then(function (d) { BRING.providers = d; renderBring(); render(); })
+      .catch(function () { $("platGrid").innerHTML = '<span class="hint">Couldn’t load assistants.</span>'; });
+  }
+  function bringProvider() {
+    var d = BRING.providers; if (!d) return null;
+    var pl = d.platforms.filter(function (x) { return x.id === BRING.platform; })[0]; if (!pl) return null;
+    return { platform: pl, provider: d.providers.filter(function (x) { return x.id === pl.providerId; })[0] };
+  }
+  function bringSurface() {
+    var p = bringProvider(); if (!p || !p.provider) return null;
+    return p.provider.surfaces.filter(function (x) { return x.surface === BRING.surface; })[0] || null;
+  }
+  var KIND = { app: "App · sign in", developer: "Developer tool · token", api: "Your code · token" };
+  function renderBring() {
+    var d = BRING.providers; if (!d) return;
+    $("platGrid").innerHTML = d.platforms.map(function (p) {
+      return '<button type="button" class="plat" data-plat="' + p.id + '" aria-pressed="' + (p.id === BRING.platform) + '"><b>' + escapeHtml(p.name) + "</b><small>" + escapeHtml(p.vendor) + "</small></button>";
+    }).join("");
+    var pp = bringProvider();
+    if (!pp) { $("surfBox").innerHTML = ""; $("permBox").hidden = true; $("urlWarn").hidden = true; return; }
+    var surfs = pp.provider.surfaces;
+    if (!surfs.some(function (x) { return x.surface === BRING.surface; })) BRING.surface = surfs[0].surface;
+    $("surfBox").innerHTML = '<span class="lbl" style="margin-top:12px">How you use ' + escapeHtml(pp.platform.name) + "</span>" + surfs.map(function (x) {
+      return '<label class="surf"><input type="radio" name="surf" value="' + x.surface + '"' + (x.surface === BRING.surface ? " checked" : "") + '><span><span class="k">' + KIND[x.kind] + "</span><b>" + escapeHtml(x.name) + "</b>" +
+        (x.note ? '<br><span class="hint">' + escapeHtml(x.note) + "</span>" : "") + "</span></label>";
+    }).join("");
+    $("permBox").hidden = false;
+    var s = bringSurface();
+    var warn = s && s.needsPublicUrl && !d.publicUrlReachable;
+    $("urlWarn").hidden = !warn;
+    if (warn) $("urlWarn").innerHTML = "<b>" + escapeHtml(pp.platform.name) + " connects from its own servers</b>, and they can’t reach this PayPali at <code>" + escapeHtml(d.publicUrl) +
+      "</code>. For a local demo, expose it with a tunnel, for example <code>cloudflared tunnel --url " + escapeHtml(d.publicUrl) + "</code>, set <code>PAYPALI_PUBLIC_URL</code> to the https address it prints, and restart. Developer and code options below work on localhost.";
+  }
+  function escapeHtml(x) { return String(x == null ? "" : x).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function bringScopes() {
+    var out = ["context:read", "wallet:read"];
+    Array.prototype.forEach.call(document.querySelectorAll(".permBox:checked"), function (el) { el.value.split(" ").forEach(function (v) { out.push(v); }); });
+    return out;
+  }
+  $("srcNew").addEventListener("click", function () { setSource(false); });
+  $("srcBring").addEventListener("click", function () { setSource(true); });
+  $("platGrid").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-plat]"); if (!b) return;
+    BRING.platform = b.getAttribute("data-plat"); BRING.surface = "";
+    var cur = $("agentName").value.trim(), pp0 = (BRING.providers.platforms.filter(function (x) { return x.id === BRING.platform; })[0] || {}).name;
+    if (pp0 && (!cur || cur === BRING.autoName)) { $("agentName").value = pp0 + " agent"; BRING.autoName = pp0 + " agent"; }
+    renderBring(); render();
+  });
+  $("surfBox").addEventListener("change", function (e) { if (e.target.name === "surf") { BRING.surface = e.target.value; renderBring(); render(); } });
 
   function gather() {
     return {
@@ -654,10 +835,13 @@
     var seed = {
       amountMinor: state.seedMinor !== null ? Number(state.seedMinor) : 0,
       currency: state.currency,
-      fundingSourceReference: state.funding || "vault_src_…"
+      fundingSourceReference: state.funding || "(set by your PayPal approval)"
     };
+    var connect = BRING.on && BRING.surface ? { surface: BRING.surface, scopes: bringScopes(), allowRecurring: $("permRecurring").checked } : null;
+    var rateCard = { actFeeGas: Math.max(0, Math.floor(Number($("rcFee").value) || 0)), maxFeeGas: Math.max(0, Math.floor(Number($("rcMax").value) || 0)) };
     if (mode === "GENERATE") {
-      var g = { owner: owner, objective: { type: state.objective }, seed: seed };
+      var g = { owner: owner, objective: { type: state.objective }, seed: seed, rateCard: rateCard };
+      if (connect) g.connect = connect;
       if (state.agentName) g.agentName = state.agentName;
       if (state.mandate) g.objective.mandate = state.mandate;
       g.allowedRecipients = state.recipients;
@@ -665,11 +849,12 @@
       return g;
     }
     var L = state.limits || {};
-    return {
+    var o = {
       owner: owner,
       agentName: state.agentName || "agent",
       objective: { type: state.objective, mandate: state.mandate || DEFAULT_MANDATES[state.objective] },
       seed: seed,
+      rateCard: rateCard,
       policy: {
         maxPerTransactionMinor: L.perTx !== null && L.perTx !== undefined ? Number(L.perTx) : 0,
         maxDailyBudgetMinor: L.daily !== null && L.daily !== undefined ? Number(L.daily) : 0,
@@ -679,6 +864,8 @@
         allowedCategories: state.categories
       }
     };
+    if (connect) o.connect = connect;
+    return o;
   }
 
   // Minimal JSON syntax highlighter (string/key/number) — escapes HTML first.
@@ -727,6 +914,7 @@
       issues.hidden = true; issues.innerHTML = "";
       allok.hidden = false;
       $("copyBtn").disabled = false;
+      if ($("sendBtn")) $("sendBtn").disabled = false;
     } else {
       chip.textContent = errs.length + (errs.length === 1 ? " issue" : " issues");
       chip.className = "status-chip bad";
@@ -734,6 +922,7 @@
       issues.hidden = false;
       issues.innerHTML = errs.map(function (x) { return "<li>" + x.replace(/</g,"&lt;") + "</li>"; }).join("");
       $("copyBtn").disabled = true;
+      if ($("sendBtn")) $("sendBtn").disabled = true;
     }
     saveDraft(state);
   }
@@ -767,6 +956,123 @@
     }
   });
 
+  // ---- submit to the onboarding backend, then go to the account dashboard ----
+  // ---- funding: the seed is approved at PayPal first; PayPal returns here with ?seedOrder=<order id> ----
+  var FUND = null;
+  fetch("/api/funding/config").then(function (r) { return r.json(); }).then(function (c) {
+    FUND = c;
+    $("fundNote").innerHTML = c.live
+      ? "On submit you'll approve the seed at <b>PayPal" + (c.provider === "paypal:sandbox" ? " (sandbox)" : "") + "</b>, then come straight back here. Funds settle in PayPali's PayPal account and are credited to your agent."
+      : "<b>Development mode:</b> PayPal isn't configured on this server, so a local page stands in for PayPal's approval screen. No real money moves.";
+    $("devRefBox").hidden = !!c.live;
+    if (c.vault === false) { $("savePP").checked = false; $("savePP").disabled = true; $("savePP").parentNode.title = "Your PayPal app isn't enabled to save PayPal accounts, so you'll approve each allowance at PayPal instead. (PayPal Developer Dashboard → your app → Features → Save payment methods.)"; $("savePP").nextElementSibling.textContent = "Your PayPal app isn't enabled to save PayPal accounts, so you'll approve each allowance at PayPal instead. (PayPal Developer Dashboard → your app → Features → Save payment methods.)"; }
+    $("sendBtn").textContent = "Approve seed with PayPal & commission agent";
+  }).catch(function () { $("fundNote").textContent = "Couldn't reach PayPali to check PayPal configuration."; });
+
+  // ---- Gas rate card: show what the fee is worth at today's (floating) Gas price
+  var GASP = null;
+  function rcRender() {
+    var fee = Number($("rcFee").value) || 0, max = Number($("rcMax").value) || 0;
+    $("rcUsd").textContent = GASP ? "$" + (fee * GASP.usdPerGas).toFixed(4) + " a call (max $" + (max * GASP.usdPerGas).toFixed(4) + ")" : "—";
+    $("rcFee").setCustomValidity(fee > max ? "The fee can't be above your maximum" : "");
+  }
+  fetch("/api/gas/price").then(function (r) { return r.json(); }).then(function (p) {
+    GASP = p.usdPerGas ? p : null;
+    $("rcPrice").textContent = GASP ? "1 Gas = $" + p.usdPerGas.toFixed(5) + " right now" + (p.changeBps ? " (" + (p.changeBps > 0 ? "+" : "") + (p.changeBps / 100).toFixed(1) + "% since the last epoch)" : "") + "." : "price unavailable.";
+    rcRender();
+  }).catch(function () { $("rcPrice").textContent = "price unavailable."; });
+  $("rcFee").addEventListener("input", rcRender); $("rcMax").addEventListener("input", rcRender);
+
+  function fundThenSubmit() {
+    var state = gather();
+    if (state.funding) return submitOnboarding();                  // explicit (dev) reference, or back from PayPal
+    var btn = $("sendBtn");
+    btn.disabled = true; btn.textContent = "Opening PayPal…";
+    $("resultErr").hidden = true;
+    fetch("/api/funding/seed-orders", { method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ amountMinor: Number(state.seedMinor), currency: state.currency, saveForAllowance: $("savePP").checked, returnPath: "/" + (mode === "GENERATE" ? "?mode=generate" : "") }) })
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, body: j }; }); })
+      .then(function (res) {
+        if (!res.ok) { $("resultErr").hidden = false; $("resultErr").textContent = "PayPal order not created: " + (res.body.error || "unknown error"); btn.disabled = false; btn.textContent = "Approve seed with PayPal & commission agent"; return; }
+        saveDraft();
+        window.location.assign(res.body.approveUrl);
+      })
+      .catch(function (err) { $("resultErr").hidden = false; $("resultErr").textContent = "Network error: " + err.message; btn.disabled = false; });
+  }
+
+  $("sendBtn").addEventListener("click", fundThenSubmit);
+  function submitOnboarding() {
+    var btn = $("sendBtn"), endpoint = mode === "GENERATE" ? "/api/generate" : "/api/onboard";
+    var orig = btn.textContent;
+    btn.disabled = true; btn.textContent = "Creating account…";
+    $("resultErr").hidden = true;
+    fetch(endpoint, { method: "POST", headers: { "content-type": "application/json" }, body: lastJson })
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, body: j }; }); })
+      .then(function (res) {
+        if (!res.ok) {
+          $("resultErr").hidden = false;
+          $("resultErr").textContent = "Onboarding rejected: " + ((res.body && res.body.error) || "unknown error");
+          if (/FUNDING_ORDER|SEED_/.test((res.body && res.body.error) || "")) { $("funding").value = ""; saveDraft(); }
+          btn.textContent = orig; btn.disabled = false;
+          return;
+        }
+        var a = res.body;
+        btn.textContent = "Account ready ✓";
+        $("funding").value = ""; saveDraft();   // an approved PayPal order funds exactly one seed
+        var dash = "/dashboard?agent=" + encodeURIComponent(a.agentId);
+        if (a.connection && !a.connection.deferred && !a.connection.error) { showConnected(a, dash); return; }
+        if (a.connection && a.connection.error) { $("resultErr").hidden = false; $("resultErr").textContent = "Agent created, but connecting your assistant failed (" + a.connection.error + "). Connect it from the dashboard."; }
+        if (a.signInRequired) {
+          // The email already had an account: onboarding never signs it in (that would let anyone take it over).
+          var email = ""; try { email = (JSON.parse(lastJson).owner || {}).email || ""; } catch (e) {}
+          window.location.assign("/login?reason=existing&email=" + encodeURIComponent(email) + "&next=" + encodeURIComponent(dash));
+        } else {
+          // New owner: the server already set the session cookie, shared with the Dashboard and the Marketplace.
+          window.location.assign(dash);
+        }
+      })
+      .catch(function (err) {
+        $("resultErr").hidden = false;
+        $("resultErr").textContent = "Network error: " + err.message;
+        btn.textContent = orig; btn.disabled = false;
+      });
+  }
+
+  // ---- after onboarding: finish connecting the assistant, and watch for its first call ----
+  function showConnected(a, dash) {
+    var c = a.connection, pp = BRING.providers || {}, plat = (bringProvider() || {}).platform || { name: c.provider };
+    var s = c.setup || {};
+    $("cdTitle").textContent = "Finish connecting " + plat.name;
+    $("cdDash").href = dash;
+    var body = "";
+    if (c.mode === "oauth") {
+      $("cdSub").textContent = "Your agent is ready. Add PayPali in " + plat.name + "; it signs in to PayPali and you approve what it may do.";
+      body += "<ol>" + (s.steps || [s.setup]).map(function (x) { return "<li>" + escapeHtml(x) + "</li>"; }).join("") + "</ol>";
+      body += "<pre id=\"cdText\">" + escapeHtml(c.mcpUrl) + "</pre>";
+      if (!c.publicUrlReachable) body += '<div class="warnbox"><b>' + escapeHtml(plat.name) + " can’t reach " + escapeHtml(c.mcpUrl) + "</b> from its servers. Run a tunnel (for example <code>cloudflared tunnel --url " + escapeHtml(pp.publicUrl || location.origin) + "</code>), set <code>PAYPALI_PUBLIC_URL</code> to its https address, restart PayPali and use that URL instead.</div>";
+    } else {
+      $("cdSub").textContent = "Your agent is ready and " + plat.name + " has its own PayPali token, limited to the spending policy you just set. The token is shown once.";
+      body += "<p><b>" + escapeHtml(s.name || "") + "</b></p><pre id=\"cdText\">" + escapeHtml(s.setup || "") + "</pre>";
+      if (s.note) body += '<p class="hint">' + escapeHtml(s.note) + "</p>";
+      if (s.needsPublicUrl && !c.publicUrlReachable) body += '<div class="warnbox"><b>' + escapeHtml(plat.name) + " calls PayPali from its own servers</b>, which can’t reach " + escapeHtml(c.mcpUrl) + ". Run a tunnel (for example <code>cloudflared tunnel --url " + escapeHtml(pp.publicUrl || location.origin) + "</code>), set <code>PAYPALI_PUBLIC_URL</code> to its https address and restart PayPali; the setup above then uses that URL.</div>";
+      body += '<p class="hint">Then ask it: “What is my PayPali balance?” This page turns green on its first call.</p>';
+    }
+    $("cdBody").innerHTML = body;
+    $("cdCopy").hidden = false;
+    $("cdCopy").onclick = function () { var t = $("cdText").textContent; (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(function () { $("cdCopy").textContent = "Copied ✓"; }).catch(function () { $("cdCopy").textContent = "Select and copy above"; }); };
+    $("connectDone").hidden = false;
+    var started = Date.now();
+    (function poll() {
+      fetch("/api/agents/" + encodeURIComponent(a.agentId) + "/connections").then(function (r) { return r.json(); }).then(function (d) {
+        var list = (d.connections || []).filter(function (x) { return x.status === "ACTIVE"; });
+        var live = list.filter(function (x) { return c.mode === "oauth" ? x.auth === "OAUTH" : (x.id === c.connectionId && x.lastUsedAt); })[0];
+        if (live) { $("cdStatus").className = "connect-status ok"; $("cdStatus").innerHTML = "<b>Connected.</b> " + escapeHtml(plat.name) + (c.mode === "oauth" ? " signed in to PayPali as “" + escapeHtml(live.label) + "”." : " made its first call to PayPali."); return; }
+        if (Date.now() - started < 15 * 60000) setTimeout(poll, 3000);
+        else $("cdStatus").textContent = "Still waiting. You can finish later from the dashboard (Connected assistants).";
+      }).catch(function () { setTimeout(poll, 5000); });
+    })();
+  }
+
   // ---- theme toggle (per-viewer convenience) ----
   var themeBtn = $("themeBtn");
   function readLS(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
@@ -782,10 +1088,10 @@
   });
 
   // ---- draft persistence (per-viewer convenience only) ----
-  var DRAFT_FIELDS = ["email","agentName","mandate","seedAmount","currency","funding","perTx","daily","monthly","approval","recipients","categories"];
+  var DRAFT_FIELDS = ["email","agentName","mandate","seedAmount","currency","funding","perTx","daily","monthly","approval","recipients","categories","rcFee","rcMax"];
   function saveDraft() {
     try {
-      var d = { mode: mode, objective: selectedObjective() };
+      var d = { mode: mode, objective: selectedObjective(), bring: BRING.on, platform: BRING.platform, surface: BRING.surface, perms: Array.prototype.map.call(document.querySelectorAll(".permBox"), function (x) { return x.checked; }), recurring: $("permRecurring").checked };
       DRAFT_FIELDS.forEach(function (f){ d[f] = $(f).value; });
       localStorage.setItem("pp_draft", JSON.stringify(d));
     } catch (e) {}
@@ -800,14 +1106,37 @@
         if (r) r.checked = true;
       }
       if (d.mode === "GENERATE") mode = "GENERATE";
+      if (d.bring) { BRING.on = true; BRING.platform = d.platform || ""; BRING.surface = d.surface || ""; }
+      if (Array.isArray(d.perms)) Array.prototype.forEach.call(document.querySelectorAll(".permBox"), function (x, i) { if (typeof d.perms[i] === "boolean") x.checked = d.perms[i]; });
+      if (typeof d.recurring === "boolean") $("permRecurring").checked = d.recurring;
     } catch (e) {}
   }
 
   loadDraft();
+  var Q = new URLSearchParams(location.search);
+  if (Q.get("mode") === "generate") mode = "GENERATE";
+  var returnedOrder = Q.get("seedOrder");
+  if (returnedOrder) $("funding").value = returnedOrder;
+  if (Q.get("funding") === "cancelled") setTimeout(function () { $("resultErr").hidden = false; $("resultErr").textContent = "You cancelled at PayPal, so no agent was created and nothing was charged."; }, 0);
+  if (returnedOrder || Q.has("funding")) history.replaceState(null, "", location.pathname);
   document.getElementById("form").addEventListener("input", render);
   document.getElementById("form").addEventListener("change", render);
   setMode(mode);
+  if (Q.get("bring") === "1") BRING.on = true;
+  if (BRING.on) setSource(true);
+  if (returnedOrder) {
+    // Back from PayPal with an approved seed: finish onboarding with it (the capture happens server-side).
+    $("resultErr").hidden = true;
+    setTimeout(function () { if (!$("sendBtn").disabled) submitOnboarding(); else { $("resultErr").hidden = false; $("resultErr").textContent = "PayPal approved the seed. Fix the issues above, then submit again."; } }, 50);
+  }
 })();
 </script>
 
+<div class="connect-done" id="connectDone" hidden><div class="connect-card" role="dialog" aria-modal="true" aria-labelledby="cdTitle">
+  <h3 id="cdTitle">Finish connecting</h3>
+  <p class="hint" id="cdSub"></p>
+  <div id="cdBody"></div>
+  <div class="connect-status" id="cdStatus">Waiting for your assistant to call PayPali…</div>
+  <div class="connect-actions"><a id="cdDash" href="/dashboard">Go to dashboard</a><button class="ghost" id="cdCopy" type="button" hidden>Copy setup</button></div>
+</div></div>
 </body></html>

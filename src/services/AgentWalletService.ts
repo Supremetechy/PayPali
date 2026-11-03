@@ -205,6 +205,34 @@ export class AgentWalletService {
     });
   }
 
+  /**
+   * Credit an account INSIDE the caller's transaction (e.g. the Score Pool leg
+   * of a forfeited score bond, which must land atomically with the agent's
+   * hold commit). The account must already exist (ensureAccount first).
+   */
+  async creditTx(
+    tx: Prisma.TransactionClient,
+    p: { agentId: string; currency: string; amountMinor: bigint; type: LedgerEntryType; idempotencyKey: string; relatedIntentId?: string }
+  ): Promise<bigint> {
+    const account = await this.lockAccountTx(tx, p.agentId, p.currency);
+    const available = account.availableMinor + p.amountMinor;
+    await tx.agentAccount.update({ where: { id: account.id }, data: { availableMinor: available } });
+    await tx.ledgerEntry.create({
+      data: {
+        accountId: account.id,
+        agentId: p.agentId,
+        currency: p.currency,
+        direction: LedgerDirection.CREDIT,
+        amountMinor: p.amountMinor,
+        type: p.type,
+        balanceAfterMinor: available,
+        relatedIntentId: p.relatedIntentId,
+        idempotencyKey: p.idempotencyKey,
+      },
+    });
+    return available;
+  }
+
   // -------------------------------------------------------------------------
   // RECEIVE — credit an agent's balance.
   // -------------------------------------------------------------------------
@@ -366,6 +394,11 @@ export class AgentWalletService {
         await this.lockBalance(tx, firstId);
         await this.lockBalance(tx, secondId);
 
+        // A concurrent send with the same key may have committed while we waited
+        // for the locks: replay it instead of failing on the now-lower balance.
+        const committed = await tx.agentTransfer.findUnique({ where: { idempotencyKey: input.idempotencyKey } });
+        if (committed) throw Object.assign(new Error('IDEMPOTENT_REPLAY'), { committed });
+
         const fromBalance = await this.readBalance(tx, fromAccountId);
         const toBalance = await this.readBalance(tx, toAccountId);
         if (fromBalance < amount) {
@@ -439,6 +472,8 @@ export class AgentWalletService {
         };
       });
     } catch (error) {
+      const committed = (error as { committed?: Parameters<AgentWalletService['replayTransfer']>[0] }).committed;
+      if (committed) return this.replayTransfer(committed, input, amount);
       if (this.isUniqueConstraintError(error)) {
         const raced = await this.prisma.agentTransfer.findUnique({
           where: { idempotencyKey: input.idempotencyKey },
@@ -688,8 +723,10 @@ export class AgentWalletService {
   }
 
   private isUniqueConstraintError(error: unknown): boolean {
-    return (
-      error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002'
-    );
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') return true;
+    // Driver adapters (PGlite, pg) can surface the raw driver error instead of P2002.
+    const e = error as { cause?: { kind?: string; originalCode?: string }; code?: string; message?: string } | null;
+    return !!e && (e.cause?.kind === 'UniqueConstraintViolation' || e.cause?.originalCode === '23505' || e.code === '23505'
+      || /duplicate key value violates unique constraint/.test(e.message ?? ''));
   }
 }
