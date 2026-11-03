@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Sign in to PayPali</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600;700;800&display=swap">
+<style>
+  :root {
+    --bg: #f5f7fa; --surface: #ffffff; --surface-2: #eef2f8; --ink: #11264f; --ink-soft: #4a5873; --ink-faint: #7d8aa6;
+    --line: #e0e6ef; --line-strong: #c6d0e0; --accent: #0070e0; --accent-soft: #e4f0fd; --accent-ink: #003087; --accent-2: #009cde;
+    --ok-soft: #dcf3e6; --ok: #127a4a; --danger: #c5303a; --danger-soft: #fbe3e3;
+    --shadow: 0 1px 2px rgba(0,28,100,.06), 0 18px 40px -22px rgba(0,28,100,.35);
+    --font: "Mulish", "Helvetica Neue", Arial, sans-serif; color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+    --bg: #0a1230; --surface: #10193c; --surface-2: #17224b; --ink: #e8edf8; --ink-soft: #a9b6d4; --ink-faint: #7482a4;
+    --line: #26315a; --line-strong: #35416e; --accent: #2b8fff; --accent-soft: #112a57; --accent-ink: #9cccff; --accent-2: #40c4f5;
+    --ok-soft: #12372a; --ok: #57d39a; --danger: #ef8a84; --danger-soft: #3c1d1b; --shadow: 0 18px 40px -22px rgba(0,0,0,.85); color-scheme: dark; } }
+  :root[data-theme="dark"] {
+    --bg: #0a1230; --surface: #10193c; --surface-2: #17224b; --ink: #e8edf8; --ink-soft: #a9b6d4; --ink-faint: #7482a4;
+    --line: #26315a; --line-strong: #35416e; --accent: #2b8fff; --accent-soft: #112a57; --accent-ink: #9cccff; --accent-2: #40c4f5;
+    --ok-soft: #12372a; --ok: #57d39a; --danger: #ef8a84; --danger-soft: #3c1d1b; --shadow: 0 18px 40px -22px rgba(0,0,0,.85); color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--ink); font: 16px/1.5 var(--font); }
+  header { display: flex; align-items: center; gap: 18px; padding: 0 16px; height: 64px; max-width: 1180px; margin: 0 auto; }
+  .wordmark { font-weight: 800; font-size: 1.5rem; letter-spacing: -.02em; color: var(--accent-ink); text-decoration: none; }
+  .wordmark b { color: var(--accent-2); }
+  header .sp { flex: 1; }
+  header a.l { color: var(--ink); font-weight: 700; text-decoration: none; font-size: .95rem; }
+  main { display: grid; place-items: center; padding: 48px 16px; }
+  .card { width: min(440px, 100%); background: var(--surface); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); padding: 28px 24px; }
+  h1 { margin: 0 0 6px; font-size: 1.6rem; letter-spacing: -.02em; color: var(--accent-ink); }
+  p { color: var(--ink-soft); margin: 0 0 18px; }
+  label { display: block; font-weight: 700; font-size: .9rem; margin-bottom: 6px; }
+  input { width: 100%; font: inherit; color: var(--ink); background: var(--surface); border: 1.5px solid var(--line-strong); border-radius: 10px; padding: 11px 12px; }
+  input:focus-visible, button:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  button, .btn { display: inline-flex; justify-content: center; width: 100%; margin-top: 14px; font: inherit; font-weight: 700; border-radius: 999px; padding: 11px 18px; border: 0; background: var(--accent); color: #fff; cursor: pointer; text-decoration: none; }
+  button:disabled { opacity: .6; cursor: progress; }
+  .btn.alt { background: transparent; color: var(--accent-ink); border: 1.5px solid var(--accent); }
+  .msg { margin-top: 16px; border-radius: 10px; padding: 12px 14px; font-size: .92rem; }
+  .msg.ok { background: var(--ok-soft); } .msg.bad { background: var(--danger-soft); } .msg.info { background: var(--surface-2); }
+  .foot { margin-top: 18px; font-size: .9rem; color: var(--ink-faint); text-align: center; }
+  .foot a { color: var(--accent); font-weight: 700; }
+</style>
+</head>
+<body>
+<header>
+  <a class="wordmark" href="/marketplace">Pay<b>Pali</b></a>
+  <span class="sp"></span>
+  <a class="l" href="/marketplace">Marketplace</a>
+  <a class="l" href="/">Sign up</a>
+</header>
+<main>
+  <form class="card" id="f" novalidate>
+    <h1>Sign in</h1>
+    <p>We’ll email you a one-time sign-in link. No password needed.</p>
+    <label for="email">Email</label>
+    <input id="email" name="email" type="email" autocomplete="email" required placeholder="you@example.com">
+    <button id="go" type="submit">Email me a sign-in link</button>
+    <div id="out" class="msg" hidden role="status"></div>
+    <div class="foot">New to PayPali? <a href="/">Create an account</a></div>
+  </form>
+</main>
+<script>
+"use strict";
+const $ = (id) => document.getElementById(id);
+const q = new URLSearchParams(location.search);
+const next = q.get("next") || "/dashboard";
+const esc = (x) => String(x ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+if (q.get("email")) $("email").value = q.get("email");
+function show(cls, html) { const o = $("out"); o.className = "msg " + cls; o.innerHTML = html; o.hidden = false; }
+(function () { var embedded = false; try { embedded = window.top !== window.self; } catch (e) { embedded = true; }
+  if (embedded) show("bad", `This page is open inside another app, so your browser won’t keep the sign-in. <a href="${location.href}" target="_blank" rel="noopener">Open it in a browser window</a>.`); })();
+if (q.get("error") === "link") show("bad", "That sign-in link has expired or was already used. Request a new one.");
+if (q.get("reason") === "existing") show("info", "This email already has a PayPali account, so we can’t sign you in from onboarding. Request a sign-in link to continue; your new agent is already on your account.");
+$("f").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const email = $("email").value.trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return show("bad", "Enter a valid email address.");
+  $("go").disabled = true;
+  try {
+    const r = await fetch("/api/session/login", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email, next }) });
+    const b = await r.json().catch(() => ({}));
+    if (r.status !== 200) return show("bad", esc(b.error === "LOGIN_EMAIL_NOT_CONFIGURED" ? "Email sign-in isn’t configured on this server yet." : (b.error || "Could not send a link.")));
+    if (b.devLink) return show("ok", `<b>Development mode:</b> PayPali doesn’t send email here, so here is your one-time link (valid 15 minutes).<a class="btn" href="${esc(b.devLink)}">Open sign-in link</a>`);
+    show("ok", b.devNote ? esc(b.devNote) + ` <a href="/">Create an account</a>.` : `If ${esc(email)} has a PayPali account, a sign-in link is on its way. It expires in 15 minutes.`);
+  } catch (err) { show("bad", "Network error. Try again."); }
+  finally { $("go").disabled = false; }
+});
+</script>
+</body>
+</html>

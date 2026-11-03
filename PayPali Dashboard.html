@@ -1,0 +1,960 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>PayPali Account</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&display=swap">
+<style>
+  :root {
+    --bg: #f5f7fa; --surface: #ffffff; --surface-2: #eef2f8;
+    --ink: #11264f; --ink-soft: #4a5873; --ink-faint: #8a97b2;
+    --line: #e0e6ef; --line-strong: #c6d0e0;
+    --accent: #0070e0; --accent-soft: #e4f0fd; --accent-ink: #003087; --accent-2: #009cde;
+    --gold: #ffc439; --gold-ink: #001c64;
+    --warn: #8a6d00; --warn-soft: #fbf0d3; --danger: #c5303a; --danger-soft: #fbe3e3;
+    --ok: #0a7d33; --ok-soft: #dff3e4;
+    --shadow: 0 1px 2px rgba(0,28,100,.07), 0 12px 30px -18px rgba(0,28,100,.30);
+    --radius: 12px;
+    --font-display: "PayPal Open","Mulish","Helvetica Neue",Arial,sans-serif;
+    --font-body: "PayPal Open","Mulish","Helvetica Neue",Arial,sans-serif;
+    --font-data: ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+    color-scheme: light; box-sizing: border-box;
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+    --bg:#0a1230; --surface:#10193c; --surface-2:#17224b; --ink:#e8edf8; --ink-soft:#a9b6d4; --ink-faint:#7482a4;
+    --line:#26315a; --line-strong:#35416e; --accent:#2b8fff; --accent-soft:#112a57; --accent-ink:#9cccff; --accent-2:#40c4f5;
+    --warn:#e0ad4f; --warn-soft:#3a2f14; --danger:#ef8a84; --danger-soft:#3c1d1b; --ok:#6fcf8f; --ok-soft:#14321f;
+    --shadow:0 1px 2px rgba(0,0,0,.5),0 14px 34px -18px rgba(0,0,0,.8); color-scheme: dark;
+  } }
+  :root[data-theme="dark"] {
+    --bg:#0a1230; --surface:#10193c; --surface-2:#17224b; --ink:#e8edf8; --ink-soft:#a9b6d4; --ink-faint:#7482a4;
+    --line:#26315a; --line-strong:#35416e; --accent:#2b8fff; --accent-soft:#112a57; --accent-ink:#9cccff; --accent-2:#40c4f5;
+    --warn:#e0ad4f; --warn-soft:#3a2f14; --danger:#ef8a84; --danger-soft:#3c1d1b; --ok:#6fcf8f; --ok-soft:#14321f;
+    --shadow:0 1px 2px rgba(0,0,0,.5),0 14px 34px -18px rgba(0,0,0,.8); color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background: var(--bg); color: var(--ink); font-family: var(--font-body); line-height:1.5; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1060px; margin: 0 auto; padding: 0 max(18px, env(safe-area-inset-left,0)) 72px; }
+
+  header.bar { position: sticky; top: 0; z-index: 15; background: color-mix(in srgb, var(--surface) 88%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+  .bar-inner { max-width: 1060px; margin: 0 auto; display:flex; align-items:center; gap:12px; padding: 12px max(18px, env(safe-area-inset-left,0)); }
+  .brand { display:flex; align-items:baseline; gap:9px; }
+  .brand .mark { font-family: var(--font-display); font-size:1.5rem; font-weight:800; letter-spacing:-.02em; color: var(--accent-ink); }
+  .brand .mark b { color: var(--accent-2); }
+  .brand .tag { font-family: var(--font-data); font-size:.68rem; text-transform:uppercase; letter-spacing:.14em; color: var(--ink-faint); }
+  .bar-spacer { flex:1; }
+  @media (max-width:700px){ .bar-inner { flex-wrap:wrap; gap:8px; padding:10px 16px; } .bar-spacer { flex-basis:100%; height:0; } #acct { display:inline-flex; flex-wrap:wrap; gap:6px; } .ghost-btn { padding:6px 10px; } }
+  .ghost-btn { font-family: var(--font-data); font-size:.72rem; letter-spacing:.06em; color: var(--ink-soft); background: transparent; border:1px solid var(--line-strong); border-radius:999px; padding:7px 13px; cursor:pointer; text-decoration:none; }
+  .ghost-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .ghost-btn.primary { background: var(--gold); color: var(--gold-ink); border-color: transparent; font-weight:700; }
+
+  .hero { padding: 28px 0 8px; }
+  .hero .eyebrow { font-family: var(--font-data); font-size:.72rem; text-transform:uppercase; letter-spacing:.14em; color: var(--ink-faint); }
+  .hero h1 { font-family: var(--font-display); font-weight:800; font-size: clamp(1.7rem,1.2rem+2vw,2.5rem); letter-spacing:-.025em; margin:6px 0 4px; }
+  .hero .email { font-family: var(--font-data); color: var(--accent-ink); font-size:.95rem; }
+
+  .summary { display:grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap:14px; margin:20px 0 26px; }
+  .tile { border:1px solid var(--line); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow); padding:14px 16px; }
+  .tile .k { font-family: var(--font-data); font-size:.68rem; text-transform:uppercase; letter-spacing:.1em; color: var(--ink-faint); }
+  .tile .v { font-family: var(--font-data); font-variant-numeric: tabular-nums; font-weight:700; font-size:1.5rem; margin-top:4px; }
+  .tile .v small { font-size:.9rem; color: var(--ink-faint); font-weight:400; }
+
+  .section-h { display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin: 8px 0 12px; }
+  .section-h h2 { font-family: var(--font-display); font-size:1.15rem; font-weight:700; margin:0; }
+  .section-h .sub { font-size:.8rem; color: var(--ink-faint); }
+
+  .agents { display:grid; grid-template-columns: repeat(auto-fill,minmax(300px,1fr)); gap:16px; }
+  .card { border:1px solid var(--line); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow); padding:16px; cursor:pointer; transition: border-color .12s; }
+  .card:hover { border-color: var(--accent); }
+  .card.selected { border-color: var(--accent); box-shadow: var(--shadow), 0 0 0 1.5px var(--accent) inset; }
+  .card.isnew { border-color: var(--accent-2); }
+  .card-h { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .card-name { font-weight:700; font-size:1.08rem; letter-spacing:-.01em; }
+  .badge { font-family: var(--font-data); font-size:.62rem; text-transform:uppercase; letter-spacing:.08em; padding:3px 8px; border-radius:999px; border:1px solid var(--line-strong); color: var(--ink-faint); }
+  .badge.growth { color: var(--accent-ink); border-color: var(--accent); background: var(--accent-soft); }
+  .badge.sustain { color: var(--warn); border-color: var(--warn); background: var(--warn-soft); }
+  .badge.maintain { color: var(--ink-soft); }
+  .badge.new { color: var(--accent-2); border-color: var(--accent-2); }
+  .card-mandate { color: var(--ink-soft); font-size:.84rem; margin:8px 0 12px; min-height: 2.5em; }
+  .card-row { display:flex; align-items:baseline; justify-content:space-between; gap:10px; padding:5px 0; border-top:1px solid var(--line); }
+  .card-row .k { font-size:.8rem; color: var(--ink-soft); }
+  .card-row .v { font-family: var(--font-data); font-variant-numeric: tabular-nums; font-size:.9rem; font-weight:600; }
+  .card-id { font-family: var(--font-data); font-size:.68rem; color: var(--ink-faint); margin-top:10px; word-break: break-all; }
+  .pill { font-family: var(--font-data); font-size:.64rem; text-transform:uppercase; letter-spacing:.06em; padding:3px 9px; border-radius:999px; }
+  .pill.ok { color: var(--ok); background: var(--ok-soft); }
+  .pill.pending { color: var(--warn); background: var(--warn-soft); }
+  .pill.bad { color: var(--danger); background: var(--danger-soft); }
+
+  /* money-movement console */
+  .console { margin-top: 28px; border:1px solid var(--line); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow); overflow:hidden; }
+  .console-h { padding:14px 16px; border-bottom:1px solid var(--line); background: var(--surface-2); }
+  .console-h .t { font-family: var(--font-display); font-weight:700; font-size:1.05rem; color: var(--accent-ink); }
+  .console-h .hint { display:block; margin-top:2px; font-size:.8rem; color: var(--ink-faint); }
+  .console-h code { font-family: var(--font-data); }
+  .console-body { padding:16px; }
+  .row { display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
+  @media (max-width:560px){ .row { grid-template-columns:1fr; } }
+  label.field { display:block; margin-bottom:12px; }
+  .lbl { display:block; font-size:.82rem; font-weight:500; margin-bottom:5px; }
+  input, select { width:100%; font-family: var(--font-body); font-size:.95rem; color: var(--ink); background: var(--surface); border:1px solid var(--line-strong); border-radius:9px; padding:10px 12px; }
+  input:focus-visible, select:focus-visible { outline:2px solid var(--accent); outline-offset:1px; border-color: var(--accent); }
+  input.money, input.data { font-family: var(--font-data); font-variant-numeric: tabular-nums; }
+  .bal-line { display:flex; align-items:center; gap:12px; padding:10px 0 16px; border-bottom:1px dashed var(--line); margin-bottom:16px; }
+  .bal-line .k { font-size:.82rem; color: var(--ink-soft); }
+  .bal-line .v { font-family: var(--font-data); font-variant-numeric: tabular-nums; font-size:1.3rem; font-weight:700; }
+  .bal-line .sp { flex:1; }
+  .ops { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; }
+  @media (max-width:760px){ .ops { grid-template-columns:1fr; } }
+  .op { border:1px solid var(--line-strong); border-radius:11px; padding:13px; }
+  .op h5 { margin:0 0 10px; font-family: var(--font-data); font-size:.72rem; text-transform:uppercase; letter-spacing:.1em; color: var(--ink-faint); font-weight:500; }
+  .op-row { display:grid; gap:8px; }
+  .op-btn { font-family: var(--font-body); font-weight:700; font-size:.84rem; color:#fff; background: var(--accent); border:1px solid transparent; border-radius:999px; padding:9px 14px; cursor:pointer; }
+  .op-btn:hover { filter: brightness(1.05); }
+  .op-btn.danger { background: var(--danger); }
+  .op-btn.send { background: var(--accent-2); color: var(--gold-ink); }
+  .log { margin-top:16px; display:grid; gap:6px; }
+  .log-entry { font-family: var(--font-data); font-size:.76rem; padding:8px 11px; border-radius:8px; border:1px solid var(--line); background: var(--surface-2); color: var(--ink-soft); display:flex; gap:8px; align-items:baseline; }
+  .log-entry.ok { border-color: color-mix(in srgb, var(--accent) 35%, var(--line)); }
+  .log-entry.bad { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 35%, var(--line)); background: var(--danger-soft); }
+  .log-entry .op-tag { font-weight:700; text-transform:uppercase; letter-spacing:.05em; font-size:.68rem; color: var(--accent-ink); }
+  .log-entry.bad .op-tag { color: var(--danger); }
+  .log-entry .replay { font-size:.64rem; text-transform:uppercase; letter-spacing:.06em; color: var(--warn); }
+
+  .empty { border:1px dashed var(--line-strong); border-radius: var(--radius); padding:40px 20px; text-align:center; color: var(--ink-faint); }
+  .ctl-status { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:8px; }
+  .ctl-note { font-size:.82rem; color: var(--ink-soft); margin:6px 0 0; }
+  .eco { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:14px; padding:16px; }
+  .eco-col { border:1px solid var(--line); border-radius:12px; padding:12px 14px; min-width:0; }
+  .eco-col h5 { margin:0; font-family: var(--font-data); font-size:.72rem; text-transform:uppercase; letter-spacing:.1em; color: var(--ink-faint); font-weight:500; }
+  .eco-big { font-size:1.5rem; font-weight:800; margin:4px 0 8px; font-variant-numeric: tabular-nums; }
+  .eco-col ul { list-style:none; margin:0; padding:0; display:grid; gap:6px; font-size:.86rem; }
+  .eco-col li { display:flex; justify-content:space-between; gap:8px; } .eco-col li span:last-child { color: var(--ink-soft); white-space:nowrap; font-variant-numeric: tabular-nums; }
+  .eco-col li.sub { color: var(--ink-soft); font-size:.8rem; }
+  .eco-rate { display:flex; gap:8px; flex-wrap:wrap; align-items:center; padding:0 16px 16px; font-size:.86rem; }
+  .eco-rate input { width:7em; }
+  .ctl-note a { color: var(--accent-ink); font-weight:700; }
+  .chk { display:flex; gap:8px; align-items:flex-start; font-size:.84rem; color: var(--ink-soft); }
+  .chk input { width:auto; margin-top:3px; }
+  .op-btn.ghost { background: transparent; color: var(--accent-ink); border-color: var(--line-strong); }
+  .op-btn:disabled { opacity:.55; cursor:not-allowed; }
+  .kill { border-color: color-mix(in srgb, var(--danger) 45%, var(--line-strong)); }
+  details.terms summary { cursor:pointer; font-size:.82rem; color: var(--accent-ink); font-weight:700; margin-top:8px; }
+  details.terms pre { max-height:280px; overflow:auto; font-size:.7rem; background: var(--surface-2); border-radius:8px; padding:10px; white-space:pre-wrap; word-break:break-word; }
+  [hidden] { display:none !important; }
+</style>
+</head><body>
+
+<header class="bar">
+  <div class="bar-inner">
+    <div class="brand"><span class="mark">Pay<b>Pali</b></span><span class="tag">Account</span></div>
+    <span class="bar-spacer"></span>
+    <a class="ghost-btn" href="/marketplace">Marketplace</a>
+    <a class="ghost-btn" href="/?bring=1">Bring your agent</a>
+    <a class="ghost-btn primary" href="/">Onboard another agent</a>
+    <span id="acct"></span>
+    <button class="ghost-btn" id="themeBtn" type="button">Theme</button>
+  </div>
+</header>
+
+<div class="wrap">
+  <section class="hero">
+    <div class="eyebrow">Owner account</div>
+    <h1 id="accountTitle">Your agents</h1>
+    <div class="email" id="ownerEmail">—</div>
+    <div id="signInBox" hidden style="margin-top:14px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);box-shadow:var(--shadow);padding:16px;max-width:520px">
+      <div id="signInMsg" style="margin-bottom:10px;color:var(--ink-soft)">Sign in to see your agents.</div>
+      <button class="ghost-btn primary" id="quickSignIn" type="button" hidden>Sign in</button>
+      <a class="ghost-btn primary" id="signInLink" href="/login?next=%2Fdashboard">Sign in</a>
+      <a class="ghost-btn" href="/" style="margin-left:6px">Create an account</a>
+    </div>
+  </section>
+
+  <div class="summary" id="summary"></div>
+
+  <div class="section-h">
+    <h2>Agents in commission</h2>
+    <span class="sub">Click an agent to operate its wallet below</span>
+  </div>
+  <div class="agents" id="agents"></div>
+  <div class="empty" id="emptyState" hidden>No agents on this account yet. <a href="/">Onboard one →</a></div>
+
+  <section class="console" id="ctlConsole" hidden>
+    <div class="console-h">
+      <span class="t">Steward controls · <span id="ctlName">—</span></span>
+      <span class="hint">Fund the selected agent from PayPal, give it an allowance, name who its earnings go to, sign its Power of Agency, and stop it at any time. Provider: <b id="ctlProvider">—</b></span>
+    </div>
+    <div class="console-body">
+      <div class="ops">
+        <div class="op kill">
+          <h5>Kill switch</h5>
+          <div class="ctl-status"><span id="ctlState" class="pill">—</span></div>
+          <div class="op-row">
+            <input id="ctlReason" class="data" placeholder="reason (optional)">
+            <button class="op-btn danger" id="ctlStop" type="button">Stop agent now</button>
+            <button class="op-btn ghost" id="ctlResume" type="button" hidden>Resume agent</button>
+          </div>
+          <p class="ctl-note">Stopping freezes the wallet and revokes every connection, Bazaar mandate, merchant grant, data subscription and skill license, pauses the allowance and sweeps, and revokes the Power of Agency.</p>
+        </div>
+        <div class="op">
+          <h5>Power of Agency</h5>
+          <div class="ctl-status"><span id="poaState" class="pill">—</span><span id="poaVer" class="ctl-note" style="margin:0"></span></div>
+          <div class="op-row"><button class="op-btn" id="poaSign" type="button">Review &amp; sign</button></div>
+          <p class="ctl-note" id="poaNote"></p>
+          <details class="terms" id="poaTerms"><summary>Terms the agent acts under</summary><pre id="poaPre"></pre></details>
+        </div>
+        <div class="op" style="grid-column:1/-1">
+          <h5>Connected assistants</h5>
+          <div id="caList" class="ctl-note" style="margin:0 0 10px">—</div>
+          <div class="op-row" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr))">
+            <select id="caPlat" aria-label="Assistant"><option value="">Connect an assistant…</option></select>
+            <select id="caSurf" aria-label="How you use it" hidden></select>
+            <label class="chk"><input type="checkbox" id="caPay"> <span>May pay (services, Bazaar, data)</span></label>
+            <button class="op-btn" id="caGo" type="button" disabled>Connect</button>
+          </div>
+          <div id="caOut" class="ctl-note"></div>
+        </div>
+        <div class="op">
+          <h5>Add funds with PayPal</h5>
+          <div class="op-row">
+            <input id="fundAmount" class="money" inputmode="decimal" placeholder="25.00" value="25.00">
+            <label class="chk"><input type="checkbox" id="fundSave"> <span>Save this PayPal for allowances</span></label>
+            <button class="op-btn" id="fundBtn" type="button">Pay with PayPal</button>
+          </div>
+          <p class="ctl-note" id="fundNote"></p>
+        </div>
+        <div class="op">
+          <h5>Allowance</h5>
+          <div class="op-row">
+            <input id="alAmount" class="money" inputmode="decimal" placeholder="10.00">
+            <select id="alPeriod"><option value="WEEKLY">Weekly</option><option value="MONTHLY">Monthly</option></select>
+            <button class="op-btn" id="alSave" type="button">Set allowance</button>
+            <button class="op-btn ghost" id="alToggle" type="button" hidden>Pause</button>
+          </div>
+          <p class="ctl-note" id="alNote">No allowance yet.</p>
+        </div>
+        <div class="op">
+          <h5>Beneficiary (earnings out)</h5>
+          <div class="op-row">
+            <input id="bnEmail" class="data" placeholder="beneficiary@paypal.com">
+            <input id="bnKeep" class="money" inputmode="decimal" placeholder="keep 20.00 working balance">
+            <select id="bnPeriod"><option value="MANUAL">When I say</option><option value="WEEKLY">Weekly</option><option value="MONTHLY">Monthly</option></select>
+            <button class="op-btn" id="bnSave" type="button">Save beneficiary</button>
+            <button class="op-btn send" id="bnSweep" type="button" hidden>Pay beneficiary now</button>
+          </div>
+          <p class="ctl-note" id="bnNote">Earnings above the working balance go to this PayPal account through PayPal Payouts.</p>
+        </div>
+      </div>
+      <div class="log" id="ctlLog" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section class="console" id="ecoConsole" hidden>
+    <div class="console-h">
+      <span class="t">Agent economy · <span id="ecoName">—</span></span>
+      <span class="hint">What this agent holds (licenses), sells (skills), earns and spends, in Gas and dollars. 1 Gas = <span id="ecoGas">$0.001</span>. <a href="/marketplace#skills">Skills marketplace →</a></span>
+    </div>
+    <div class="eco">
+      <div class="eco-col"><h5>Holds</h5><div class="eco-big" id="ecoHoldN">0</div><ul id="ecoHold"></ul></div>
+      <div class="eco-col"><h5>Sells</h5><div class="eco-big" id="ecoSellN">0</div><ul id="ecoSell"></ul></div>
+      <div class="eco-col"><h5>Earns</h5><div class="eco-big" id="ecoEarnT">$0.00</div><ul id="ecoEarn"></ul></div>
+      <div class="eco-col"><h5>Spends</h5><div class="eco-big" id="ecoSpendT">$0.00</div><ul id="ecoSpend"></ul></div>
+    </div>
+    <div class="eco-rate"><b>Rate card</b> the Gas this agent charges per call to act for other agents:
+      <input id="ecoFee" type="number" min="0" step="1" aria-label="Fee per call (Gas)"> Gas, at most
+      <input id="ecoMax" type="number" min="0" step="1" aria-label="Your maximum (Gas)"> Gas (your limit; the agent may set its own fee up to it).
+      <button class="op-btn" id="ecoSave" type="button">Save</button> <span id="ecoMsg" class="ctl-note" style="margin:0"></span></div>
+  </section>
+
+  <section class="console" id="console">
+    <div class="console-h">
+      <span class="t">Agent skills · money movement</span>
+      <span class="hint">Operate the selected agent's wallet — <code>payment.receive</code> / <code>spend</code> / <code>send_agent_payment</code>.</span>
+    </div>
+    <div class="console-body">
+      <div class="row">
+        <label class="field"><span class="lbl">Agent</span><select id="opAgentId"></select></label>
+        <label class="field"><span class="lbl">Currency</span><select id="opCurrency"><option>USD</option><option>EUR</option><option>GBP</option><option>CAD</option></select></label>
+      </div>
+      <div class="bal-line">
+        <span class="k">Spendable balance</span>
+        <span class="v" id="opBalance">—</span>
+        <span class="sp"></span>
+        <button class="ghost-btn" id="opRefresh" type="button">Refresh</button>
+      </div>
+      <div class="ops">
+        <div class="op">
+          <h5>Receive — credit in</h5>
+          <div class="op-row">
+            <input id="recvAmount" class="money" inputmode="decimal" placeholder="100.00">
+            <select id="recvType"><option value="EXTERNAL_TOPUP">External top-up</option><option value="REFUND">Refund</option></select>
+            <button class="op-btn" id="recvBtn" type="button">Credit</button>
+          </div>
+        </div>
+        <div class="op">
+          <h5>Spend — debit out</h5>
+          <div class="op-row">
+            <input id="spendAmount" class="money" inputmode="decimal" placeholder="50.00">
+            <button class="op-btn danger" id="spendBtn" type="button">Debit</button>
+          </div>
+        </div>
+        <div class="op">
+          <h5>Send — to another agent</h5>
+          <div class="op-row">
+            <input id="sendTo" class="data" list="agentList" placeholder="recipient agent id">
+            <input id="sendAmount" class="money" inputmode="decimal" placeholder="25.00">
+            <button class="op-btn send" id="sendAgentBtn" type="button">Transfer</button>
+          </div>
+          <datalist id="agentList"></datalist>
+        </div>
+      </div>
+      <div class="log" id="opLog" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section class="console" id="liveConsole">
+    <div class="console-h">
+      <span class="t">Live PayPal transactions</span>
+      <span class="hint">Real money movement for the selected agent via PayPal (sandbox when configured, dev gateway otherwise). <code>pay</code> an Order, <code>checkout</code> on a site, <code>payout</code> to a receiver, <code>topup</code> an inbound Order. Provider: <b id="liveProvider">—</b></span>
+    </div>
+    <div class="console-body">
+      <div class="ops">
+        <div class="op">
+          <h5>Pay a merchant (Order)</h5>
+          <div class="op-row">
+            <input id="payPayee" class="data" placeholder="merchant@shop.com or merchant id">
+            <input id="payAmount" class="money" inputmode="decimal" placeholder="100.00">
+            <input id="payDesc" class="data" placeholder="what for (e.g. GPU hour)">
+            <button class="op-btn" id="payBtn" type="button">Pay</button>
+          </div>
+        </div>
+        <div class="op">
+          <h5>Checkout on a site</h5>
+          <div class="op-row">
+            <input id="coUrl" class="data" placeholder="https://shop.example.com/cart">
+            <input id="coAmount" class="money" inputmode="decimal" placeholder="25.00">
+            <button class="op-btn send" id="coBtn" type="button">Checkout</button>
+          </div>
+        </div>
+        <div class="op">
+          <h5>Payout to a receiver</h5>
+          <div class="op-row">
+            <input id="poReceiver" class="data" placeholder="friend@paypal.com">
+            <input id="poAmount" class="money" inputmode="decimal" placeholder="50.00">
+            <button class="op-btn danger" id="poBtn" type="button">Send payout</button>
+          </div>
+        </div>
+        <div class="op">
+          <h5>Top up (inbound Order)</h5>
+          <div class="op-row">
+            <input id="tuOrder" class="data" placeholder="PayPal Order id">
+            <input id="tuAmount" class="money" inputmode="decimal" placeholder="200.00">
+            <button class="op-btn" id="tuBtn" type="button">Capture</button>
+          </div>
+        </div>
+      </div>
+      <div class="log" id="liveLog" aria-live="polite"></div>
+    </div>
+  </section>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var params = new URLSearchParams(location.search);
+  var ownerId = params.get("owner");
+  var newAgentId = params.get("agent");
+  var selectedAgentId = newAgentId || null;
+  var account = null;
+
+  // ---- money helpers ----
+  function parseMinor(str) {
+    if (typeof str !== "string") return null;
+    var s = str.trim().replace(/[, ]+/g, "");
+    if (s === "") return null;
+    if (!/^\d+(\.\d{0,2})?$/.test(s)) return null;
+    var p = s.split("."), whole = p[0] || "0", frac = (p[1] || "").padEnd(2, "0").slice(0, 2);
+    try { return BigInt(whole) * 100n + BigInt(frac); } catch (e) { return null; }
+  }
+  function fmtMinor(minor, currency) {
+    minor = BigInt(minor);
+    var neg = minor < 0n, abs = neg ? -minor : minor;
+    var whole = abs / 100n, cents = abs % 100n;
+    var ws = whole.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return (neg ? "-" : "") + ws + "." + cents.toString().padStart(2, "0") + " " + currency;
+  }
+
+  // ---- theme toggle ----
+  function readLS(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
+  function writeLS(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
+  var st = readLS("pp_theme");
+  if (st === "dark" || st === "light") document.documentElement.setAttribute("data-theme", st);
+  $("themeBtn").addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var isDark = cur ? cur === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+    var next = isDark ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", next); writeLS("pp_theme", next);
+  });
+
+  // ---- helpers to read an agent's primary account ----
+  function primaryAccount(agent, currency) {
+    var accts = agent.accounts || [];
+    if (currency) { var m = accts.filter(function (a){ return a.currency === currency; })[0]; if (m) return m; }
+    return accts[0] || null;
+  }
+  function seedStatusOf(agent) { return (agent.seeds && agent.seeds[0] && agent.seeds[0].status) || null; }
+  function findAgent(id) { return (account && account.agents || []).filter(function (a){ return a.id === id; })[0] || null; }
+
+  function statusPill(status) {
+    if (status === "CONSUMED") return '<span class="pill ok">Funded</span>';
+    if (status === "FUNDING_FAILED") return '<span class="pill bad">Funding failed</span>';
+    return '<span class="pill pending">Funding…</span>';
+  }
+  function objBadge(type, isNew) {
+    var cls = (type || "").toLowerCase();
+    var b = '<span class="badge ' + cls + '">' + (type || "—") + "</span>";
+    if (isNew) b += ' <span class="badge new">New</span>';
+    return b;
+  }
+
+  // ---- render ----
+  function renderSummary() {
+    var agents = account.agents || [];
+    var active = agents.filter(function (a){ return a.isActive; }).length;
+    // total available balance per currency
+    var totals = {};
+    agents.forEach(function (a) {
+      (a.accounts || []).forEach(function (acc) {
+        totals[acc.currency] = (totals[acc.currency] || 0n) + BigInt(acc.availableMinor);
+      });
+    });
+    var balTiles = Object.keys(totals).map(function (cur) {
+      return '<div class="tile"><div class="k">Total balance · ' + cur + '</div><div class="v">' + fmtMinor(totals[cur], cur) + "</div></div>";
+    }).join("");
+    if (!balTiles) balTiles = '<div class="tile"><div class="k">Total balance</div><div class="v">—</div></div>';
+    $("summary").innerHTML =
+      '<div class="tile"><div class="k">Agents</div><div class="v">' + agents.length + "</div></div>" +
+      '<div class="tile"><div class="k">Active</div><div class="v">' + active + ' <small>/ ' + agents.length + "</small></div></div>" +
+      balTiles;
+  }
+
+  function renderAgents() {
+    var agents = account.agents || [];
+    $("emptyState").hidden = agents.length > 0;
+    $("agents").innerHTML = agents.map(function (a) {
+      var acc = primaryAccount(a);
+      var bal = acc ? fmtMinor(acc.availableMinor, acc.currency) : "—";
+      var isNew = a.id === newAgentId;
+      var cls = "card" + (a.id === selectedAgentId ? " selected" : "") + (isNew ? " isnew" : "");
+      return '<div class="' + cls + '" data-agent="' + a.id + '">' +
+        '<div class="card-h"><span class="card-name">' + escapeHtml(a.name) + "</span><span>" + objBadge(a.objectiveType, isNew) + "</span></div>" +
+        '<div class="card-mandate">' + escapeHtml(a.objectiveMandate || "") + "</div>" +
+        '<div class="card-row"><span class="k">Wallet balance</span><span class="v">' + bal + "</span></div>" +
+        '<div class="card-row"><span class="k">Seed funding</span>' + statusPill(seedStatusOf(a)) + "</div>" +
+        '<div class="card-row"><span class="k">Status</span><span class="v">' + (a.isActive ? "Active" : "Inactive") + " · " + a.origin + "</span></div>" +
+        '<div class="card-id">' + a.id + "</div>" +
+      "</div>";
+    }).join("");
+    // click a card to select it in the console
+    Array.prototype.forEach.call(document.querySelectorAll(".card"), function (el) {
+      el.addEventListener("click", function () {
+        selectedAgentId = el.getAttribute("data-agent");
+        syncConsoleToSelection();
+        renderAgents();
+      });
+    });
+  }
+
+  function escapeHtml(s) { return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+  // ---- console ----
+  function renderAgentSelect() {
+    var agents = account.agents || [];
+    if (!selectedAgentId && agents[0]) selectedAgentId = agents[0].id;
+    $("opAgentId").innerHTML = agents.map(function (a) {
+      return '<option value="' + a.id + '"' + (a.id === selectedAgentId ? " selected" : "") + ">" + escapeHtml(a.name) + "</option>";
+    }).join("");
+  }
+  function syncConsoleToSelection() {
+    var a = findAgent(selectedAgentId);
+    if (!a) return;
+    $("opAgentId").value = a.id;
+    var acc = primaryAccount(a);
+    if (acc) $("opCurrency").value = acc.currency;
+    refreshBalance();
+    if (typeof loadControl === "function") loadControl();
+  }
+  function currentOpAgent() { return $("opAgentId").value; }
+  function currentOpCurrency() { return $("opCurrency").value; }
+
+  function refreshBalance() {
+    var id = currentOpAgent(), cur = currentOpCurrency();
+    if (!id) { $("opBalance").textContent = "—"; return; }
+    fetch("/api/agents/" + encodeURIComponent(id)).then(function (r){ return r.json(); }).then(function (a) {
+      if (!a || a.error) { $("opBalance").textContent = "— (not found)"; return; }
+      var acct = (a.accounts || []).filter(function (x){ return x.currency === cur; })[0];
+      $("opBalance").textContent = acct ? fmtMinor(acct.availableMinor, cur) : fmtMinor(0n, cur);
+    }).catch(function (){ $("opBalance").textContent = "— (error)"; });
+  }
+
+  function addLog(cls, tag, msg, replay) {
+    var el = document.createElement("div");
+    el.className = "log-entry " + cls;
+    el.innerHTML = '<span class="op-tag">' + tag + '</span><span>' + msg + "</span>" + (replay ? ' <span class="replay">replayed</span>' : "");
+    $("opLog").insertBefore(el, $("opLog").firstChild);
+  }
+
+  function populateAgentList() {
+    fetch("/api/agents").then(function (r){ return r.json(); }).then(function (d) {
+      $("agentList").innerHTML = (d.agents || []).map(function (a) {
+        return '<option value="' + a.id + '">' + escapeHtml(a.name || "agent") + " · " + a.objectiveType + "</option>";
+      }).join("");
+    }).catch(function (){});
+  }
+
+  function postOp(op, bodyObj, tag, fmtMsg) {
+    var id = currentOpAgent();
+    if (!id) { addLog("bad", tag, "Select an agent first."); return; }
+    fetch("/api/agents/" + encodeURIComponent(id) + "/" + op, {
+      method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(bodyObj)
+    }).then(function (r){ return r.json().then(function (j){ return { ok: r.ok, body: j }; }); })
+      .then(function (res) {
+        if (!res.ok) { addLog("bad", tag, (res.body && res.body.error) || "failed"); return; }
+        addLog("ok", tag, fmtMsg(res.body), res.body.replayed);
+        refreshBalance(); loadAccount(false);
+      })
+      .catch(function (err){ addLog("bad", tag, "network error: " + err.message); });
+  }
+
+  $("opRefresh").addEventListener("click", refreshBalance);
+  $("opAgentId").addEventListener("change", function () { selectedAgentId = $("opAgentId").value; syncConsoleToSelection(); renderAgents(); });
+  $("opCurrency").addEventListener("change", refreshBalance);
+
+  $("recvBtn").addEventListener("click", function () {
+    var amt = parseMinor($("recvAmount").value);
+    if (amt === null || amt <= 0n) { addLog("bad", "receive", "Enter a positive amount."); return; }
+    postOp("receive", { amountMinor: amt.toString(), currency: currentOpCurrency(), type: $("recvType").value }, "receive",
+      function (b){ return "+" + fmtMinor(b.amountMinor, b.currency) + " → balance " + fmtMinor(b.balanceAfterMinor, b.currency); });
+  });
+  $("spendBtn").addEventListener("click", function () {
+    var amt = parseMinor($("spendAmount").value);
+    if (amt === null || amt <= 0n) { addLog("bad", "spend", "Enter a positive amount."); return; }
+    postOp("spend", { amountMinor: amt.toString(), currency: currentOpCurrency() }, "spend",
+      function (b){ return "−" + fmtMinor(b.amountMinor, b.currency) + " → balance " + fmtMinor(b.balanceAfterMinor, b.currency); });
+  });
+  $("sendAgentBtn").addEventListener("click", function () {
+    var amt = parseMinor($("sendAmount").value), to = $("sendTo").value.trim();
+    if (!to) { addLog("bad", "send", "Enter a recipient agent id."); return; }
+    if (amt === null || amt <= 0n) { addLog("bad", "send", "Enter a positive amount."); return; }
+    postOp("send", { toAgentId: to, amountMinor: amt.toString(), currency: currentOpCurrency() }, "send",
+      function (b){ return fmtMinor(b.amountMinor, b.currency) + " → " + to.slice(0, 8) + "… · sender balance " + fmtMinor(b.fromBalanceAfterMinor, b.currency); });
+  });
+
+  // ---- load the account (and keep polling while any seed is still funding) ----
+  var fundingPolls = 0;
+  // ---- who is signed in (shared with Onboarding and Marketplace via the pp_session cookie) ----
+  var me = null;
+  var hereNext = function () { return encodeURIComponent(location.pathname + (newAgentId ? "?agent=" + encodeURIComponent(newAgentId) : "")); };
+  function renderAcct() {
+    var el = $("acct");
+    if (me) {
+      el.innerHTML = '<span class="ghost-btn" style="cursor:default" title="Signed in">' + me.email.replace(/[&<>"]/g, "") + '</span> <button class="ghost-btn" id="signOut" type="button">Sign out</button>';
+      $("signOut").onclick = function () {
+        fetch("/api/session/logout", { method: "POST" }).then(function () { location.assign("/login?next=%2Fdashboard"); });
+      };
+    } else {
+      el.innerHTML = '<a class="ghost-btn" href="/login?next=' + hereNext() + '">Sign in</a>';
+    }
+  }
+
+  // Shared: if we just came back from a sign-in link but the session cookie isn't there, the browser dropped it.
+  function cookieBlockedNotice(signedIn) {
+    var justSignedIn = location.hash === "#pp-signed-in";
+    if (justSignedIn) history.replaceState(null, "", location.pathname + location.search);
+    var embedded = false; try { embedded = window.top !== window.self; } catch (e) { embedded = true; }
+    if (signedIn || (!justSignedIn && !embedded)) return;
+    var d = document.createElement("div");
+    d.setAttribute("role", "alert");
+    d.style.cssText = "position:sticky;top:0;z-index:60;background:#fbe3e3;color:#5a1016;padding:12px 16px;font:600 14px/1.45 system-ui,sans-serif;border-bottom:1px solid #e8b4b4";
+    d.innerHTML = (embedded
+      ? "This page is open inside another app (an editor or preview pane), so your browser won’t keep PayPali’s sign-in. "
+      : "Your sign-in worked, but this browser didn’t keep PayPali’s sign-in cookie. ")
+      + "Open <a style=\"color:inherit\" href=\"" + location.origin + "/login\" target=\"_blank\" rel=\"noopener\">" + location.origin + "</a> in a regular browser window (Chrome, Safari, Firefox), not a private window, and allow cookies for this site.";
+    document.body.prepend(d);
+  }
+  
+  function resolveOwner(done) {
+    fetch("/api/session").then(function (r){ return r.json(); }).then(function (s) {
+      if (s && s.signedIn) {
+        me = s.owner;
+        if (ownerId && ownerId !== me.id) {
+          // A signed-in owner always sees their own account; a stale ?owner= link never shows someone else's.
+          history.replaceState(null, "", location.pathname + (newAgentId ? "?agent=" + encodeURIComponent(newAgentId) : ""));
+        }
+        ownerId = me.id;
+      }
+      renderAcct(); cookieBlockedNotice(!!me); done();
+    }).catch(function () { renderAcct(); done(); });
+  }
+
+  // Opened from an old ?owner= link without a session: one click turns it into a real sign-in for that email,
+  // so the Marketplace and every other page know who you are. (Dev returns the link directly; production emails it.)
+  function offerQuickSignIn(email) {
+    var b = $("quickSignIn");
+    $("signInMsg").textContent = "You opened " + email + " from a link, so other pages (like the Marketplace) don’t know it’s you yet.";
+    $("signInLink").hidden = true;
+    b.hidden = false;
+    b.textContent = "Sign in as " + email;
+    b.onclick = function () {
+      b.disabled = true;
+      fetch("/api/session/login", { method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email: email, next: location.pathname + (newAgentId ? "?agent=" + encodeURIComponent(newAgentId) : "") }) })
+        .then(function (r){ return r.json(); })
+        .then(function (j) {
+          if (j.devLink) { location.assign(j.devLink); return; }
+          $("signInMsg").textContent = j.error ? ("Could not sign in: " + j.error) : ("We emailed a sign-in link to " + email + ".");
+          b.disabled = false;
+        })
+        .catch(function () { b.disabled = false; });
+    };
+  }
+
+  function loadAccount(allowPoll) {
+    if (!ownerId) {
+      $("accountTitle").textContent = "Your agents";
+      $("ownerEmail").textContent = "";
+      $("signInLink").href = "/login?next=" + hereNext();
+      $("signInBox").hidden = false;
+      return;
+    }
+    $("signInBox").hidden = true;
+    if (!me) {
+      $("signInMsg").textContent = "You opened this account from a link without signing in. Sign in to keep it private.";
+      $("signInLink").href = "/login?next=" + hereNext();
+      $("signInBox").hidden = false;
+    }
+    fetch("/api/owners/" + encodeURIComponent(ownerId)).then(function (r){ return r.json(); }).then(function (data) {
+      if (!data || data.error) {
+        $("accountTitle").textContent = "Account not found";
+        $("ownerEmail").textContent = data && data.error ? data.error : "";
+        return;
+      }
+      account = data;
+      $("ownerEmail").textContent = data.email;
+      if (!me) offerQuickSignIn(data.email);
+      renderSummary();
+      renderAgentSelect();
+      renderAgents();
+      // Keep the console pointed at the current selection + balance fresh.
+      var sel = findAgent(selectedAgentId);
+      if (sel) { var acc = primaryAccount(sel); if (acc) $("opCurrency").value = acc.currency; refreshBalance(); }
+      if (allowPoll !== false || fundingPolls === 0) loadControl();
+
+      // Poll while any seed is still being captured (newly onboarded agent).
+      var stillFunding = (data.agents || []).some(function (a) {
+        var s = seedStatusOf(a); return s === "AUTHORIZED" || s === "PENDING" || s === null;
+      });
+      if (allowPoll !== false && stillFunding && fundingPolls < 30) {
+        fundingPolls++;
+        setTimeout(function () { loadAccount(true); }, 700);
+      }
+    }).catch(function (){ /* transient; next poll retries */ });
+  }
+
+  // ---- live PayPal transactions panel ----
+  function addLiveLog(cls, tag, msg) {
+    var el = document.createElement("div");
+    el.className = "log-entry " + cls;
+    el.innerHTML = '<span class="op-tag">' + tag + "</span><span>" + msg + "</span>";
+    $("liveLog").insertBefore(el, $("liveLog").firstChild);
+  }
+
+  function liveOp(op, bodyObj, tag) {
+    var id = currentOpAgent();
+    if (!id) { addLiveLog("bad", tag, "Select an agent first."); return; }
+    bodyObj.currency = currentOpCurrency();
+    fetch("/api/agents/" + encodeURIComponent(id) + "/" + op, {
+      method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(bodyObj)
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (o) {
+        if (o.provider) $("liveProvider").textContent = o.provider;
+        if (o.status === "PAID") {
+          var bal = (o.balanceAfterMinor !== undefined && o.balanceAfterMinor !== null)
+            ? " · balance " + fmtMinor(o.balanceAfterMinor, o.currency || currentOpCurrency()) : "";
+          addLiveLog("ok", tag, "PAID · ref " + (o.providerRef || "").slice(0, 16) + bal);
+        } else {
+          addLiveLog("bad", tag, o.status + (o.reason ? " · " + o.reason : ""));
+        }
+        refreshBalance(); loadAccount(false);
+      })
+      .catch(function (err) { addLiveLog("bad", tag, "network error: " + err.message); });
+  }
+
+  $("payBtn").addEventListener("click", function () {
+    var amt = parseMinor($("payAmount").value);
+    if (amt === null || amt <= 0n) { addLiveLog("bad", "pay", "Enter a positive amount."); return; }
+    if (!$("payPayee").value.trim()) { addLiveLog("bad", "pay", "Enter a payee."); return; }
+    liveOp("pay", { payeeReference: $("payPayee").value.trim(), amountMinor: amt.toString(), description: $("payDesc").value.trim() || "agent purchase" }, "pay");
+  });
+  $("coBtn").addEventListener("click", function () {
+    var amt = parseMinor($("coAmount").value);
+    if (amt === null || amt <= 0n) { addLiveLog("bad", "checkout", "Enter a positive amount."); return; }
+    if (!$("coUrl").value.trim()) { addLiveLog("bad", "checkout", "Enter a site URL."); return; }
+    liveOp("checkout", { siteUrl: $("coUrl").value.trim(), amountMinor: amt.toString() }, "checkout");
+  });
+  $("poBtn").addEventListener("click", function () {
+    var amt = parseMinor($("poAmount").value);
+    if (amt === null || amt <= 0n) { addLiveLog("bad", "payout", "Enter a positive amount."); return; }
+    if (!$("poReceiver").value.trim()) { addLiveLog("bad", "payout", "Enter a receiver."); return; }
+    liveOp("payout", { receiver: $("poReceiver").value.trim(), amountMinor: amt.toString(), note: "agent payout" }, "payout");
+  });
+  $("tuBtn").addEventListener("click", function () {
+    var amt = parseMinor($("tuAmount").value);
+    if (amt === null || amt <= 0n) { addLiveLog("bad", "topup", "Enter a positive amount."); return; }
+    if (!$("tuOrder").value.trim()) { addLiveLog("bad", "topup", "Enter a PayPal Order id."); return; }
+    liveOp("topup", { orderId: $("tuOrder").value.trim(), amountMinor: amt.toString() }, "topup");
+  });
+
+
+  // ---- steward controls: funding, allowance, beneficiary, Power of Agency, kill switch ----
+  var CTL = { agentId: null, poa: null };
+  function ctlLog(cls, tag, msg) {
+    var el = document.createElement("div");
+    el.className = "log-entry " + cls;
+    el.innerHTML = '<span class="op-tag">' + tag + "</span><span>" + msg + "</span>";
+    $("ctlLog").insertBefore(el, $("ctlLog").firstChild);
+  }
+  function api(method, path, body) {
+    return fetch(path, { method: method, headers: body ? { "content-type": "application/json" } : {}, body: body ? JSON.stringify(body) : undefined })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, status: r.status, body: j }; }); });
+  }
+  function pill(el, cls, text) { el.className = "pill " + cls; el.textContent = text; }
+  // ---- per agent: holds · sells · earns · spends
+  function usdM(m) { return "$" + (Number(m || 0) / 100).toFixed(2); }
+  function li(a, b, cls) { return '<li' + (cls ? ' class="' + cls + '"' : "") + "><span>" + a + "</span><span>" + (b == null ? "" : b) + "</span></li>"; }
+  function loadEconomy(id) {
+    api("GET", "/api/agents/" + encodeURIComponent(id) + "/economy").then(function (r) {
+      if (!r.ok) { $("ecoConsole").hidden = true; return; }
+      var e = r.body, g = e.gas || {}, gasUsd = function (n) { return "$" + (Number(n) * (g.priceMilliMinor || 100) / 100000).toFixed(3); };
+      $("ecoConsole").hidden = false; $("ecoName").textContent = e.agent.name; $("ecoGas").textContent = "$" + ((g.priceMilliMinor || 100) / 100000).toFixed(5) + " right now (it floats with demand; each call settles at its own price)";
+      var holds = e.holds.filter(function (h) { return h.status === "ACTIVE"; });
+      $("ecoHoldN").textContent = holds.length + (holds.length === 1 ? " license" : " licenses");
+      $("ecoHold").innerHTML = holds.length ? holds.slice(0, 8).map(function (h) {
+        var kind = { NATIVE: "skill", BAZAAR: "Bazaar", DATA_SUBSCRIPTION: "data", MERCHANT_GRANT: "spending grant" }[h.source] || h.source;
+        var left = h.mode === "SPENDING_CAP" ? usdM(h.usedMinor) + " of " + usdM(h.capMinor) : h.callsTotal ? (h.callsTotal - h.callsUsed) + " calls left" : h.mode === "PER_CALL" ? "per call" : h.mode.toLowerCase();
+        return li(escapeHtml(h.skillName) + ' <span class="ctl-note">· ' + kind + (h.licensor && h.licensor.name ? " from " + escapeHtml(h.licensor.name) : "") + "</span>", left);
+      }).join("") : li("Nothing yet. License skills in the marketplace.", "", "sub");
+      var sk = e.sells.skills, bz = e.sells.bazaarListings || [], da = e.sells.dataAgent;
+      var nSell = sk.length + bz.length + (da ? da.questionTypes.length : 0);
+      $("ecoSellN").textContent = nSell + (nSell === 1 ? " skill" : " skills");
+      $("ecoSell").innerHTML = (sk.map(function (x) {
+        var pc = (x.offers || []).filter(function (o) { return o.mode === "PER_CALL"; })[0];
+        return li(escapeHtml(x.name) + (x.kind === "ACCESS" ? ' <span class="ctl-note">· access</span>' : ""), (pc ? pc.priceGas + " Gas/call · " : "") + x.licensees + " licensed");
+      }).concat(bz.map(function (l) { return li(escapeHtml(l.name) + ' <span class="ctl-note">· Solutions Farm</span>', usdM(l.priceMinor)); }))
+        .concat(da ? da.questionTypes.map(function (q) { return li(escapeHtml(q.title) + ' <span class="ctl-note">· data</span>', da.status.toLowerCase()); }) : [])).join("") || li("Nothing on sale. Publish a skill, or give one agency from the marketplace.", "", "sub");
+      $("ecoEarnT").textContent = usdM(e.earns.totalMinor);
+      $("ecoEarn").innerHTML = li("Skills sold", e.earns.byRole.seller + " Gas") + li("Royalties", e.earns.byRole.royalty + " Gas") + li("Access sold to other agents", e.earns.byRole.upstream + " Gas") +
+        li("Solutions Farm sales", usdM(e.earns.bazaarMinor)) + li("Data answers", usdM(e.earns.dataMinor)) +
+        (e.earns.recent || []).slice(0, 3).map(function (x) { return li(escapeHtml(x.what) + (x.gas ? " · " + x.gas + " Gas" : ""), "", "sub"); }).join("");
+      $("ecoSpendT").textContent = usdM(e.spends.totalMinor);
+      $("ecoSpend").innerHTML = li("Skills (Gas to other agents)", e.spends.skillsGas + " Gas") + li("Services", usdM(e.spends.servicesMinor)) + li("Solutions Farm", usdM(e.spends.bazaarMinor)) + li("Data answers", usdM(e.spends.dataMinor)) +
+        li("Wallet now", usdM(e.wallet.availableMinor), "sub");
+      $("ecoFee").value = e.rateCard.actFeeGas; $("ecoMax").value = e.rateCard.maxFeeGas; $("ecoMsg").textContent = "";
+    });
+  }
+  $("ecoSave").addEventListener("click", function () {
+    api("PUT", "/api/agents/" + encodeURIComponent(CTL.agentId) + "/rate-card", { actFeeGas: Number($("ecoFee").value), maxFeeGas: Number($("ecoMax").value) }).then(function (r) {
+      $("ecoMsg").textContent = r.ok ? "Saved: " + r.body.actFeeGas + " Gas per call, at most " + r.body.maxFeeGas + "." : "Not saved: " + (r.body.error || r.status);
+    });
+  });
+  function loadControl() {
+    var id = currentOpAgent(), a = findAgent(id);
+    if (!id || !a) { $("ctlConsole").hidden = true; return; }
+    CTL.agentId = id;
+    $("ctlConsole").hidden = false;
+    $("ctlName").textContent = a.name;
+    pill($("ctlState"), a.isActive ? "ok" : "bad", a.isActive ? "Active" : "Stopped");
+    $("ctlStop").hidden = !a.isActive; $("ctlResume").hidden = a.isActive;
+    loadAssistants();
+    loadEconomy(id);
+    var enc = encodeURIComponent(id);
+    api("GET", "/api/agents/" + enc + "/funding").then(function (r) {
+      if (!r.ok) return;
+      var f = r.body, cfg = f.config || {};
+      $("ctlProvider").textContent = cfg.provider === "dev" ? "dev (PayPal not configured)" : cfg.provider;
+      if (cfg.vault === false) { $("fundSave").checked = false; $("fundSave").disabled = true; $("fundSave").nextElementSibling.textContent = "Saving PayPal isn't enabled on this PayPal app, so allowances are approved each period."; }
+      $("fundNote").innerHTML = cfg.live ? "You'll approve at PayPal" + (cfg.provider === "paypal:sandbox" ? " (sandbox)" : "") + " and come straight back." : "Development mode: a local page stands in for PayPal. No real money moves.";
+      var saved = (f.paymentMethods || []).length;
+      var al = f.allowance;
+      if (al && al.status !== "CANCELLED") {
+        $("alAmount").value = (Number(al.amountMinor) / 100).toFixed(2); $("alPeriod").value = al.period;
+        var pend = (al.runs || []).filter(function (x) { return x.status === "AWAITING_APPROVAL" && x.approveUrl; })[0];
+        $("alNote").innerHTML = fmtMinor(al.amountMinor, al.currency) + " " + al.period.toLowerCase() + " · " + (al.mode === "SAVED_PAYPAL" ? "charged from your saved PayPal" : "you approve each one") +
+          " · <b>" + al.status.toLowerCase() + "</b>" + (al.status === "ACTIVE" ? " · next " + new Date(al.nextRunAt).toLocaleDateString() : "") +
+          (al.lastError ? "<br>Last problem: " + escapeHtml(al.lastError) : "") + (pend ? '<br><a href="' + escapeHtml(pend.approveUrl) + '">Approve ' + escapeHtml(pend.periodKey) + " allowance at PayPal →</a>" : "");
+        $("alToggle").hidden = false; $("alToggle").textContent = al.status === "ACTIVE" ? "Pause" : "Resume";
+      } else {
+        $("alNote").textContent = saved ? "No allowance yet. It will be charged from your saved PayPal." : "No allowance yet. Without a saved PayPal you approve each period; tick “Save this PayPal” when adding funds to automate it.";
+        $("alToggle").hidden = true;
+      }
+      var bn = f.beneficiary;
+      if (bn) {
+        $("bnEmail").value = bn.receiver; $("bnKeep").value = (Number(bn.keepMinor) / 100).toFixed(2); $("bnPeriod").value = bn.period;
+        var lr = bn.lastResult;
+        $("bnNote").innerHTML = "Pays " + escapeHtml(bn.receiver) + " everything above " + fmtMinor(bn.keepMinor, bn.currency) + " (" + bn.period.toLowerCase() + ")." + (lr ? "<br>Last: " + escapeHtml(lr.status) + (lr.amountMinor ? " " + fmtMinor(lr.amountMinor, bn.currency) : "") + (lr.reason ? " · " + escapeHtml(lr.reason) : "") : "");
+        $("bnSweep").hidden = false;
+      } else $("bnSweep").hidden = true;
+    });
+    api("GET", "/api/agents/" + enc + "/power-of-agency").then(function (r) {
+      if (!r.ok) { $("poaNote").textContent = r.body.error || "Unavailable"; return; }
+      CTL.poa = r.body;
+      var act = r.body.active;
+      if (act) { pill($("poaState"), r.body.changedSinceSigned ? "pending" : "ok", r.body.changedSinceSigned ? "Out of date" : "Signed"); $("poaVer").textContent = "v" + act.version + " · " + new Date(act.acceptedAt).toLocaleDateString(); }
+      else { pill($("poaState"), "bad", (r.body.history || []).length ? "Revoked" : "Not signed"); $("poaVer").textContent = ""; }
+      $("poaNote").innerHTML = (r.body.changedSinceSigned ? "The agent's authority " + (act ? "has changed since you signed. Review and sign the new terms." : "isn't covered by a signed Power of Agency yet.") : "The agent acts under the signed terms below.") +
+        (r.body.enforced ? " <b>Required:</b> without it the agent can't pay for anything." : "");
+      $("poaSign").textContent = act && !r.body.changedSinceSigned ? "Re-sign" : "Review & sign";
+      $("poaPre").textContent = JSON.stringify(act && !r.body.changedSinceSigned ? act.terms : r.body.draft, null, 2);
+    });
+  }
+  $("ctlStop").addEventListener("click", function () {
+    if (!window.confirm("Stop this agent now? Its wallet freezes and every connection, mandate and subscription is revoked.")) return;
+    api("POST", "/api/agents/" + encodeURIComponent(CTL.agentId) + "/stop", { reason: $("ctlReason").value.trim() || "Stopped by holder" }).then(function (r) {
+      if (!r.ok) return ctlLog("bad", "stop", r.body.error || "failed");
+      var e = r.body.effects || {};
+      ctlLog("ok", "stop", "Stopped · " + (e.connectionsRevoked || 0) + " connections revoked · allowance paused: " + (e.allowancesPaused || 0) + " · Power of Agency revoked: " + (e.powerOfAgencyRevoked ? "yes" : "none active"));
+      loadAccount(false);
+    });
+  });
+  $("ctlResume").addEventListener("click", function () {
+    api("POST", "/api/agents/" + encodeURIComponent(CTL.agentId) + "/resume", {}).then(function (r) {
+      if (!r.ok) return ctlLog("bad", "resume", r.body.error || "failed");
+      ctlLog("ok", "resume", "Wallet back on. Next: " + (r.body.next || []).join(" "));
+      loadAccount(false);
+    });
+  });
+  $("poaSign").addEventListener("click", function () {
+    if (!CTL.poa) return;
+    $("poaTerms").open = true;
+    if (!window.confirm("Sign this Power of Agency? The agent will act for you under exactly these terms until you stop it or sign a new version.")) return;
+    api("POST", "/api/agents/" + encodeURIComponent(CTL.agentId) + "/power-of-agency/sign", { acceptedTermsSha256: CTL.poa.draftTermsSha256 }).then(function (r) {
+      if (!r.ok) return ctlLog("bad", "agency", r.body.error === "TERMS_CHANGED_REVIEW_AGAIN" ? "The terms changed while you were reading. Review them again." : (r.body.error || "failed"));
+      ctlLog("ok", "agency", "Power of Agency v" + r.body.version + " signed" + (r.body.document && r.body.document.sig ? " and countersigned by PayPali" : ""));
+      loadControl();
+    });
+  });
+  $("fundBtn").addEventListener("click", function () {
+    var amt = parseMinor($("fundAmount").value);
+    if (amt === null || amt < 100n) return ctlLog("bad", "fund", "Enter at least 1.00.");
+    api("POST", "/api/agents/" + encodeURIComponent(CTL.agentId) + "/funding/orders", { amountMinor: amt.toString(), currency: "USD", saveForAllowance: $("fundSave").checked, returnPath: "/dashboard?agent=" + encodeURIComponent(CTL.agentId) })
+      .then(function (r) { if (!r.ok) return ctlLog("bad", "fund", r.body.error || "failed"); if (r.body.vaultSkipped) ctlLog("warn", "fund", "PayPal won't save your account on this app, so this is a one-time payment."); location.assign(r.body.approveUrl); });
+  });
+  $("alSave").addEventListener("click", function () {
+    var amt = parseMinor($("alAmount").value);
+    if (amt === null || amt < 100n) return ctlLog("bad", "allowance", "Enter at least 1.00.");
+    api("PUT", "/api/agents/" + encodeURIComponent(CTL.agentId) + "/allowance", { amountMinor: amt.toString(), period: $("alPeriod").value }).then(function (r) {
+      if (!r.ok) return ctlLog("bad", "allowance", r.body.error || "failed");
+      ctlLog("ok", "allowance", fmtMinor(r.body.amountMinor, r.body.currency) + " " + r.body.period.toLowerCase() + " · " + (r.body.mode === "SAVED_PAYPAL" ? "from your saved PayPal" : "you approve each period") + ". First one runs within a minute.");
+      loadControl();
+    });
+  });
+  $("alToggle").addEventListener("click", function () {
+    var act = $("alToggle").textContent === "Pause" ? "pause" : "resume";
+    api("POST", "/api/agents/" + encodeURIComponent(CTL.agentId) + "/allowance/" + act, {}).then(function (r) {
+      if (!r.ok) return ctlLog("bad", "allowance", r.body.error || "failed");
+      ctlLog("ok", "allowance", act === "pause" ? "Paused" : "Resumed"); loadControl();
+    });
+  });
+  $("bnSave").addEventListener("click", function () {
+    var keep = parseMinor($("bnKeep").value || "0");
+    if (keep === null) return ctlLog("bad", "beneficiary", "Enter a working balance to keep.");
+    api("PUT", "/api/agents/" + encodeURIComponent(CTL.agentId) + "/beneficiary", { receiver: $("bnEmail").value.trim(), keepMinor: keep.toString(), period: $("bnPeriod").value }).then(function (r) {
+      if (!r.ok) return ctlLog("bad", "beneficiary", r.body.error || "failed");
+      ctlLog("ok", "beneficiary", "Earnings above " + fmtMinor(r.body.keepMinor, r.body.currency) + " go to " + escapeHtml(r.body.receiver)); loadControl();
+    });
+  });
+  $("bnSweep").addEventListener("click", function () {
+    api("POST", "/api/agents/" + encodeURIComponent(CTL.agentId) + "/beneficiary/sweep", {}).then(function (r) {
+      if (!r.ok) return ctlLog("bad", "payout", r.body.error || "failed");
+      var b = r.body;
+      ctlLog(b.status === "PAID" || b.status === "NOTHING_TO_PAY" ? "ok" : "bad", "payout", b.status === "PAID" ? "Paid " + fmtMinor(b.amountMinor, "USD") + " to " + escapeHtml(b.receiver) + " · PayPal batch " + escapeHtml(b.providerRef || "") : b.status + (b.reason ? " · " + escapeHtml(b.reason) : ""));
+      refreshBalance(); loadAccount(false);
+    });
+  });
+
+  // ---- connected assistants (Claude, ChatGPT, Grok, DeepSeek… reaching PayPali over MCP) ----
+  var CA = { providers: null };
+  var CA_KIND = { app: "app · sign in", developer: "developer tool · token", api: "your code · token" };
+  function caSurfaces() {
+    if (!CA.providers) return [];
+    var pl = CA.providers.platforms.filter(function (x) { return x.id === $("caPlat").value; })[0]; if (!pl) return [];
+    var pr = CA.providers.providers.filter(function (x) { return x.id === pl.providerId; })[0];
+    return pr ? pr.surfaces.map(function (x) { x.providerId = pr.id; x.platformName = pl.name; return x; }) : [];
+  }
+  function loadAssistants() {
+    var id = CTL.agentId; if (!id) return;
+    var go = function () {
+      api("GET", "/api/agents/" + encodeURIComponent(id) + "/connections").then(function (r) {
+        var list = (r.body.connections || []).filter(function (c) { return c.status === "ACTIVE"; });
+        $("caList").innerHTML = list.length ? list.map(function (c) {
+          return '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:4px 0"><b>' + escapeHtml(c.label) + '</b> <span class="pill ' + (c.lastUsedAt ? "ok" : "pending") + '">' + (c.lastUsedAt ? "used " + new Date(c.lastUsedAt).toLocaleString() : "waiting for first call") + "</span>" +
+            '<span>' + escapeHtml(c.auth === "OAUTH" ? "signed in" : "token") + " · " + escapeHtml(c.scopes.join(", ")) + " · up to " + fmtMinor(c.mandate.maxPerTxMinor, c.mandate.currency) + "/payment</span>" +
+            '<button class="op-btn ghost" data-revoke="' + c.id + '" type="button" style="padding:4px 10px">Revoke</button></div>';
+        }).join("") : "No assistants connected. Bring the one you already use: Claude, ChatGPT, Grok, Gemini, DeepSeek and more.";
+      });
+    };
+    if (!CA.providers) api("GET", "/api/connect/providers").then(function (r) {
+      CA.providers = r.body;
+      $("caPlat").innerHTML = '<option value="">Connect an assistant…</option>' + r.body.platforms.map(function (p) { return '<option value="' + p.id + '">' + escapeHtml(p.name) + " (" + escapeHtml(p.vendor) + ")</option>"; }).join("");
+      go();
+    }); else go();
+  }
+  $("caList").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-revoke]"); if (!b) return;
+    if (!window.confirm("Revoke this assistant? It stops working immediately.")) return;
+    api("POST", "/api/connections/" + encodeURIComponent(b.getAttribute("data-revoke")) + "/revoke", {}).then(function (r) { ctlLog(r.ok ? "ok" : "bad", "connect", r.ok ? "Revoked " + escapeHtml(r.body.label) : (r.body.error || "failed")); loadAssistants(); loadControl(); });
+  });
+  $("caPlat").addEventListener("change", function () {
+    var surfs = caSurfaces();
+    $("caSurf").hidden = !surfs.length; $("caGo").disabled = !surfs.length; $("caOut").innerHTML = "";
+    $("caSurf").innerHTML = surfs.map(function (x) { return '<option value="' + x.surface + '">' + escapeHtml(x.name) + " — " + CA_KIND[x.kind] + "</option>"; }).join("");
+  });
+  $("caGo").addEventListener("click", function () {
+    var x = caSurfaces().filter(function (y) { return y.surface === $("caSurf").value; })[0]; if (!x) return;
+    var url = CA.providers.mcpUrl;
+    if (x.auth === "oauth") {
+      $("caOut").innerHTML = "<ol>" + (x.steps || [x.setup]).map(function (t) { return "<li>" + escapeHtml(t) + "</li>"; }).join("") + "</ol>" +
+        (x.needsPublicUrl && !CA.providers.publicUrlReachable ? '<p><b>' + escapeHtml(x.platformName) + " can’t reach " + escapeHtml(url) + "</b> from its servers: run a tunnel (e.g. <code>cloudflared tunnel --url " + escapeHtml(CA.providers.publicUrl) + "</code>), set PAYPALI_PUBLIC_URL to the https address and restart.</p>" : "") +
+        "<p>It appears above once you approve it on PayPali’s sign-in screen.</p>";
+      return;
+    }
+    var pay = $("caPay").checked;
+    var a = findAgent(CTL.agentId), acc = a && primaryAccount(a);
+    api("POST", "/api/agents/" + encodeURIComponent(CTL.agentId) + "/connections", {
+      provider: x.providerId, label: x.name.slice(0, 80),
+      scopes: ["context:read", "wallet:read", "market:read", "gas:quote"].concat(pay ? ["gas:pay", "bazaar:buy", "data:query"] : []),
+      mandate: { maxPerTxMinor: "2500", maxDailyMinor: "10000" },
+    }).then(function (r) {
+      if (!r.ok) return ($("caOut").textContent = "Not connected: " + (r.body.error || r.status));
+      var st = (r.body.setup || []).filter(function (y) { return y.surface === x.surface; })[0] || {};
+      $("caOut").innerHTML = "<b>Token created (shown once).</b> Add this to " + escapeHtml(x.name) + ":" +
+        '<pre style="white-space:pre-wrap;word-break:break-all;background:var(--surface-2);padding:10px;border-radius:8px">' + escapeHtml(st.setup || r.body.token) + "</pre>" +
+        (st.note ? escapeHtml(st.note) + " " : "") + "Limits: $25.00 per payment, $100.00 per day; change them with PATCH /api/connections/:id/mandate." +
+        (x.needsPublicUrl && !CA.providers.publicUrlReachable ? "<p><b>" + escapeHtml(x.platformName) + " calls PayPali from its own servers and can’t reach " + escapeHtml(url) + ":</b> run a tunnel, set PAYPALI_PUBLIC_URL to its https address and restart.</p>" : "");
+      ctlLog("ok", "connect", escapeHtml(x.name) + " connected" + (pay ? " with payment permissions" : " (read and price only)"));
+      loadAssistants(); loadControl();
+    });
+  });
+  (function fundingReturnNotice() {
+    var f = params.get("funding");
+    if (!f) return;
+    var msg = { captured: ["ok", "PayPal payment captured and credited to the agent."], cancelled: ["bad", "You cancelled at PayPal. Nothing was charged."], pending: ["bad", "PayPal hasn't confirmed the approval yet. Refresh in a moment."], declined: ["bad", "PayPal declined the payment."], failed: ["bad", "The PayPal capture failed. Nothing was credited."] }[f] || ["bad", "Funding: " + f];
+    setTimeout(function () { ctlLog(msg[0], "fund", msg[1]); }, 300);
+    params.delete("funding"); history.replaceState(null, "", location.pathname + (params.toString() ? "?" + params.toString() : ""));
+  })();
+
+  populateAgentList();
+  resolveOwner(function () { loadAccount(true); });
+})();
+</script>
+</body></html>

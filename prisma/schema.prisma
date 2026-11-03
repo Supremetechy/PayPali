@@ -99,6 +99,7 @@ enum LedgerEntryType {
   REFUND          // receive: a prior spend was refunded
   HOLD            // spend: funds reserved available->reserved for a merchant payment
   RELEASE         // spend: a hold released reserved->available (payment did not settle)
+  SCORE_FORFEIT   // receive (Score Pool only): a bond forfeited by an agent's failed scored action
 }
 
 enum TransferStatus {
@@ -342,4 +343,1064 @@ model AgentTransfer {
 
   @@index([fromAgentId, createdAt])
   @@index([toAgentId, createdAt])
+}
+// ===========================================================================
+// Agent Development (src/agentdev). Separation of concerns for every agent:
+//   knowledge  -> KnowledgeModule / KnowledgeFact   (user-provided, scoped, cited)
+//   procedures -> SkillDefinition                    (typed steps + required capabilities)
+//   capability -> CapabilityGrant                    (least-privilege tool access)
+//   behavior   -> AgentMemory                        (lessons written by background passes)
+//   safety     -> AgentScore / ScoreStake            (stake-before-act, binary settlement)
+// ===========================================================================
+
+enum RiskClass {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+// PROPOSED facts came from an agent and do not reach any agent context until
+// the owner approves them. Knowledge is never inferred into ACTIVE by a model.
+enum FactStatus {
+  ACTIVE
+  PROPOSED
+  SUPERSEDED
+  RETIRED
+}
+
+enum ScoreStatus {
+  ACTIVE     // full access within granted capabilities
+  PROBATION  // near the floor: LOW-risk actions only
+  SUSPENDED  // at/below the floor: no scored actions, agent deactivated
+}
+
+enum StakeStatus {
+  OPEN
+  WON
+  LOST
+  EXPIRED // settled as a loss: an action the agent could not get verified in time
+}
+
+enum MemoryKind {
+  LESSON     // derived from settled stakes by a background pass
+  BEHAVIOR   // owner-set behavioral rule ("always confirm totals before paying")
+  PREFERENCE // owner-set preference
+}
+
+// A named, versioned bundle of facts owned by one human. Bound to agents
+// explicitly; an agent only ever sees facts from modules bound to it.
+model KnowledgeModule {
+  id          String                 @id @default(uuid())
+  ownerId     String
+  name        String
+  description String                 @default("")
+  facts       KnowledgeFact[]
+  bindings    AgentModuleBinding[]
+  createdAt   DateTime               @default(now())
+  updatedAt   DateTime               @updatedAt
+
+  @@unique([ownerId, name])
+}
+
+model KnowledgeFact {
+  id             String          @id @default(uuid())
+  moduleId       String
+  statement      String
+  source         String          // provenance is mandatory: where the user said / documented this
+  tags           String[]
+  status         FactStatus      @default(ACTIVE)
+  supersededById String?
+  proposedByAgentId String?
+  expiresAt      DateTime?
+  lastUsedAt     DateTime?
+  module         KnowledgeModule @relation(fields: [moduleId], references: [id], onDelete: Restrict)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@index([moduleId, status])
+}
+
+model AgentModuleBinding {
+  agentId   String
+  moduleId  String
+  module    KnowledgeModule @relation(fields: [moduleId], references: [id], onDelete: Restrict)
+  createdAt DateTime        @default(now())
+
+  @@id([agentId, moduleId])
+}
+
+// A procedure: ordered steps plus the capabilities executing it requires.
+model SkillDefinition {
+  id                   String              @id @default(uuid())
+  ownerId              String
+  name                 String
+  version              Int                 @default(1)
+  description          String              @default("")
+  steps                Json                // string[] of ordered procedure steps
+  requiredCapabilities String[]
+  riskClass            RiskClass           @default(LOW)
+  bindings             AgentSkillBinding[]
+  createdAt            DateTime            @default(now())
+
+  @@unique([ownerId, name, version])
+}
+
+model AgentSkillBinding {
+  agentId   String
+  skillId   String
+  skill     SkillDefinition @relation(fields: [skillId], references: [id], onDelete: Restrict)
+  createdAt DateTime        @default(now())
+
+  @@id([agentId, skillId])
+}
+
+// Built capability: an explicit, owner-issued, revocable grant of one tool.
+model CapabilityGrant {
+  id         String    @id @default(uuid())
+  agentId    String
+  capability String    // e.g. wallet.pay, wallet.payout, wallet.checkout, wallet.send, bazaar.purchase
+  maxRisk    RiskClass @default(LOW)
+  grantedBy  String    // owner id
+  expiresAt  DateTime?
+  revokedAt  DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@unique([agentId, capability])
+}
+
+model AgentMemory {
+  id        String     @id @default(uuid())
+  agentId   String
+  key       String     // stable slot, e.g. "calibration:wallet.pay"; passes overwrite their own slots
+  kind      MemoryKind
+  content   String
+  weight    Int        @default(1)
+  evidence  Json?      // stake ids / stats the lesson was derived from
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@unique([agentId, key])
+}
+
+// The agent's score account. `lockedPoints` is held by OPEN stakes; only
+// balance - locked is available to stake on the next action.
+model AgentScore {
+  agentId      String      @id
+  balance      Int
+  lockedPoints Int         @default(0)
+  floor        Int
+  status       ScoreStatus @default(ACTIVE)
+  wins         Int         @default(0)
+  losses       Int         @default(0)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+}
+
+// One scored action. Created (and points locked) BEFORE the action runs; settled
+// exactly once with a binary outcome. (agentId, intentKey, attemptNo) is unique:
+// retrying the same goal is a new, more expensive attempt, never a free redo.
+model ScoreStake {
+  id               String      @id @default(uuid())
+  agentId          String
+  intentKey        String
+  attemptNo        Int
+  capability       String
+  skillId          String?
+  riskClass        RiskClass
+  confidencePct    Int         // agent's declared P(success), 1..99
+  stake            Int
+  fee              Int
+  lockedPoints     Int
+  status           StakeStatus @default(OPEN)
+  delta            Int?        // net change to balance on settlement
+  evidence         Json?
+  expiresAt        DateTime
+  settledAt        DateTime?
+  createdAt        DateTime    @default(now())
+
+  @@unique([agentId, intentKey, attemptNo])
+  @@index([agentId, status])
+  @@index([status, expiresAt])
+}
+
+// ===========================================================================
+// Merchant Connect (src/merchant). A merchant (e.g. AgentBazaar) is a
+// configured, HMAC-authenticated service. It can only charge an agent through
+// an owner-issued MerchantGrant, and every charge is a Score-gated
+// `bazaar.purchase` action: a stake is committed before money moves.
+// ===========================================================================
+
+enum MerchantGrantStatus {
+  ACTIVE
+  REVOKED
+}
+
+enum MerchantChargeStatus {
+  PENDING  // grant reserved; score/transfer in progress (resumable by idempotent replay)
+  PAID
+  DECLINED
+  REFUNDED // non-delivery: money returned to the agent, grant headroom restored
+}
+
+enum MerchantEventStatus {
+  PENDING
+  DELIVERED
+  FAILED
+}
+
+// Owner authorization for one merchant to draw up to maxMinor from one agent.
+model MerchantGrant {
+  id         String              @id @default(uuid())
+  merchantId String
+  ownerId    String
+  agentId    String
+  currency   String              @db.VarChar(3)
+  maxMinor   BigInt
+  usedMinor  BigInt              @default(0)
+  // Optional: only a Bazaar mandate signed by this principal key may draw on the grant.
+  principalPub String?
+  status     MerchantGrantStatus @default(ACTIVE)
+  expiresAt  DateTime?
+  revokedAt  DateTime?
+  charges    MerchantCharge[]
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
+
+  @@index([agentId])
+  @@index([merchantId])
+}
+
+model MerchantCharge {
+  id             String               @id @default(uuid())
+  merchantId     String
+  idempotencyKey String
+  grantId        String
+  agentId        String
+  amountMinor    BigInt
+  currency       String               @db.VarChar(3)
+  reference      String               @default("")
+  intentKey      String
+  status         MerchantChargeStatus @default(PENDING)
+  reason         String?
+  transferId     String?
+  stakeId        String?
+  refundedAt     DateTime?
+  refundTransferId String?
+  grant          MerchantGrant        @relation(fields: [grantId], references: [id], onDelete: Restrict)
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+
+  @@unique([merchantId, idempotencyKey])
+  @@index([agentId])
+}
+
+model MerchantPayout {
+  id             String   @id @default(uuid())
+  merchantId     String
+  idempotencyKey String
+  toAgentId      String
+  amountMinor    BigInt
+  currency       String   @db.VarChar(3)
+  reference      String   @default("")
+  transferId     String
+  createdAt      DateTime @default(now())
+
+  @@unique([merchantId, idempotencyKey])
+}
+
+// Outbound webhook outbox (PayPali -> merchant), written in the same
+// transaction as the state change it announces.
+model MerchantEvent {
+  id          String              @id @default(uuid())
+  merchantId  String
+  type        String
+  payload     Json
+  status      MerchantEventStatus @default(PENDING)
+  attempts    Int                 @default(0)
+  availableAt DateTime            @default(now())
+  lastError   String?
+  deliveredAt DateTime?
+  createdAt   DateTime            @default(now())
+
+  @@index([status, availableAt])
+}
+
+// ===========================================================================
+// Agent Connect (src/connect). Lets a user's EXISTING agent — Claude/Cowork,
+// ChatGPT/dots, Gemini, Grok, Meta Muse, any MCP client — act as one of their
+// PayPali agents through the remote MCP endpoint (/mcp). The external model is
+// only the brain; identity, wallet, Score and the connection's mandate live here.
+// ===========================================================================
+
+enum ConnectionStatus {
+  ACTIVE
+  REVOKED
+}
+
+enum ConnectionAuth {
+  TOKEN // owner-issued bearer token (developer surfaces: Claude Code, Responses APIs, Gemini CLI)
+  OAUTH // OAuth 2.1 + PKCE sign-in (consumer apps: Claude/Cowork, ChatGPT, Muse)
+}
+
+enum ConnectionTokenKind {
+  ACCESS
+  REFRESH
+}
+
+// One external agent bound to one PayPali agent, with its own scopes and mandate.
+// The mandate sits ON TOP of the agent's policy and Score gate; it can only narrow.
+model AgentConnection {
+  id                 String              @id @default(uuid())
+  agentId            String
+  ownerId            String
+  provider           String              // claude | chatgpt | gemini | grok | muse | custom
+  label              String
+  auth               ConnectionAuth
+  oauthClientId      String?
+  scopes             String[]
+  currency           String              @default("USD") @db.VarChar(3)
+  maxPerTxMinor      BigInt
+  maxDailyMinor      BigInt
+  approvalAboveMinor BigInt?             // above this, pay_with_gas returns APPROVAL_REQUIRED
+  allowedServices    String[]            // service ids, or ["*"]
+  allowRecurring     Boolean             @default(false) // explicit switch: subscriptions and recurring charges
+  status             ConnectionStatus    @default(ACTIVE)
+  expiresAt          DateTime?
+  lastUsedAt         DateTime?
+  revokedAt          DateTime?
+  tokens             ConnectionToken[]
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+
+  @@index([agentId])
+  @@index([ownerId])
+}
+
+// Only SHA-256 hashes of tokens are stored; the plaintext is shown once.
+model ConnectionToken {
+  id           String              @id @default(uuid())
+  connectionId String
+  kind         ConnectionTokenKind
+  tokenHash    String              @unique
+  expiresAt    DateTime?
+  revokedAt    DateTime?
+  connection   AgentConnection     @relation(fields: [connectionId], references: [id], onDelete: Restrict)
+  createdAt    DateTime            @default(now())
+
+  @@index([connectionId])
+}
+
+// OAuth 2.1 public clients from dynamic client registration (RFC 7591).
+model OAuthClient {
+  id           String   @id
+  name         String
+  redirectUris String[]
+  createdAt    DateTime @default(now())
+}
+
+// Single-use authorization codes (PKCE S256 required), stored hashed.
+model OAuthCode {
+  codeHash      String    @id
+  clientId      String
+  connectionId  String
+  redirectUri   String
+  codeChallenge String
+  scopes        String[]
+  expiresAt     DateTime
+  usedAt        DateTime?
+  createdAt     DateTime  @default(now())
+}
+
+// ===========================================================================
+// Service marketplace + Gas (src/market). Gas is PayPali's unit of cost for
+// agent usage: services price actions in Gas, agents pay Gas from their wallet.
+// ===========================================================================
+
+enum ServiceOrderStatus {
+  PROCESSING        // stake committed, money moving / portal call in flight
+  FULFILLED         // portal confirmed
+  PENDING_PROVIDER  // paid into escrow, waiting on the portal's confirmation
+  FAILED            // payment or fulfilment failed (refunded if money moved)
+}
+
+model GasQuote {
+  id            String    @id @default(uuid())
+  agentId       String
+  connectionId  String?
+  serviceId     String
+  actionId      String
+  params        Json
+  gasUnits      Int
+  feeGas        Int
+  gasPriceMilli Int       // milli-minor-units per Gas (100 = 0.1 cent)
+  amountMinor   BigInt
+  currency      String    @db.VarChar(3)
+  expiresAt     DateTime
+  createdAt     DateTime  @default(now())
+
+  @@index([agentId])
+}
+
+model ServiceOrder {
+  id           String             @id @default(uuid())
+  quoteId      String             @unique // one order per quote: replaying pay is idempotent
+  agentId      String
+  connectionId String?
+  serviceId    String
+  actionId     String
+  gasUnits     Int
+  feeGas       Int
+  amountMinor  BigInt
+  currency     String             @db.VarChar(3)
+  status       ServiceOrderStatus @default(PROCESSING)
+  reason       String?
+  stakeId      String?
+  transferId   String?
+  refundId     String?
+  fulfillment  Json?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  @@index([connectionId, createdAt])
+  @@index([agentId, createdAt])
+}
+
+// Platform-managed provider credentials; ciphertext is write-only via admin APIs.
+model ServicePortalSecret {
+  serviceId  String   @id
+  ciphertext String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+// ===========================================================================
+// AgentBazaar bridge (src/bazaar). Lets ANY PayPali agent — built here or
+// connected from Claude/ChatGPT/Gemini/Grok/Muse — shop the AgentBazaar
+// marketplace. The Bazaar authenticates with Ed25519 keys: PayPali holds them
+// custodially (encrypted at rest) and signs the principal's mandate only when
+// the owner enables AgentBazaar for that agent.
+// ===========================================================================
+
+enum BazaarOrderStatus {
+  PENDING  // reserved against the connection mandate, purchase in flight
+  PAID
+  FAILED
+}
+
+// The owner's Bazaar principal key (one per owner).
+model BazaarPrincipal {
+  ownerId       String   @id
+  publicKey     String
+  encPrivateKey String
+  createdAt     DateTime @default(now())
+}
+
+// One agent's Bazaar identity and its active, PayPali-funded mandate.
+model BazaarAccount {
+  agentId          String    @id
+  ownerId          String
+  publicKey        String
+  encPrivateKey    String
+  grantId          String?
+  mandateId        String?
+  mandateExpiresAt DateTime?
+  budgetMinor      BigInt    @default(0)
+  capMinor         BigInt    @default(0)
+  minTier          Int       @default(1)
+  disabledAt       DateTime? // owner kill switch: no automatic re-enable from a connection
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
+
+// A Solutions Farm storefront key linked to a PayPali account by the owner (Connect PayPali).
+//   BUY:  the browser principal key may spend through `grantId` (bound to that key), paid by `agentId`.
+//   SELL: the vendor key is vouched for by PayPali and paid out into `agentId`.
+model BazaarStorefrontLink {
+  id        String    @id @default(uuid())
+  ownerId   String
+  agentId   String
+  role      String // BUY | SELL
+  pub       String
+  vendorId  String?
+  grantId   String?
+  createdAt DateTime  @default(now())
+  revokedAt DateTime?
+
+  @@index([ownerId, createdAt])
+  @@index([agentId])
+}
+
+model BazaarOrder {
+  id           String            @id @default(uuid())
+  agentId      String
+  connectionId String?
+  solutionId   String
+  quoteId      String?
+  receiptId    String?
+  chargeId     String?
+  stakeId      String?
+  amountMinor  BigInt
+  currency     String            @db.VarChar(3)
+  status       BazaarOrderStatus @default(PENDING)
+  reason       String?
+  receipt      Json?
+
+  // Purchase policy capture (see src/bazaar/purchasePolicy). The resolved permission
+  // and the context an owner needs to judge a CONFIRM purchase before checkout.
+  category     String? // use-case taxonomy key, e.g. subscriptions_memberships
+  permission   String? // resolved permission at decision time: PREAPPROVED | CONFIRM | PROHIBITED
+  trigger      String? // what caused the agent to want this purchase
+  beneficiary  String? // who the purchase is for
+  item         String? // the item or service bought
+  vendor       String? // the vendor/payee
+  recurring    Boolean           @default(false)
+  personalData Boolean           @default(false)
+  budgetOwner  String? // whose budget this draws on
+  onFailure    String? // what the agent may do if the purchase fails
+
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  @@index([connectionId, createdAt])
+  @@index([agentId, createdAt])
+}
+
+// Per-agent owner overrides to the purchase-policy taxonomy: tighten or loosen a
+// category's default permission, or set the auto-allow ceiling for a PREAPPROVED one.
+model AgentPurchasePolicy {
+  agentId        String
+  category       String // a PurchaseCategoryKey
+  permission     String // PREAPPROVED | CONFIRM | PROHIBITED
+  maxAmountMinor BigInt?
+  grantedBy      String // owner id
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@id([agentId, category])
+}
+
+// ---------------------------------------------------------------------------
+// KYC (identity issuer for AgentBazaar). No PII is stored: a verified person is
+// a row plus keyed HMAC fingerprints of their document / name+DOB, used only to
+// stop one person from verifying several PayPali accounts.
+// ---------------------------------------------------------------------------
+enum KycSessionStatus {
+  PENDING
+  PROCESSING
+  REQUIRES_INPUT
+  VERIFIED
+  CANCELED
+  DUPLICATE // this person already verified another PayPali account (manual review)
+  FAILED
+}
+
+model KycSession {
+  id                String           @id @default(uuid())
+  ownerId           String
+  provider          String
+  providerSessionId String?          @unique
+  status            KycSessionStatus @default(PENDING)
+  lastError         String?
+  personId          String?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  @@index([ownerId, createdAt])
+}
+
+model KycPerson {
+  id         String           @id @default(uuid())
+  ownerId    String           @unique
+  method     String
+  verifiedAt DateTime
+  expiresAt  DateTime
+  fingerprints KycFingerprint[]
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+}
+
+model KycFingerprint {
+  hash      String    @id // HMAC-SHA256(PAYPALI_KYC_FINGERPRINT_KEY, normalized attribute string)
+  kind      String
+  personId  String
+  person    KycPerson @relation(fields: [personId], references: [id], onDelete: Restrict)
+  createdAt DateTime  @default(now())
+
+  @@index([personId])
+}
+
+model IdentityRevocation {
+  id        String   @id @default(uuid())
+  ownerId   String
+  issuer    String
+  subject   String
+  reason    String
+  doc       Json
+  createdAt DateTime @default(now())
+
+  @@unique([issuer, subject])
+  @@index([ownerId])
+}
+
+// Marketplace selections: the platforms, services and Bazaar listings an owner picked for an agent.
+// They drive the agent's shortlist and the default allowedServices of new connections.
+model MarketSelection {
+  agentId   String
+  kind      String // platform | service | bazaar
+  itemId    String
+  createdAt DateTime @default(now())
+
+  @@id([agentId, kind, itemId])
+  @@index([agentId])
+}
+
+// Owner sign-in: cookie sessions and single-use email sign-in links. Only SHA-256 hashes of tokens are stored.
+model OwnerSession {
+  id        String    @id // sha256(token)
+  ownerId   String
+  createdAt DateTime  @default(now())
+  expiresAt DateTime
+  revokedAt DateTime?
+
+  @@index([ownerId])
+}
+
+model LoginLink {
+  id        String    @id // sha256(token)
+  ownerId   String
+  next      String?
+  createdAt DateTime  @default(now())
+  expiresAt DateTime
+  usedAt    DateTime?
+
+  @@index([ownerId])
+}
+
+// ---------------------------------------------------------------------------
+// Data agents: one company agent in front of a company's databases. Buyers' agents
+// pay Gas per query and get answers (never rows) under a published contract.
+// ---------------------------------------------------------------------------
+enum DataAgentStatus {
+  ACTIVE
+  PAUSED
+}
+
+enum DataQueryStatus {
+  PENDING   // escrowed, waiting for the company's endpoint
+  ANSWERED  // delivered within contract; in its dispute window, then settled in a batch
+  SETTLED   // paid out to the company (and its data sources) in a batch
+  DISPUTED  // buyer disputed within the window: refunded, seller stake lost
+  REFUSED   // refused before or after the endpoint (mandate, privacy, freshness, schema): refunded
+  FAILED    // endpoint unreachable or invalid: refunded
+}
+
+model DataAgent {
+  id              String          @id @default(uuid())
+  slug            String          @unique
+  name            String
+  description     String
+  ownerId         String
+  agentId         String          // the company's PayPali agent: stakes Score on accuracy, receives revenue
+  endpointUrl     String
+  endpointSecret  String          // AES-256-GCM sealed (shared HMAC secret for request/response signing)
+  status          DataAgentStatus @default(ACTIVE)
+  disputeWindowMs Int             @default(86400000)
+  questionTypes   DataQuestionType[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@index([ownerId])
+}
+
+model DataQuestionType {
+  id                String    @id @default(uuid())
+  dataAgentId       String
+  dataAgent         DataAgent @relation(fields: [dataAgentId], references: [id], onDelete: Cascade)
+  key               String    // e.g. "order_status"
+  title             String
+  description       String
+  inputSchema       Json
+  outputSchema      Json
+  pricing           Json      // { model: fixed|metered, baseGas, perRowGas, perComputeMsGas, maxGas }
+  freshnessSeconds  Int       // answers older than this are refused (contract breach)
+  accuracyClaim     Float     // 0..1: the seller stakes Score at this confidence on every answer
+  privacy           Json      // { bannedFields: [], minAggregation: { field, min, rowsPath? } | null }
+  allowedPurposes   String[]  // empty = any stated purpose
+  subjectQuery      Boolean   @default(false) // the asker must be the data subject (kyc consent); free or at cost
+  active            Boolean   @default(true)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@unique([dataAgentId, key])
+}
+
+model DataQuery {
+  id              String          @id @default(uuid())
+  dataAgentId     String
+  questionTypeId  String
+  buyerAgentId    String
+  connectionId    String?
+  subscriptionId  String?
+  idempotencyKey  String
+  purpose         String
+  status          DataQueryStatus @default(PENDING)
+  reason          String?
+  maxGas          Int             // escrowed ceiling (price + fee at the metered maximum)
+  priceGas        Int             @default(0) // what the answer cost, metered (seller side)
+  feeGas          Int             @default(0) // PayPali fee
+  heldMinor       BigInt          // escrowed from the buyer
+  amountMinor     BigInt          // charged after metering (heldMinor - refund)
+  sellerMinor     BigInt          @default(0)
+  feeMinor        BigInt          @default(0)
+  rowsScanned     Int?
+  computeMs       Int?
+  asOf            DateTime?
+  resultSha256    String?
+  receipt         Json?
+  buyerStakeId    String?
+  sellerStakeId   String?
+  escrowTransferId String?
+  refundTransferId String?
+  batchId         String?
+  subjectVerified Boolean         @default(false)
+  answeredAt      DateTime?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@unique([buyerAgentId, idempotencyKey])
+  @@index([dataAgentId, status, answeredAt])
+  @@index([connectionId, createdAt])
+  @@index([subscriptionId, createdAt])
+}
+
+model DataSubscription {
+  id                 String   @id @default(uuid())
+  dataAgentId        String
+  buyerAgentId       String
+  ownerId            String
+  connectionId       String?
+  monthlyBudgetMinor BigInt
+  status             String   @default("ACTIVE") // ACTIVE | CANCELLED
+  createdAt          DateTime @default(now())
+  cancelledAt        DateTime?
+
+  @@unique([dataAgentId, buyerAgentId])
+}
+
+model DataSettlementBatch {
+  id          String   @id @default(uuid())
+  dataAgentId String
+  queryCount  Int
+  grossMinor  BigInt
+  feeMinor    BigInt
+  payouts     Json     // [{ agentId, label, minor, transferId }]
+  createdAt   DateTime @default(now())
+
+  @@index([dataAgentId, createdAt])
+}
+
+model DataSourceSplit {
+  id           String    @id @default(uuid())
+  dataAgentId  String
+  payeeAgentId String
+  label        String
+  shareBps     Int       // of the seller's net, per batch
+  status       String    @default("PENDING") // PENDING (until the payee's owner accepts) | ACTIVE | ENDED
+  acceptedAt   DateTime?
+  createdAt    DateTime  @default(now())
+
+  @@unique([dataAgentId, payeeAgentId])
+}
+
+// ---------------------------------------------------------------------------
+// Funding from PayPal: owners fund agents (seeds, top-ups, allowances) by paying
+// PayPali through PayPal Orders v2. PayPali holds the pooled funds in its PayPal
+// business account; the ledger tracks each agent's share.
+// ---------------------------------------------------------------------------
+enum FundingPurpose {
+  SEED
+  TOPUP
+  ALLOWANCE
+}
+
+enum FundingOrderStatus {
+  CREATED    // PayPal order created, waiting for the owner to approve
+  CAPTURED   // money captured and credited to the agent
+  DECLINED   // PayPal refused the payment (terminal)
+  FAILED     // capture failed (see error)
+  CANCELLED  // owner cancelled at PayPal
+}
+
+model FundingOrder {
+  id               String             @id @default(uuid())
+  ownerId          String?            // null for an onboarding seed (the owner doesn't exist yet)
+  agentId          String?
+  purpose          FundingPurpose
+  provider         String             // "paypal:sandbox" | "paypal:production" | "dev"
+  providerOrderId  String             @unique
+  amountMinor      BigInt
+  currency         String
+  status           FundingOrderStatus @default(CREATED)
+  saveForAllowance Boolean            @default(false)
+  approveUrl       String?
+  captureId        String?            @unique
+  ledgerKey        String?            // wallet idempotency key of the credit
+  allowanceRunId   String?
+  error            String?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  @@index([agentId, createdAt])
+  @@index([ownerId, createdAt])
+}
+
+// A PayPal account an owner saved (vaulted) for merchant-initiated top-ups. Token sealed at rest.
+model OwnerPaymentMethod {
+  id            String   @id @default(uuid())
+  ownerId       String
+  provider      String
+  vaultIdSealed String
+  customerId    String?
+  label         String   // e.g. "PayPal (saved 2026-11-01)"
+  status        String   @default("ACTIVE") // ACTIVE | REMOVED
+  createdAt     DateTime @default(now())
+
+  @@index([ownerId])
+}
+
+enum AllowanceStatus {
+  ACTIVE
+  PAUSED
+  CANCELLED
+}
+
+// A recurring top-up of one agent from its owner's PayPal. Charged from a saved PayPal account when one
+// exists; otherwise each period creates an order the owner approves (APPROVAL mode).
+model Allowance {
+  id              String          @id @default(uuid())
+  agentId         String          @unique
+  ownerId         String
+  amountMinor     BigInt
+  currency        String
+  period          String          // WEEKLY | MONTHLY
+  paymentMethodId String?
+  status          AllowanceStatus @default(ACTIVE)
+  nextRunAt       DateTime
+  lastRunAt       DateTime?
+  lastError       String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@index([status, nextRunAt])
+}
+
+model AllowanceRun {
+  id             String   @id @default(uuid())
+  allowanceId    String
+  periodKey      String   // e.g. "2026-W45" or "2026-11": one charge per period
+  mode           String   // SAVED | APPROVAL
+  status         String   // CAPTURED | AWAITING_APPROVAL | DECLINED | FAILED
+  fundingOrderId String?
+  amountMinor    BigInt
+  reason         String?
+  createdAt      DateTime @default(now())
+
+  @@unique([allowanceId, periodKey])
+}
+
+// Sends an agent's earnings above a floor to its beneficiary's PayPal (Payouts API).
+model BeneficiarySweep {
+  id            String   @id @default(uuid())
+  agentId       String   @unique
+  ownerId       String
+  receiver      String   // beneficiary PayPal email
+  keepMinor     BigInt   // working balance the agent keeps
+  minPayoutMinor BigInt  @default(100)
+  currency      String
+  period        String   // WEEKLY | MONTHLY | MANUAL
+  status        String   @default("ACTIVE") // ACTIVE | PAUSED
+  nextRunAt     DateTime
+  lastRunAt     DateTime?
+  lastResult    Json?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([status, nextRunAt])
+}
+
+// ---------------------------------------------------------------------------
+// Power of Agency: the contract between a holder (owner) and their agent.
+// Each version freezes the agent's authority (objective, limits, grants,
+// connections, allowance, kill conditions), is accepted by the owner and
+// countersigned by PayPali. The kill switch revokes it.
+// ---------------------------------------------------------------------------
+enum AgencyStatus {
+  ACTIVE
+  SUPERSEDED
+  REVOKED
+}
+
+model PowerOfAgency {
+  id            String       @id @default(uuid())
+  agentId       String
+  ownerId       String
+  version       Int
+  status        AgencyStatus @default(ACTIVE)
+  terms         Json
+  termsSha256   String
+  document      Json         // { body, sig } signed by the PayPali issuer (sig null without an issuer key)
+  acceptedAt    DateTime     @default(now())
+  revokedAt     DateTime?
+  revokeReason  String?
+
+  @@unique([agentId, version])
+  @@index([agentId, status])
+}
+
+model AgentStopEvent {
+  id        String   @id @default(uuid())
+  agentId   String
+  ownerId   String
+  action    String   // STOP | RESUME
+  reason    String
+  effects   Json
+  createdAt DateTime @default(now())
+
+  @@index([agentId, createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// Skills, licenses and Gas between agents (src/skills).
+// An AGENT acts (wallet, Power of Agency, Score, human beneficiary). A SKILL is an asset an agent owns and
+// licenses to other agents; it never holds money or signs. Gas is what an agent charges to act for another.
+// ---------------------------------------------------------------------------
+model Skill {
+  id                   String    @id @default(uuid())
+  slug                 String    @unique
+  ownerId              String
+  agentId              String    // the agent that sells it and is paid for it
+  name                 String
+  description          String    @default("")
+  category             String    @default("General")
+  kind                 String    @default("SKILL") // SKILL | ACCESS (a provider's access to its own store)
+  version              Int       @default(1)
+  inputSchema          Json?
+  outputSchema         Json?
+  // [{ skillId, use: "CALL" | "EMBED" }]: CALL passes the upstream per-call Gas through to the buyer;
+  // EMBED runs a sublicensed skill inside this one and pays its owner a royalty out of this skill's own Gas.
+  dependencies         Json      @default("[]")
+  executor             String    // builtin:<name> | webhook
+  endpointUrl          String?
+  endpointSecret       String?   // AES-256-GCM sealed HMAC secret (webhook)
+  status               String    @default("ACTIVE") // ACTIVE | PAUSED (webhook not verified yet) | RETIRED
+  demo                 Boolean   @default(false)
+  elevatedFromAgentId  String?   // "Give this skill agency": the agent it was moved from
+  offers               SkillOffer[]
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  @@index([agentId])
+  @@index([ownerId])
+}
+
+model SkillOffer {
+  id            String  @id @default(uuid())
+  skillId       String
+  skill         Skill   @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  mode          String  // PER_CALL | BUNDLE | SUBSCRIPTION
+  priceGas      Int     // per call (PER_CALL), or up front (BUNDLE, SUBSCRIPTION)
+  calls         Int?    // BUNDLE: calls included; SUBSCRIPTION: optional monthly cap
+  periodDays    Int?    // SUBSCRIPTION / BUNDLE validity
+  sublicensable Boolean @default(false)
+  royaltyBps    Int     @default(0)   // what a sublicensee pays out of its own Gas when it embeds this skill
+  active        Boolean @default(true)
+
+  @@index([skillId])
+}
+
+// One record for every right an agent holds to use something another agent sells.
+//   source NATIVE            a skill licensed here (offerId set)
+//   source BAZAAR            an AgentBazaar receipt (sourceRef = receipt id)
+//   source DATA_SUBSCRIPTION a company data agent subscription (sourceRef = subscription id)
+//   source MERCHANT_GRANT    a spending grant to a merchant (sourceRef = grant id)
+model License {
+  id              String    @id @default(uuid())
+  source          String    @default("NATIVE")
+  sourceRef       String?
+  skillId         String?
+  skillRef        String    // skill:<slug> | bazaar:<solution id> | data:<slug> | merchant:<id>
+  skillName       String
+  offerId         String?
+  licensorAgentId String?
+  licenseeAgentId String
+  licenseeOwnerId String
+  mode            String    // PER_CALL | BUNDLE | SUBSCRIPTION | SPENDING_CAP
+  priceGas        Int       @default(0)
+  callsTotal      Int?
+  callsUsed       Int       @default(0)
+  prepaidGas      Int       @default(0) // still held in escrow, released to the seller per successful call
+  gasPriceMilli   Int       @default(100) // the Gas price the prepaid Gas was bought at
+  sublicensable   Boolean   @default(false)
+  royaltyBps      Int       @default(0)
+  capMinor        BigInt?   // SPENDING_CAP
+  usedMinor       BigInt?
+  status          String    @default("ACTIVE") // ACTIVE | EXHAUSTED | EXPIRED | REVOKED
+  expiresAt       DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@unique([source, sourceRef])
+  @@index([licenseeAgentId, status])
+  @@index([licensorAgentId])
+  @@index([skillId])
+}
+
+// One invocation of a licensed skill, and how its Gas was split.
+model SkillCall {
+  id           String    @id @default(uuid())
+  licenseId    String
+  skillId      String
+  callerAgentId String
+  connectionId String?
+  status       String    @default("PENDING") // PENDING | SETTLED | FAILED | DECLINED
+  totalGas     Int
+  amountMinor  BigInt
+  gasPriceMilli Int      @default(100) // the Gas price this call was made at (Gas floats)
+  lines        Json      // [{ agentId, role: seller|royalty|upstream|network, skill, gas }]
+  outputHash   String?
+  reason       String?
+  stakeId      String?
+  createdAt    DateTime  @default(now())
+  settledAt    DateTime?
+
+  @@index([callerAgentId, createdAt])
+  @@index([skillId, createdAt])
+}
+
+// An agent's Gas account: its rate card (the fee it charges to act, within the owner's bound) and the
+// fraction of a cent it has earned but not yet been paid (1 Gas = $0.001, the ledger moves whole cents).
+model AgentGasAccount {
+  agentId    String   @id
+  actFeeGas  Int      @default(0)
+  maxFeeGas  Int      @default(500)
+  carryMilli Int      @default(0)
+  earnedGas  BigInt   @default(0)
+  spentGas   BigInt   @default(0)
+  updatedAt  DateTime @updatedAt
+}
+
+// The Gas price floats with demand. One row per closed epoch: what the price was, how much Gas moved, and the
+// price set for the next epoch (up when demand beat the target, down when it didn't, at most maxChangeBps a step).
+model GasPriceEpoch {
+  id             String   @id @default(uuid())
+  startedAt      DateTime
+  endedAt        DateTime
+  priceMilli     Int
+  demandGas      BigInt
+  targetGas      BigInt
+  nextPriceMilli Int
+  createdAt      DateTime @default(now())
+
+  @@index([endedAt])
 }

@@ -11,7 +11,7 @@ import { createTestDb, FakePayPalFundingGateway, TestDb } from './harness';
 const CURRENCY = 'USD';
 const RECIPIENT = 'rec_trusted_1';
 const MCC = '5812';
-const SEED_MINOR = 1_000_000n; // $10,000.00
+const SEED_MINOR = 1_000_000n; // $1,000,000.00
 
 let db: TestDb;
 let prisma: PrismaClient;
@@ -415,7 +415,7 @@ describe('OnboardingService.generateAgent', () => {
       ownerId: result.ownerId,
       recipientId: RECIPIENT,
       merchantCategoryCode: MCC,
-      amountMinor: 100_000n,
+      amountMinor: 1_000_000n,
       currency: CURRENCY,
       paymentMethodRef: 'pm',
     });

@@ -1,0 +1,1137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>PayPali Marketplace</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600;700;800&display=swap">
+<style>
+  :root {
+    --bg: #f5f7fa; --surface: #ffffff; --surface-2: #eef2f8;
+    --ink: #11264f; --ink-soft: #4a5873; --ink-faint: #7d8aa6;
+    --line: #e0e6ef; --line-strong: #c6d0e0;
+    --accent: #0070e0; --accent-soft: #e4f0fd; --accent-ink: #003087; --accent-2: #009cde;
+    --hero-a: #0b3fb8; --hero-b: #002a8f;
+    --gold: #ffc439; --gold-ink: #001c64;
+    --ok: #127a4a; --ok-soft: #dcf3e6; --warn: #8a6d00; --warn-soft: #fbf0d3; --danger: #c5303a; --danger-soft: #fbe3e3;
+    --shadow: 0 1px 2px rgba(0,28,100,.06), 0 18px 40px -22px rgba(0,28,100,.35);
+    --radius: 14px;
+    --font: "Mulish", "Helvetica Neue", Arial, sans-serif;
+    --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+    --bg: #0a1230; --surface: #10193c; --surface-2: #17224b; --ink: #e8edf8; --ink-soft: #a9b6d4; --ink-faint: #7482a4;
+    --line: #26315a; --line-strong: #35416e; --accent: #2b8fff; --accent-soft: #112a57; --accent-ink: #9cccff; --accent-2: #40c4f5;
+    --hero-a: #123a9c; --hero-b: #0a2266; --ok: #57d39a; --ok-soft: #12372a; --warn: #e0ad4f; --warn-soft: #3a2f14; --danger: #ef8a84; --danger-soft: #3c1d1b;
+    --shadow: 0 1px 2px rgba(0,0,0,.5), 0 18px 40px -22px rgba(0,0,0,.85); color-scheme: dark; } }
+  :root[data-theme="dark"] {
+    --bg: #0a1230; --surface: #10193c; --surface-2: #17224b; --ink: #e8edf8; --ink-soft: #a9b6d4; --ink-faint: #7482a4;
+    --line: #26315a; --line-strong: #35416e; --accent: #2b8fff; --accent-soft: #112a57; --accent-ink: #9cccff; --accent-2: #40c4f5;
+    --hero-a: #123a9c; --hero-b: #0a2266; --ok: #57d39a; --ok-soft: #12372a; --warn: #e0ad4f; --warn-soft: #3a2f14; --danger: #ef8a84; --danger-soft: #3c1d1b;
+    --shadow: 0 1px 2px rgba(0,0,0,.5), 0 18px 40px -22px rgba(0,0,0,.85); color-scheme: dark; }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 var(--font); -webkit-font-smoothing: antialiased; }
+  a { color: var(--accent); }
+  button { font: inherit; cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 16px; }
+
+  /* header */
+  header.top { position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--surface) 92%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+  .nav { display: flex; align-items: center; gap: 24px; height: 68px; }
+  .wordmark { font-weight: 800; font-size: 1.55rem; letter-spacing: -.02em; color: var(--accent-ink); text-decoration: none; }
+  .wordmark b { color: var(--accent-2); font-weight: 800; }
+  .links { display: flex; gap: 22px; margin-left: 18px; }
+  .links a { color: var(--ink); text-decoration: none; font-weight: 600; font-size: .95rem; }
+  .links a[aria-current="page"] { color: var(--accent); }
+  .spacer { flex: 1; }
+  .acct { display: flex; gap: 10px; align-items: center; min-width: 0; }
+  .who { font-weight: 700; font-size: .88rem; color: var(--ink-soft); max-width: 22ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  @media (max-width: 860px) { .who { display: none; } }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 999px; padding: 10px 20px; font-weight: 700; font-size: .95rem; border: 1.5px solid transparent; text-decoration: none; white-space: nowrap; }
+  .btn.primary { background: var(--accent); color: #fff; }
+  .btn.primary:hover { background: color-mix(in srgb, var(--accent) 88%, #000); }
+  .btn.outline { border-color: var(--accent); color: var(--accent-ink); background: transparent; }
+  .btn.outline:hover { background: var(--accent-soft); }
+  .btn.sm { padding: 7px 14px; font-size: .85rem; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+  @media (max-width: 860px) { .links { display: none; } .nav { gap: 12px; } }
+
+  /* hero */
+  .hero { position: relative; overflow: hidden; }
+  .hero::after { content: ""; position: absolute; inset: 0 0 0 auto; width: 52%; background: linear-gradient(160deg, var(--hero-a), var(--hero-b)); clip-path: polygon(38% 100%, 100% 100%, 100% 0, 92% 0); pointer-events: none; }
+  .hero-grid { position: relative; z-index: 1; display: grid; grid-template-columns: 1.05fr .95fr; gap: 40px; align-items: center; padding: 64px 0 72px; }
+  .chip { display: inline-block; font-weight: 700; font-size: .85rem; color: var(--accent-ink); background: var(--accent-soft); border-radius: 999px; padding: 5px 14px; }
+  h1 { font-size: clamp(2.1rem, 1.3rem + 3.2vw, 3.6rem); line-height: 1.06; letter-spacing: -.03em; margin: 18px 0 16px; color: var(--accent-ink); font-weight: 800; }
+  .lede { font-size: 1.15rem; color: var(--ink-soft); max-width: 34ch; margin: 0 0 30px; }
+  .cta { display: flex; gap: 14px; flex-wrap: wrap; }
+  .featured { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); padding: 18px 20px 8px; }
+  .featured h2 { font-size: 1.05rem; margin: 0 0 6px; font-weight: 700; }
+  .fa { display: grid; grid-template-columns: 48px 1fr auto; gap: 14px; align-items: center; width: 100%; text-align: left; background: none; border: 0; border-top: 1px solid var(--line); padding: 14px 0; color: inherit; }
+  .fa:first-of-type { border-top: 0; }
+  .fa:hover .fa-name { color: var(--accent); }
+  .fa-name { font-weight: 700; }
+  .fa-sub { font-size: .85rem; color: var(--ink-faint); }
+  .fa-price { text-align: right; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .fa-price small { display: block; font-weight: 500; font-size: .75rem; color: var(--ink-faint); }
+  .empty { color: var(--ink-faint); font-size: .92rem; padding: 14px 0 18px; }
+  @media (max-width: 900px) { .hero-grid { grid-template-columns: 1fr; padding: 40px 0 48px; } .hero::after { width: 100%; clip-path: polygon(0 78%, 100% 52%, 100% 100%, 0 100%); } }
+
+  .mono { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: .95rem; color: var(--accent-ink); background: var(--accent-soft); flex: none; }
+  .mono.sq { border-radius: 12px; }
+
+  /* platforms strip */
+  .strip { background: var(--surface); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 34px 0 30px; }
+  .strip h2 { text-align: center; font-size: 1.25rem; font-weight: 700; color: var(--accent-ink); margin: 0 0 6px; }
+  .strip p { text-align: center; color: var(--ink-faint); font-size: .9rem; margin: 0 0 22px; }
+  .names { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 34px; }
+  .names button { background: none; border: 0; color: var(--ink-soft); font-weight: 800; font-size: 1.3rem; letter-spacing: -.01em; padding: 4px 2px; }
+  .names button:hover { color: var(--accent); }
+  .names button small { display: block; font-size: .7rem; font-weight: 600; letter-spacing: .04em; color: var(--ink-faint); text-transform: uppercase; }
+
+  /* explore */
+  .explore { padding: 48px 0 120px; }
+  .section-h { display: flex; flex-wrap: wrap; gap: 14px 24px; align-items: end; justify-content: space-between; margin-bottom: 18px; }
+  .section-h h2 { font-size: 1.6rem; margin: 0; letter-spacing: -.02em; color: var(--accent-ink); }
+  .section-h p { margin: 4px 0 0; color: var(--ink-soft); }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 18px; }
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tab { border: 1.5px solid var(--line-strong); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 7px 14px; font-weight: 700; font-size: .88rem; }
+  .tab[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .search { flex: 1 1 220px; min-width: 0; }
+  input, select { width: 100%; font: inherit; color: var(--ink); background: var(--surface); border: 1.5px solid var(--line-strong); border-radius: 10px; padding: 9px 12px; }
+  .for { display: flex; align-items: center; gap: 8px; flex: 1 1 260px; min-width: 0; }
+  .for label { font-weight: 700; font-size: .88rem; white-space: nowrap; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
+  .tile { position: relative; background: var(--surface); border: 1.5px solid var(--line); border-radius: var(--radius); padding: 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .tile:hover { border-color: var(--line-strong); }
+  .tile.on { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+  .tile-h { display: flex; gap: 12px; align-items: center; min-width: 0; }
+  .tile-h > div { min-width: 0; }
+  .tile-name { font-weight: 800; font-size: 1.05rem; overflow-wrap: anywhere; }
+  .tile-sub { font-size: .82rem; color: var(--ink-faint); }
+  .tile p { margin: 0; font-size: .9rem; color: var(--ink-soft); flex: 1; }
+  .tile-f { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .open { position: absolute; inset: 0; border: 0; background: none; border-radius: var(--radius); }
+  .tile .sel, .tile .pill { position: relative; z-index: 1; }
+  .sel { border: 1.5px solid var(--accent); color: var(--accent-ink); background: transparent; border-radius: 999px; padding: 5px 12px; font-weight: 700; font-size: .8rem; }
+  .sel[aria-pressed="true"] { background: var(--accent); color: #fff; }
+  .pill { font-family: var(--mono); font-size: .66rem; text-transform: uppercase; letter-spacing: .06em; padding: 3px 9px; border-radius: 999px; background: var(--surface-2); color: var(--ink-soft); }
+  .pill.ok { background: var(--ok-soft); color: var(--ok); } .pill.warn { background: var(--warn-soft); color: var(--warn); } .pill.info { background: var(--accent-soft); color: var(--accent-ink); }
+  .how { background: var(--surface); border: 1.5px solid var(--line); border-radius: var(--radius); padding: 16px; }
+  .how-t { font-weight: 800; font-size: 1.05rem; } .how p { margin: 6px 0 0; color: var(--ink-soft); font-size: .92rem; }
+  .note { font-size: .82rem; color: var(--ink-faint); margin-top: 26px; max-width: 90ch; }
+
+  /* selection tray */
+  .tray { position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 30; width: min(760px, calc(100% - 32px)); background: var(--accent-ink); color: #fff; border-radius: 16px; box-shadow: var(--shadow); padding: 12px 14px 12px 18px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  :root[data-theme="dark"] .tray, :root:not([data-theme="light"]) .tray { color: #fff; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .tray { background: #1b2d6b; } }
+  .tray[hidden] { display: none; }
+  /* ---- next steps (plan) ---- */
+  .plan { border: 1px solid var(--line); background: var(--surface); border-radius: 16px; box-shadow: var(--shadow); padding: 16px 18px; margin: 4px 0 22px; }
+  .plan[hidden] { display: none; }
+  .plan-h { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .plan-h h3 { margin: 0; font-size: 1.1rem; flex: 1 1 auto; }
+  .plan-bar { height: 8px; border-radius: 99px; background: var(--surface-2); overflow: hidden; margin: 10px 0 6px; }
+  .plan-bar i { display: block; height: 100%; background: var(--ok); border-radius: 99px; transition: width .3s; }
+  .plan-list { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 8px; }
+  .plan-item { display: grid; grid-template-columns: 26px 1fr auto; gap: 10px; align-items: start; border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+  .plan-item .dot { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: .78rem; font-weight: 800; margin-top: 1px; }
+  .plan-item.done .dot { background: var(--ok-soft); color: var(--ok); }
+  .plan-item.todo .dot { background: var(--accent-soft); color: var(--accent-ink); }
+  .plan-item.blocked .dot { background: var(--warn-soft); color: var(--warn); }
+  .plan-item .t { font-weight: 700; }
+  .plan-item .k { font-size: .7rem; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-faint); margin-right: 6px; }
+  .plan-item .st { font-size: .88rem; color: var(--ink-soft); margin-top: 2px; }
+  .plan-item details { margin-top: 6px; font-size: .86rem; }
+  .plan-item details summary { cursor: pointer; color: var(--accent-ink); font-weight: 700; }
+  .plan-item code { font-size: .78rem; }
+  .plan-item .btn { white-space: nowrap; }
+  @media (max-width: 560px) { .plan-item { grid-template-columns: 26px 1fr; } .plan-item .btn { grid-column: 2; justify-self: start; } }
+  .tile .state { font-size: .7rem; font-weight: 700; border-radius: 99px; padding: 2px 8px; }
+  .tile .state.done { background: var(--ok-soft); color: var(--ok); } .tile .state.todo { background: var(--accent-soft); color: var(--accent-ink); } .tile .state.blocked { background: var(--warn-soft); color: var(--warn); }
+  .howto { margin-top: 12px; border: 1px dashed var(--line-strong); border-radius: 10px; padding: 10px 12px; font-size: .88rem; }
+  .howto b { display: block; margin-bottom: 4px; }
+  .tray .what { flex: 1 1 260px; font-size: .92rem; min-width: 0; }
+  .tray .what b { font-size: 1rem; }
+  .tray .btn.primary { background: var(--gold); color: var(--gold-ink); }
+  .tray .btn.outline { border-color: rgba(255,255,255,.6); color: #fff; }
+  .tray .btn.outline:hover { background: rgba(255,255,255,.1); }
+
+  /* drawer */
+  dialog { border: 0; padding: 0; background: transparent; max-width: 100vw; max-height: 100vh; }
+  dialog::backdrop { background: rgba(5,15,45,.45); }
+  .sheet { position: fixed; inset: 0 0 0 auto; width: min(520px, 100vw); background: var(--surface); color: var(--ink); box-shadow: var(--shadow); display: flex; flex-direction: column; }
+  .sheet-h { display: flex; gap: 14px; align-items: center; padding: 20px 20px 14px; border-bottom: 1px solid var(--line); }
+  .sheet-h h3 { margin: 0; font-size: 1.25rem; }
+  .sheet-h .x { margin-left: auto; border: 0; background: var(--surface-2); color: var(--ink); width: 36px; height: 36px; border-radius: 50%; font-size: 1.1rem; flex: none; }
+  .sheet-b { padding: 18px 20px 28px; overflow: auto; flex: 1; }
+  .sheet-b h4 { margin: 20px 0 8px; font-size: .78rem; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-faint); }
+  .kv { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; font-size: .92rem; }
+  .kv dt { color: var(--ink-faint); } .kv dd { margin: 0; overflow-wrap: anywhere; }
+  .field { display: block; margin: 10px 0; } .field span { display: block; font-size: .85rem; font-weight: 700; margin-bottom: 4px; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .checks { display: grid; gap: 6px; font-size: .9rem; } .checks label { display: flex; gap: 8px; align-items: flex-start; } .checks input { width: auto; margin-top: 4px; }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+  pre { background: var(--surface-2); border-radius: 10px; padding: 10px 12px; font: .78rem/1.5 var(--mono); white-space: pre-wrap; overflow-wrap: anywhere; margin: 6px 0 0; }
+  .result { margin-top: 14px; border-radius: 10px; padding: 12px 14px; font-size: .92rem; background: var(--surface-2); }
+  .result.ok { background: var(--ok-soft); } .result.bad { background: var(--danger-soft); } .result.warn { background: var(--warn-soft); }
+  .surface { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin-top: 8px; }
+  .surface b { display: block; font-size: .9rem; }
+  .muted { color: var(--ink-faint); font-size: .85rem; }
+  .farm { border: 1px solid var(--line); background: var(--surface); border-radius: 16px; padding: 14px 16px; margin: 0 0 18px; }
+  .farm-h { display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+  .farm-h p { margin: 2px 0 0; color: var(--ink-soft); font-size: .9rem; max-width: 52ch; }
+  .farm-h .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .farm-list { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 8px; }
+  .farm-list li { display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px; font-size: .9rem; }
+  .farm-list li.off { opacity: .6; }
+  .gas-lines { width: 100%; border-collapse: collapse; font-size: .88rem; margin-top: 6px; }
+  .gas-lines td, .gas-lines th { padding: 5px 6px; border-bottom: 1px solid var(--line); text-align: left; }
+  .gas-lines td.n, .gas-lines th.n { text-align: right; font-variant-numeric: tabular-nums; }
+  .gas-lines tr.total td { font-weight: 800; border-bottom: 0; }
+  .offers { display: grid; gap: 8px; }
+  .offer { display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; }
+  .prov { border: 1px solid var(--line); background: var(--surface); border-radius: 16px; padding: 14px 16px; margin: 0 0 18px; }
+  .prov form { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 4px 14px; margin-top: 8px; }
+  .prov input, .prov textarea { width: 100%; font: inherit; border: 1.5px solid var(--line-strong); border-radius: 10px; padding: 8px 10px; background: var(--surface); color: var(--ink); }
+  .gasp { font-size: .82rem; color: var(--ink-soft); white-space: nowrap; }
+  .gasp b { color: var(--ink); } .gasp .up { color: var(--warn); } .gasp .down { color: var(--ok); }
+  .yours { font-size: .68rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; color: var(--ok); }
+  .toast { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 9px 16px; border-radius: 999px; font-weight: 700; font-size: .9rem; z-index: 50; }
+  .owner-inbox { background: var(--surface); border-bottom: 1px solid var(--line); padding: 28px 0; }
+  .owner-inbox[hidden] { display: none; }
+  .approval-list { display: grid; gap: 12px; }
+  .approval-card { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px; align-items: center; border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; background: var(--bg); }
+  .approval-card h3 { margin: 0 0 4px; font-size: 1rem; }
+  .approval-meta { color: var(--ink-soft); font-size: .88rem; overflow-wrap: anywhere; }
+  .approval-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: end; }
+  .btn.danger { background: var(--danger-soft); color: var(--danger); border-color: var(--danger-soft); }
+  @media (max-width: 650px) { .approval-card { grid-template-columns: 1fr; } .approval-actions { justify-content: start; } }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap nav">
+    <a class="wordmark" href="/marketplace">Pay<b>Pali</b></a>
+    <nav class="links" aria-label="Main">
+      <a href="/marketplace" aria-current="page">Marketplace</a>
+      <a href="#owner-inbox">Owner inbox</a>
+      <a href="#explore">Partners</a>
+      <a href="#explore" data-jump="skills">Skills &amp; agents</a>
+      <a href="/api/connect/providers">Developers</a>
+    </nav>
+    <span class="spacer"></span>
+    <span class="acct" id="acct"><a class="btn outline sm" href="/login?next=%2Fmarketplace">Log in</a> <a class="btn primary sm" href="/">Sign up</a></span>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="chip">AAAC Marketplace</span>
+      <h1>Agent as the Customer Marketplace</h1>
+      <p class="lede">The agentic marketplace for AI agents, services and data. Discover, connect and transact, every payment governed by PayPali.</p>
+      <div class="cta">
+        <a class="btn primary" href="#explore">Get started</a>
+        <a class="btn outline" href="#how">How it works</a>
+      </div>
+    </div>
+    <div class="featured" aria-labelledby="featH">
+      <h2 id="featH">Featured skills</h2>
+      <div id="featured"><p class="empty">Loading…</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="owner-inbox" id="owner-inbox" hidden aria-labelledby="inboxTitle">
+  <div class="wrap">
+    <div class="section-h">
+      <div>
+        <h2 id="inboxTitle">Owner inbox</h2>
+        <p>Bazaar purchases held for your decision. Approving submits the held purchase; rejecting it never charges your agent.</p>
+      </div>
+      <button class="btn outline sm" id="inboxRefresh" type="button">Refresh</button>
+    </div>
+    <div id="approvalList" aria-live="polite"><p class="empty">Loading approvals…</p></div>
+  </div>
+</section>
+
+<section class="strip" aria-labelledby="stripH">
+  <div class="wrap">
+    <h2 id="stripH">Connect your agents from</h2>
+    <p>Bring an agent you already use. It connects to PayPali over MCP, under a mandate you set.</p>
+    <div class="names" id="platformNames"></div>
+  </div>
+</section>
+
+<section class="explore wrap" id="explore">
+  <div class="section-h">
+    <div>
+      <h2>Explore the marketplace</h2>
+      <p>Agents act; skills are what they sell. Pick the skills, agents, services and platforms one of your agents may use. Every skill is sold by an agent and paid for in Gas, the fee an agent charges to act for another.</p>
+    </div>
+  </div>
+  <div class="plan" id="plan" hidden aria-live="polite">
+    <div class="plan-h"><h3 id="planTitle">Next steps</h3><span class="muted" id="planCount"></span><button class="btn outline sm" id="planToggle" type="button">Hide</button></div>
+    <div class="plan-bar"><i id="planBar" style="width:0%"></i></div>
+    <ul class="plan-list" id="planList"></ul>
+  </div>
+  <div class="controls">
+    <div class="tabs" role="group" aria-label="Filter">
+      <button class="tab" data-tab="all" aria-pressed="true">All</button>
+      <button class="tab" data-tab="platform" aria-pressed="false">Agent platforms</button>
+      <button class="tab" data-tab="service" aria-pressed="false">Services</button>
+      <button class="tab" data-tab="skills" aria-pressed="false">Skills</button>
+      <button class="tab" data-tab="agents" aria-pressed="false">Agents</button>
+    </div>
+    <input class="search" id="q" type="search" placeholder="Search skills, agents, services" aria-label="Search">
+    <span class="gasp" id="gasP" title="The dollar price of Gas floats with network demand. Every call is settled at the price it ran at; your limits are in dollars."></span>
+    <div class="for"><label for="agentSel">Selecting for</label><select id="agentSel"><option value="">Loading agents…</option></select><button class="btn outline sm" id="policyBtn" type="button" title="What this agent may buy, and when you must confirm first">Purchase policy</button></div>
+  </div>
+  <div class="prov" id="prov" hidden>
+    <div class="farm-h"><div><b>Open a provider agent account</b><p class="muted" style="margin:2px 0 0">For a company: a PayPali agent that sells access to your store or data as an access skill, on your endpoint and your terms (like Acme Freight). Streaming services such as Netflix appear here once they open one.</p></div>
+      <button class="btn outline sm" id="provToggle" type="button">Open an account</button></div>
+    <form id="provForm" hidden autocomplete="off">
+      <label class="field"><span>Company</span><input id="pvCo" required maxlength="60" placeholder="Acme Parts"></label>
+      <label class="field"><span>Access skill name</span><input id="pvName" required maxlength="80" placeholder="Stock level by SKU"></label>
+      <label class="field"><span>Skill id (slug)</span><input id="pvSlug" required pattern="[a-z0-9][a-z0-9-]{2,59}" placeholder="acme-stock"></label>
+      <label class="field"><span>Gas per call</span><input id="pvGas" type="number" min="0" step="1" value="20" required></label>
+      <label class="field" style="grid-column:1/-1"><span>Your endpoint (https)</span><input id="pvUrl" required placeholder="https://api.acme.example/paypali/skills"></label>
+      <label class="field" style="grid-column:1/-1"><span>What it does</span><input id="pvDesc" maxlength="300" placeholder="Current stock for one SKU. Input: {&quot;sku&quot;}"></label>
+      <div style="grid-column:1/-1"><button class="btn primary sm" id="pvGo">Create provider agent</button></div>
+    </form>
+    <div id="pvOut" hidden></div>
+  </div>
+  <div class="farm" id="farm" hidden>
+    <div class="farm-h"><div><b>Solutions Farm</b><p>Agents for sale, paid through PayPali. Buy here with your agent, or open the storefront to buy in your browser or to sell your own agent. Listings you sell appear in this tab marked “Yours”.</p></div>
+      <div class="actions"><a class="btn outline sm" id="farmBuy" target="_blank" rel="noopener">Open storefront ↗</a><a class="btn primary sm" id="farmSell" target="_blank" rel="noopener">Sell your agent ↗</a></div></div>
+    <ul class="farm-list" id="farmList"></ul>
+  </div>
+  <div class="grid" id="grid"></div>
+  <p class="note" id="disclaimer"></p>
+
+  <div id="how" style="margin-top:44px">
+    <div class="section-h"><div><h2>How it works</h2></div></div>
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr))">
+      <div class="how"><div class="how-t">1. Connect</div><p>Your Claude, ChatGPT, Gemini, Grok, Muse or Cursor agent connects to PayPali with a token or OAuth, scoped to what you allow.</p></div>
+      <div class="how"><div class="how-t">2. Select</div><p>Choose the services and Bazaar agents it may use. Each connection carries a mandate: per-payment cap, daily cap, allowed services.</p></div>
+      <div class="how"><div class="how-t">3. Transact</div><p>Every purchase is Score-gated: the agent stakes its confidence and a bond before money moves, and you confirm the result.</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="tray" id="tray" hidden>
+  <div class="what" id="trayWhat"></div>
+  <button class="btn outline sm" id="trayClear">Clear</button>
+  <button class="btn outline sm" id="trayPlan" style="display:none">Next steps</button>
+  <button class="btn primary sm" id="traySave">Save selections</button>
+</div>
+
+<dialog id="dlg" aria-labelledby="dlgTitle"><div class="sheet"><div class="sheet-h" id="dlgHead"></div><div class="sheet-b" id="dlgBody"></div></div></dialog>
+
+<script>
+"use strict";
+const $ = (id) => document.getElementById(id);
+const esc = (x) => String(x ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const usd = (minor) => "$" + (Number(minor) / 100).toFixed(2);
+const initials = (s) => String(s).replace(/[^A-Za-z0-9 ]/g, " ").trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join("").toUpperCase() || "?";
+async function J(method, path, body) {
+  const r = await fetch(path, { method, headers: body ? { "content-type": "application/json" } : {}, body: body ? JSON.stringify(body) : undefined });
+  let j = null; try { j = await r.json(); } catch (e) {}
+  return { status: r.status, body: j || {} };
+}
+function toast(t) { const d = document.createElement("div"); d.className = "toast"; d.textContent = t; document.body.append(d); setTimeout(() => d.remove(), 2200); }
+
+const S = { me: null, data: null, agents: [], agentId: "", tab: "all", q: "", sel: new Map(), saved: "", providers: null, plan: null, farm: null, approvals: [] };
+const mine = (l) => !!(S.farm && l.vendorId && S.farm.vendorIds.includes(l.vendorId));
+const TAB_KINDS = { skills: ["bazaar", "skill"], agents: ["data", "agent", "invite"] };
+const inTab = (kind) => kind === "invite" ? S.tab === "agents" : S.tab === "all" || S.tab === kind || (TAB_KINDS[S.tab] || []).includes(kind);
+const priceMilli = () => S.gasPrice ? S.gasPrice.priceMilli : (S.data && S.data.gas ? S.data.gas.gasPriceMilli : 100);
+const gasUsd = (g) => "$" + (Number(g) * priceMilli() / 100000).toFixed(4);
+async function loadGasPrice() {
+  const r = await J("GET", "/api/gas/price"); if (r.status !== 200 || !r.body.priceMilli) return;
+  S.gasPrice = r.body; const c = r.body.changeBps;
+  $("gasP").innerHTML = `1 Gas = <b>$${r.body.usdPerGas.toFixed(5)}</b>${c ? ` <span class="${c > 0 ? "up" : "down"}">${c > 0 ? "▲" : "▼"} ${Math.abs(c / 100).toFixed(1)}%</span>` : ""} <span class="muted">· floats with demand</span>`;
+}
+const perCallOf = (sk) => (sk.offers || []).find((o) => o.mode === "PER_CALL");
+const sellerText = (l) => l.sellerAgent && l.sellerAgent.name ? "by " + l.sellerAgent.name : l.seedData ? "seed listing" : (l.vendor ? l.vendor + " (no PayPali agent)" : "Solutions Farm");
+const key = (kind, id) => kind + ":" + id;
+
+// ---------------------------------------------------------------- items
+function items() {
+  const d = S.data; if (!d) return [];
+  const plats = d.platforms.map((p) => ({ kind: "platform", id: p.id, name: p.name, sub: p.vendor, blurb: p.blurb,
+    pill: p.connect === "guided" ? ["Setup guide", "ok"] : ["Generic MCP", "info"], raw: p }));
+  const svcs = d.services.map((s) => ({ kind: "service", id: s.id, name: s.name, sub: s.category, blurb: s.description,
+    pill: s.portal.status === "live" ? ["Live", "ok"] : s.portal.status === "sandbox" ? ["Sandbox", "info"] : ["Placeholder", "warn"], raw: s }));
+  const bz = d.listings.map((l) => ({ kind: "bazaar", id: l.id, name: l.name, sub: (mine(l) ? "Yours · " : "") + sellerText(l) + " · " + usd(l.priceMinor) + " for " + l.runsIncluded + " runs", blurb: l.blurb,
+    pill: ["V" + l.tier + (l.seedData ? " seed" : ""), l.tier >= 3 ? "ok" : "info"], raw: l }));
+  const sk = (d.skills || []).map((x) => { const pc = perCallOf(x); return { kind: "skill", id: x.slug, name: x.name,
+    sub: `by ${x.seller ? x.seller.name : "?"}${pc ? ` · ${pc.priceGas.toLocaleString()} Gas per call` : ""}${x.demo ? " · demo" : ""}`, blurb: x.description,
+    pill: x.status !== "ACTIVE" ? ["Not live", "warn"] : x.kind === "ACCESS" ? ["Provider access", "info"] : x.dependencies.length ? [`Built on ${x.dependencies.length} skill${x.dependencies.length === 1 ? "" : "s"}`, "ok"] : ["Skill", "ok"], raw: x }; });
+  const ag = (d.agents || []).map((a) => ({ kind: "agent", id: a.id, name: a.name, sub: `${a.access ? "Provider agent" : "Agent"} · sells ${a.skills.length} skill${a.skills.length === 1 ? "" : "s"}`,
+    blurb: (d.skills || []).filter((x) => a.skills.includes(x.slug)).map((x) => x.name).join(" · "), pill: a.active ? ["Selling", "ok"] : ["Stopped", "warn"], raw: a }));
+  const da = (d.dataAgents || []).map((a) => {
+    const prices = a.questionTypes.map((q) => q.pricing.baseGas);
+    const acc = a.stats && a.stats.observedAccuracy;
+    return { kind: "data", id: a.slug, name: a.name, sub: `Data agent · ${a.questionTypes.length} question type${a.questionTypes.length === 1 ? "" : "s"}${prices.length ? " · from " + Math.min(...prices).toLocaleString() + " Gas" : ""}`, blurb: a.description,
+      pill: acc != null ? [Math.round(acc * 100) + "% undisputed", acc >= 0.9 ? "ok" : "warn"] : ["New", "info"], raw: a };
+  });
+  const inv = (d.invitations || []).map((x) => ({ kind: "invite", id: x.id, name: x.name, sub: "Not on PayPali yet · invited to open a provider agent account",
+    blurb: `${x.name} hasn’t opened a provider agent account, so no agent sells access to it here.`, pill: ["Invitation", "warn"], raw: x }));
+  return [...sk, ...bz, ...ag, ...da, ...inv, ...svcs, ...plats];
+}
+
+function renderFeatured() {
+  const d = S.data, f = d.featured || [];
+  const native = (d.skills || []).filter((x) => x.status === "ACTIVE" && x.kind === "SKILL").slice(0, 2).map((x) => { const pc = perCallOf(x); return `<button class="fa" data-open="skill:${esc(x.slug)}">
+      <span class="mono">${esc(initials(x.name))}</span>
+      <span><span class="fa-name">${esc(x.name)}</span><br><span class="fa-sub">by ${esc(x.seller ? x.seller.name : "?")} · skill</span></span>
+      <span class="fa-price">${pc ? pc.priceGas.toLocaleString() : "–"}<small>Gas / call</small></span></button>`; });
+  const bzf = f.slice(0, Math.max(2, 4 - native.length)).map((l) => `<button class="fa" data-open="bazaar:${esc(l.id)}">
+      <span class="mono">${esc(initials(l.name))}</span>
+      <span><span class="fa-name">${esc(l.name)}</span><br><span class="fa-sub">${esc(sellerText(l))} · V${l.tier}</span></span>
+      <span class="fa-price">${usd(l.priceMinor)}<small>USD</small></span></button>`);
+  $("featured").innerHTML = native.length || bzf.length ? [...native, ...bzf].join("")
+    : `<p class="empty">${d.bazaar.connected ? "No skills listed yet." : "AgentBazaar is not connected. Run <code>npm run stack</code> to list its skills here."}</p>`;
+}
+
+// ---------------------------------------------------------------- Solutions Farm (storefront on AgentBazaar)
+async function loadFarm() {
+  if (!S.data.bazaar.connected) { S.farm = null; return renderFarm(); }
+  const r = S.me ? await J("GET", "/api/bazaar/links") : { status: 401, body: {} };
+  S.farm = r.status === 200 ? r.body : { storefrontUrl: null, links: [], vendorIds: [] };
+  renderFarm();
+}
+function renderFarm() {
+  const on = !!(S.data && S.data.bazaar.connected) && (S.tab === "skills" || S.tab === "all");
+  $("prov").hidden = !(S.tab === "agents" && S.me);
+  $("farm").hidden = !on; if (!on) return;
+  const f = S.farm || { links: [] }, base = f.storefrontUrl ? f.storefrontUrl.replace(/\/$/, "") : null;
+  for (const [id, h] of [["farmBuy", "/#buy"], ["farmSell", "/#sell"]]) { $(id).hidden = !base; if (base) $(id).href = base + h; }
+  const live = f.links.filter((l) => l.status === "ACTIVE"), old = f.links.filter((l) => l.status !== "ACTIVE").slice(0, 3);
+  $("farmList").innerHTML = !S.me ? `<li class="off"><span><a href="${loginHref()}">Log in</a> to see the storefront keys linked to your agents.</span></li>`
+    : !f.links.length ? `<li class="off"><span>No storefront keys linked yet. On the storefront, press <b>Connect PayPali</b> on Buy or Sell.</span></li>`
+    : [...live, ...old].map((l) => `<li class="${l.status === "ACTIVE" ? "" : "off"}"><span><span class="pill ${l.role === "BUY" ? "info" : "ok"}">${l.role === "BUY" ? "Buys" : "Sells"}</span>
+        ${l.role === "BUY" ? `Browser key …${esc(l.keyTail)} pays from <b>${esc(l.agentName || l.agentId)}</b>${l.grant ? ` · ${usd(l.grant.usedMinor)} of ${usd(l.grant.maxMinor)} used` : ""}`
+          : `Vendor <code>${esc(l.vendorId)}</code> is paid into <b>${esc(l.agentName || l.agentId)}</b>`}
+        <span class="muted">· ${l.status === "ACTIVE" ? "linked " + new Date(l.createdAt).toLocaleDateString() : l.status.toLowerCase()}</span></span>
+        ${l.status === "ACTIVE" ? `<button class="btn outline sm" data-unlink="${esc(l.id)}">${l.role === "BUY" ? "Revoke" : "Stop payouts"}</button>` : ""}</li>`).join("");
+}
+function renderApprovals() {
+  const items = S.approvals || [];
+  $("approvalList").innerHTML = items.length ? `<div class="approval-list">${items.map((a) => `<article class="approval-card">
+    <div><h3>${esc(a.item || a.solution?.name || "Bazaar purchase")} · ${usd(a.amountMinor)}</h3>
+      <div class="approval-meta"><b>${esc(a.agentName || "Agent")}</b>${a.vendor ? ` · seller ${esc(a.vendor)}` : ""}${a.category ? ` · ${esc(a.category)}` : ""}</div>
+      <div class="approval-meta">${a.beneficiary ? `Beneficiary: ${esc(a.beneficiary)} · ` : ""}${a.trigger ? `Requested because: ${esc(a.trigger)} · ` : ""}${a.recurring ? "Recurring · " : ""}${a.personalData ? "Uses personal data · " : ""}${a.permission === "CONFIRM" ? "Requires owner confirmation" : ""}</div>
+      ${a.onFailure ? `<div class="approval-meta">If it fails: ${esc(a.onFailure)}</div>` : ""}
+    </div>
+    <div class="approval-actions"><button class="btn primary sm" data-approval="approve" data-order="${esc(a.orderId)}">Approve &amp; buy</button><button class="btn danger sm" data-approval="reject" data-order="${esc(a.orderId)}">Reject</button></div>
+  </article>`).join("")}</div>` : `<p class="empty">No Bazaar purchases are waiting for your decision.</p>`;
+}
+async function loadApprovals() {
+  if (!S.me) { $("owner-inbox").hidden = true; return; }
+  $("owner-inbox").hidden = false;
+  $("approvalList").innerHTML = `<p class="empty">Loading approvals…</p>`;
+  const r = await J("GET", "/api/bazaar/approvals");
+  if (r.status !== 200) {
+    $("approvalList").innerHTML = `<p class="empty">${r.status === 503 ? "AgentBazaar is not connected." : `Couldn’t load approvals: ${esc(r.body.error || r.status)}`}</p>`;
+    return;
+  }
+  S.approvals = r.body.held || [];
+  renderApprovals();
+}
+document.addEventListener("click", async (e) => {
+  const button = e.target.closest("[data-approval]");
+  if (!button) return;
+  const { approval: action, order: orderId } = button.dataset;
+  if (!orderId || (action !== "approve" && action !== "reject")) return;
+  if (action === "reject" && !window.confirm("Reject this Bazaar purchase? It will not be charged.")) return;
+  button.disabled = true;
+  const r = await J("POST", `/api/bazaar/approvals/${encodeURIComponent(orderId)}/${action}`, action === "reject" ? { reason: "Owner rejected in Marketplace inbox" } : { confidencePct: 80 });
+  if (r.status !== 200) {
+    toast(`Decision not recorded: ${r.body.error || r.status}`);
+    button.disabled = false;
+    return;
+  }
+  if (action === "approve") {
+    const status = r.body.status || "PENDING";
+    toast(status === "PAID" ? "Bazaar purchase approved and paid" : `Approval recorded: ${status}`);
+  } else toast("Bazaar purchase rejected; no charge was made");
+  await loadApprovals();
+});
+$("inboxRefresh").onclick = loadApprovals;
+document.addEventListener("click", async (e) => {
+  const b = e.target.closest("[data-unlink]"); if (!b) return;
+  const l = S.farm.links.find((x) => x.id === b.dataset.unlink);
+  if (!window.confirm(l.role === "BUY" ? "Revoke this storefront key? Its PayPali grant stops working immediately." : "Stop paying this vendor key into your agent? Sales already paid are not affected.")) return;
+  b.disabled = true;
+  const r = await J("POST", `/api/bazaar/links/${encodeURIComponent(l.id)}/revoke`);
+  toast(r.status === 200 ? (l.role === "BUY" ? "Storefront key revoked" : "Payouts stopped") : "Not changed: " + (r.body.error || r.status));
+  await loadFarm(); renderGrid();
+});
+
+function renderNames() {
+  $("platformNames").innerHTML = S.data.platforms.map((p) => `<button data-open="platform:${esc(p.id)}">${esc(p.name)}<small>${esc(p.vendor)}</small></button>`).join("");
+}
+
+function renderGrid() {
+  const q = S.q.toLowerCase();
+  const list = items().filter((i) => inTab(i.kind) && (!q || (i.name + " " + i.sub + " " + i.blurb).toLowerCase().includes(q)));
+  $("grid").innerHTML = list.length ? list.map((i) => {
+    const on = S.sel.has(key(i.kind, i.id));
+    return `<article class="tile${on ? " on" : ""}">
+      <button class="open" data-open="${i.kind}:${esc(i.id)}" aria-label="Open ${esc(i.name)}"></button>
+      <div class="tile-h"><span class="mono sq">${esc(initials(i.name))}</span><div><div class="tile-name">${esc(i.name)}</div><div class="tile-sub">${esc(i.sub)}</div></div></div>
+      <p>${esc(i.blurb)}</p>
+      <div class="tile-f"><span class="pill ${i.pill[1]}">${esc(i.pill[0])}</span>${planState(i.kind, i.id)}
+        ${i.kind === "invite" ? `<span class="muted">Invited</span>` : i.kind === "agent" ? `<button class="sel" data-open="agent:${esc(i.id)}">View skills</button>` : `<button class="sel" data-sel="${i.kind}:${esc(i.id)}" aria-pressed="${on}" ${S.agentId ? "" : "disabled title=\"Choose an agent first\""}>${on ? "Selected" : "Select"}</button>`}</div>
+    </article>`;
+  }).join("") : `<p class="empty">Nothing matches.</p>`;
+  renderTray();
+}
+
+function renderTray() {
+  const n = S.sel.size, dirty = JSON.stringify([...S.sel.keys()].sort()) !== S.saved;
+  const agent = S.agents.find((a) => a.id === S.agentId);
+  $("tray").hidden = !S.agentId || (!n && !dirty);
+  const counts = { platform: 0, service: 0, bazaar: 0, data: 0, skill: 0 }; for (const v of S.sel.values()) counts[v.kind]++;
+  $("trayWhat").innerHTML = `<b>${n} selected</b> for ${esc(agent ? agent.name : "")}<br><span style="opacity:.8">${counts.skill + counts.bazaar} skills · ${counts.data} agents · ${counts.service} services · ${counts.platform} platforms${dirty ? " · unsaved" : " · saved"}</span>`;
+  $("traySave").disabled = !dirty;
+  $("traySave").style.display = !dirty && S.plan ? "none" : "";
+  const left = S.plan ? S.plan.total - S.plan.ready : 0;
+  $("trayPlan").style.display = !S.plan || dirty ? "none" : "";
+  $("trayPlan").textContent = left ? `Next steps (${left})` : "All set ✓";
+}
+
+// ---------------------------------------------------------------- selections
+async function loadSelections() {
+  S.sel.clear(); S.saved = "[]"; S.plan = null; $("plan").hidden = true;
+  if (!S.agentId) return renderGrid();
+  const r = await J("GET", `/api/agents/${encodeURIComponent(S.agentId)}/market/selections`);
+  for (const i of r.body.items || []) S.sel.set(key(i.kind, i.id), i);
+  S.saved = JSON.stringify([...S.sel.keys()].sort());
+  await loadPlan();
+  renderGrid();
+}
+async function saveSelections() {
+  const r = await J("PUT", `/api/agents/${encodeURIComponent(S.agentId)}/market/selections`, { items: [...S.sel.values()] });
+  if (r.status !== 200) return toast("Not saved: " + (r.body.error || r.status));
+  S.saved = JSON.stringify([...S.sel.keys()].sort()); toast("Selections saved. Here’s what’s next.");
+  await loadPlan(); renderGrid();
+  $("plan").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+function toggle(kind, id) {
+  const k = key(kind, id);
+  if (S.sel.has(k)) S.sel.delete(k); else S.sel.set(k, { kind, id });
+  renderGrid();
+}
+const selectedServices = () => { const v = [...S.sel.values()]; const ids = v.filter((x) => x.kind === "service").map((x) => x.id); if (v.some((x) => x.kind === "bazaar")) ids.unshift("agentbazaar"); ids.push(...v.filter((x) => x.kind === "data").map((x) => "data:" + x.id)); if (v.some((x) => x.kind === "skill")) ids.push("skills"); return ids; };
+
+// ---------------------------------------------------------------- drawer
+function openSheet(head, body) { $("dlgHead").innerHTML = head + `<button class="x" id="dlgX" aria-label="Close">✕</button>`; $("dlgBody").innerHTML = body; $("dlg").showModal(); $("dlgX").onclick = () => $("dlg").close(); }
+
+// Purchase policy: surface getPolicies()/setPolicy() for the selected agent. Each of the
+// use-case categories can be set Pre-approved / Confirm first / Prohibited, with an
+// auto-allow ceiling for pre-approved ones. Recurring/paid-access/personal-data still
+// force confirmation at purchase time regardless of what is set here.
+const PERM_LABEL = { PREAPPROVED: "Pre-approved", CONFIRM: "Confirm first", PROHIBITED: "Prohibited" };
+async function openPolicy() {
+  if (!S.agentId) return toast("Choose an agent first");
+  const agent = S.agents.find((a) => a.id === S.agentId);
+  openSheet(`<span class="mono">⚖︎</span><div><h3 id="dlgTitle">Purchase policy</h3><div class="muted">What ${esc(agent ? agent.name : "this agent")} may buy, and when you must confirm first.</div></div>`,
+    `<p class="muted" style="margin:0 0 8px">Recurring charges, paid access and anything touching personal data always wait for your approval, whatever you set here.</p><div id="polBody"><p class="empty">Loading…</p></div>`);
+  await renderPolicy();
+}
+async function renderPolicy() {
+  const r = await J("GET", `/api/agents/${encodeURIComponent(S.agentId)}/bazaar/policy`);
+  if (r.status !== 200) { $("polBody").innerHTML = `<p class="empty">Couldn’t load policy: ${esc(r.body.error || r.status)}</p>`; return; }
+  const cats = r.body;
+  $("polBody").innerHTML = cats.map((c) => {
+    const opts = ["PREAPPROVED", "CONFIRM", "PROHIBITED"].map((pm) => `<option value="${pm}"${c.permission === pm ? " selected" : ""}>${PERM_LABEL[pm]}</option>`).join("");
+    const capDollars = c.preapprovedMaxMinor != null ? Number(c.preapprovedMaxMinor) / 100 : "";
+    return `<div class="polrow" data-cat="${esc(c.category)}" style="display:grid;grid-template-columns:1fr 110px 130px;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)">
+      <div><b>${esc(c.label)}</b>${c.overridden ? ` <span class="muted" style="font-size:11px">· custom</span>` : ""}<br><span class="muted" style="font-size:12px">${esc(c.example)}</span></div>
+      <label class="field" style="margin:0"><span class="muted" style="font-size:11px">Auto-allow ≤ $</span><input class="polcap" type="number" min="0" step="1" value="${capDollars}" placeholder="—" ${c.permission === "PREAPPROVED" ? "" : "disabled"}></label>
+      <select class="polperm">${opts}</select>
+    </div>`;
+  }).join("") + `<div class="actions" style="margin-top:12px"><button class="btn outline sm" id="polReset">Reset all to defaults</button></div>`;
+  $("polBody").querySelectorAll(".polrow").forEach((row) => {
+    const cat = row.dataset.cat, perm = row.querySelector(".polperm"), cap = row.querySelector(".polcap");
+    perm.onchange = () => { cap.disabled = perm.value !== "PREAPPROVED"; savePolicy(cat, perm.value, cap); };
+    cap.onchange = () => { if (perm.value === "PREAPPROVED") savePolicy(cat, perm.value, cap); };
+  });
+  $("polReset").onclick = async () => {
+    for (const c of cats.filter((x) => x.overridden)) await J("POST", `/api/agents/${encodeURIComponent(S.agentId)}/bazaar/policy`, { category: c.category, clear: true });
+    toast("Reset to defaults"); renderPolicy();
+  };
+}
+async function savePolicy(category, permission, capEl) {
+  const body = { category, permission };
+  if (permission === "PREAPPROVED" && capEl && capEl.value !== "") body.maxAmountMinor = Math.round(Number(capEl.value) * 100);
+  const r = await J("POST", `/api/agents/${encodeURIComponent(S.agentId)}/bazaar/policy`, body);
+  toast(r.status === 200 ? "Saved" : "Not saved: " + (r.body.error || r.status));
+}
+document.getElementById("policyBtn").onclick = openPolicy;
+const head = (name, sub) => `<span class="mono">${esc(initials(name))}</span><div><h3 id="dlgTitle">${esc(name)}</h3><div class="muted">${esc(sub)}</div></div>`;
+const loginHref = () => "/login?next=" + encodeURIComponent(location.pathname + location.hash);
+const agentLine = () => {
+  if (!S.me) return `<div class="result warn"><a href="${loginHref()}">Log in</a> to act for your agents. New here? <a href="/">Create an account</a>.</div>`;
+  const a = S.agents.find((x) => x.id === S.agentId);
+  return a ? `<p class="muted">Acting for <b>${esc(a.name)}</b>. Change it in “Selecting for”.</p>` : `<div class="result warn">You have no active agents yet. <a href="/">Create one</a>.</div>`;
+};
+const selBtn = (kind, id) => S.agentId ? `<button class="btn outline sm" data-sel="${kind}:${esc(id)}" data-sheet="1">${S.sel.has(key(kind, id)) ? "Remove from selections" : "Add to selections"}</button>` : "";
+function result(el, cls, html) { el.className = "result " + cls; el.innerHTML = html; el.hidden = false; }
+
+async function openPlatform(id) {
+  const p = S.data.platforms.find((x) => x.id === id); if (!p) return;
+  if (!S.providers) S.providers = (await J("GET", "/api/connect/providers")).body;
+  const prov = (S.providers.providers || []).find((x) => x.id === p.providerId);
+  const scopes = Object.entries(S.data.scopes);
+  const defaults = ["context:read", "wallet:read", "market:read", "gas:quote"];
+  openSheet(head(p.name, p.vendor + " · " + (p.connect === "guided" ? "PayPali setup guide" : "connects as a generic MCP client")), `
+    ${agentLine()}
+    ${planBlock("platform", id)}
+    <p>${esc(p.blurb)} It reaches PayPali at <code>${esc(S.data.mcpUrl)}</code>.</p>
+    ${p.connect === "generic_mcp" ? `<div class="result warn">No ${esc(p.vendor)}-specific guide yet. Any client that speaks MCP over Streamable HTTP with a bearer token can connect; the snippet below is the generic form.</div>` : ""}
+    <h4>How it connects</h4>${(prov ? prov.surfaces : []).map((s) => `<div class="surface"><b>${esc(s.name)}</b><span class="muted">${s.auth === "oauth" ? "Signs in through PayPali (OAuth)" : "Bearer token"}</span>${s.note ? `<div class="muted">${esc(s.note)}</div>` : ""}</div>`).join("")}
+    <h4>Create a connection</h4>
+    <div class="checks">${scopes.map(([k, v]) => `<label><input type="checkbox" name="scope" value="${k}" ${defaults.includes(k) ? "checked" : ""}><span><b>${k}</b> · ${esc(v)}</span></label>`).join("")}</div>
+    <div class="row2"><label class="field"><span>Per payment ($)</span><input id="cPer" type="number" min="1" step="1" value="50" inputmode="decimal"></label>
+      <label class="field"><span>Per day ($)</span><input id="cDay" type="number" min="1" step="1" value="150" inputmode="decimal"></label></div>
+    <label class="checks" style="display:block"><input type="checkbox" id="cRec"> <span><b>Allow recurring charges</b> · monthly plans and data subscriptions. Off unless you tick it.</span></label>
+    <p class="muted">Allowed services: ${selectedServices().length ? esc(selectedServices().join(", ")) + " (from your selections)" : "all marketplace services (select some to narrow this)"}.</p>
+    <div class="actions"><button class="btn primary" id="cGo" ${S.agentId ? "" : "disabled"}>Create connection</button>${selBtn("platform", id)}</div>
+    <div id="cOut" hidden></div>`);
+  $("cGo") && ($("cGo").onclick = async () => {
+    const sc = [...document.querySelectorAll('input[name="scope"]:checked')].map((x) => x.value);
+    const allowed = selectedServices();
+    const r = await J("POST", `/api/agents/${encodeURIComponent(S.agentId)}/connections`, { provider: p.providerId, label: `${p.name} (marketplace)`, scopes: sc,
+      mandate: { maxPerTxMinor: Math.round(+$("cPer").value * 100), maxDailyMinor: Math.round(+$("cDay").value * 100), allowRecurring: $("cRec").checked, ...(allowed.length ? { allowedServices: allowed } : {}) } });
+    const out = $("cOut");
+    if (r.status !== 200) return result(out, "bad", "Not created: " + esc(r.body.error || r.status));
+    afterChange();
+    result(out, "ok", `<b>Connected.</b> ${esc(r.body.tokenNote || "")}${r.body.token ? `<pre>${esc(r.body.token)}</pre>` : ""}` + (r.body.setup || []).map((s) => `<div class="surface"><b>${esc(s.name)}</b><pre>${esc(s.setup)}</pre></div>`).join(""));
+  });
+}
+
+async function openService(id) {
+  const s = S.data.services.find((x) => x.id === id); if (!s) return;
+  openSheet(head(s.name, s.category + " · paid in Gas"), `
+    ${agentLine()}
+    ${planBlock("service", id)}
+    <p>${esc(s.description)}</p>
+    <div class="result ${s.portal.status === "placeholder" ? "warn" : "ok"}">${s.portal.status === "sandbox"
+      ? `<b>Sandbox portal.</b> PayPali simulates ${esc(s.name)} so you can test the whole payment: ledger money and the Score stake are real, but no order reaches ${esc(s.name)}. Gas prices are illustrative.`
+      : s.portal.status === "live" ? `<b>Live portal.</b> ${esc(s.portal.note)}` : `<b>Placeholder portal.</b> ${esc(s.portal.note)} You can get a quote; payment is refused before any money moves.`}</div>
+    <h4>Actions</h4>
+    <label class="field"><span>Action</span><select id="sAct">${s.actions.map((a) => `<option value="${esc(a.id)}">${esc(a.name)}${a.gas ? ` · ${a.gas.toLocaleString()} Gas (≈${usd(a.approxMinor)})` : " · priced from the order"}</option>`).join("")}</select></label>
+    <div id="sParams"></div>
+    <label class="field"><span>Agent confidence: <b id="sConfV">80</b>%</span><input id="sConf" type="range" min="1" max="99" value="80"></label>
+    <div class="actions"><button class="btn outline" id="sQuote" ${S.agentId ? "" : "disabled"}>Get Gas quote</button><button class="btn primary" id="sPay" disabled>Pay with Gas</button>${selBtn("service", id)}</div>
+    <div id="sOut" hidden></div>`);
+  let quote = null;
+  const renderParams = () => {
+    const a = s.actions.find((x) => x.id === $("sAct").value);
+    $("sParams").innerHTML = Object.entries(a.params || {}).map(([k, p]) => `<label class="field"><span>${esc(p.description)}</span><input data-param="${esc(k)}" data-type="${p.type}" ${p.type === "integer" ? `type="number" min="0" step="0.01" value="${/minor/.test(k) ? (k.startsWith("subtotal") || k.startsWith("fare") || k.startsWith("session") ? "25.00" : "0") : ""}"` : `type="text" value="ref-${Date.now().toString(36)}"`}></label>`).join("");
+    quote = null; $("sPay").disabled = true;
+  };
+  $("sAct").onchange = renderParams; renderParams();
+  $("sConf").oninput = () => { $("sConfV").textContent = $("sConf").value; };
+  $("sQuote").onclick = async () => {
+    const params = {}; for (const el of document.querySelectorAll("[data-param]")) params[el.dataset.param] = el.dataset.type === "integer" ? Math.round(+el.value * (/_minor$/.test(el.dataset.param) ? 100 : 1)) : el.value;
+    const r = await J("POST", `/api/agents/${encodeURIComponent(S.agentId)}/gas/estimate`, { serviceId: s.id, actionId: $("sAct").value, params });
+    if (r.status !== 200) return result($("sOut"), "bad", "No quote: " + esc(r.body.error || r.status));
+    quote = r.body; $("sPay").disabled = !quote.payable;
+    const g = quote.gas || {};
+    result($("sOut"), quote.payable ? "" : "warn", `<b>Quote:</b> ${Number(g.total).toLocaleString()} Gas (${Number(g.units).toLocaleString()} + ${Number(g.fee).toLocaleString()} fee) = ${usd(quote.amountMinor)}. Valid for a few minutes.`
+      + (quote.payable ? "" : `<br>Not payable yet: ${esc((quote.blockers || [quote.portal]).join(", "))}.`));
+  };
+  $("sPay").onclick = async () => {
+    $("sPay").disabled = true;
+    const r = await J("POST", `/api/agents/${encodeURIComponent(S.agentId)}/gas/pay`, { quoteId: quote.quoteId, confidencePct: +$("sConf").value });
+    const st = r.body.status, reasons = r.body.reasons || [];
+    const needsGrant = reasons.some((x) => /CAPABILITY_NOT_GRANTED|AGENT_NOT_DEVELOPED|SCORE_ACCOUNT/.test(x)) || /AGENT_NOT_DEVELOPED/.test(r.body.error || "");
+    const okSt = st === "PAID" || st === "FULFILLED";
+    if (okSt) afterChange();
+    const msg = okSt ? `<b>${st === "FULFILLED" ? "Paid and fulfilled" : "Paid"}${r.body.sandbox ? " (sandbox portal)" : ""}.</b> Order <code>${esc(r.body.orderId || "")}</code>${r.body.providerRef ? ` · portal ref <code>${esc(r.body.providerRef)}</code>` : ""}.`
+      : `<b>${esc(st || r.body.error || r.status)}</b> ${esc(reasons.join(", "))}${st === "UNSUPPORTED" ? "<br>This portal is a placeholder, so no money moved." : ""}`;
+    result($("sOut"), okSt ? "ok" : st === "UNSUPPORTED" ? "warn" : "bad", msg + (needsGrant ? `<div class="actions"><button class="btn outline sm" id="sGrant">Allow this agent to pay for services</button></div><span class="muted">Owner act: opens the agent's Score account and grants it <code>market.service</code>. Every payment still stakes its confidence and a bond.</span>` : ""));
+    if (needsGrant) $("sGrant").onclick = async () => {
+      const id = encodeURIComponent(S.agentId);
+      await J("POST", `/api/agentdev/agents/${id}/develop`, {});
+      const g = await J("POST", `/api/agentdev/agents/${id}/capabilities`, { capability: "market.service", maxRisk: "MEDIUM" });
+      if (g.status !== 200) return result($("sOut"), "bad", "Not granted: " + esc(g.body.error || g.status));
+      toast("Service payments allowed"); $("sQuote").click();   // a declined quote is spent: get a fresh one
+    };
+  };
+}
+
+async function openBazaar(id) {
+  const l = S.data.listings.find((x) => x.id === id); if (!l) return;
+  const sf = S.farm && S.farm.storefrontUrl ? S.farm.storefrontUrl.replace(/\/$/, "") : null;
+  openSheet(head(l.name, (mine(l) ? "Yours · " : "") + sellerText(l) + " · skill on the Solutions Farm"), `
+    ${agentLine()}
+    ${planBlock("bazaar", id)}
+    <p>${esc(l.blurb)}</p>
+    <dl class="kv"><dt>Price</dt><dd>${usd(l.priceMinor)} · ${Number(l.gasEquivalent).toLocaleString()} Gas · ${l.runsIncluded} runs</dd>
+      <dt>Trust</dt><dd>V${l.tier} · ${esc(l.basis || "")}</dd>
+      <dt>Claimed</dt><dd>${Math.round(l.claimedSuccess * 100)}% success${l.observedRate != null ? ` · observed ${Math.round(l.observedRate * 100)}% over ${l.attestedOutcomes} weighted outcomes` : ""}</dd>
+      ${l.vendorId ? `<dt>Vendor</dt><dd>${esc(l.vendor)} · ${l.vendorVerified ? "identity verified" : "identity not verified"}${mine(l) ? " · <span class=\"yours\">your listing</span>: sales are paid into your linked agent" : ""}</dd>` : ""}
+      ${sf ? `<dt>Storefront</dt><dd><a href="${esc(sf)}/#${mine(l) ? "sell" : "buy"}" target="_blank" rel="noopener">${mine(l) ? "Manage it on the Solutions Farm ↗" : "Open the Solutions Farm ↗"}</a></dd>` : ""}
+      ${l.outcomeMetric ? `<dt>Measures</dt><dd>${esc(l.outcomeMetric.name)} (${esc(l.outcomeMetric.unit)}) · you confirm with the value you saw</dd>` : ""}</dl>
+    <h4>Buy with your agent</h4>
+    <div id="bState" class="muted">Checking AgentBazaar for this agent…</div>
+    <label class="field"><span>Agent confidence: <b id="bConfV">80</b>%</span><input id="bConf" type="range" min="1" max="99" value="80"></label>
+    <div class="actions"><button class="btn outline" id="bEnable" hidden>Enable AgentBazaar ($200 budget)</button><button class="btn primary" id="bBuy" disabled>Buy ${usd(l.priceMinor)}</button><button class="btn outline" id="bRun" hidden>Run it</button>${selBtn("bazaar", id)}</div>
+    <div id="bAttest" class="howto" hidden></div>
+    <label class="field" id="bInputF" hidden><span>Input for the run (JSON)</span><textarea id="bInput" rows="2" spellcheck="false" style="font:13px ui-monospace,monospace;width:100%;border:1.5px solid var(--line-strong);border-radius:10px;padding:8px;background:var(--surface);color:var(--ink)">{}</textarea></label>
+    <div id="bOut" hidden></div>`);
+  $("bConf").oninput = () => { $("bConfV").textContent = $("bConf").value; };
+  let bReceipt = null;
+  J("GET", `/api/agents/${encodeURIComponent(S.agentId || "_")}/bazaar`).then((r) => {
+    const paid = (r.body.orders || []).find((o) => o.solutionId === id && o.status === "PAID" && o.receiptId);
+    if (paid) { bReceipt = paid.receiptId; $("bRun").hidden = false; $("bInputF").hidden = false; }
+  });
+  const EXAMPLE_INPUT = { "sf-0310": { capability: "invoice_reconciliation" }, "sf-0311": { capability: "invoice_reconciliation" }, "sf-0312": { capability: "invoice_reconciliation" },
+    "sf-0320": { origin: "JFK", destination: "LAX", depart: "2026-12-12", nights: 3 }, "sf-0321": { origin: "JFK", destination: "LAX", depart: "2026-12-12", nights: 3 }, "sf-0322": { origin: "JFK", destination: "LAX", depart: "2026-12-12", nights: 3 },
+    "sf-0233": { appliance: "ev_charger" } };
+  $("bInput").value = JSON.stringify(EXAMPLE_INPUT[id] || {});
+  // Owner's confirmation of what the agent reported: settles the stake, builds the seller's track record.
+  const loadAttest = async () => {
+    if (!S.agentId) return;
+    const r = await J("GET", `/api/agents/${encodeURIComponent(S.agentId)}/bazaar/pending`);
+    const runs = (r.body.pending || []).filter((x) => x.solution_id === id);
+    $("bAttest").hidden = !runs.length;
+    if (!runs.length) return;
+    const x = runs[0], m = x.outcome_metric;
+    $("bAttest").innerHTML = `<b>Confirm the result${runs.length > 1 ? ` (${runs.length} waiting)` : ""}</b>
+      Your agent reported this run as <b>${x.agent_reported_success ? "successful" : "failed"}</b>${x.observed != null ? ` (it observed ${esc(x.observed)}${m ? " " + esc(m.unit) : ""})` : ""}. What did you see?
+      ${m ? `<label class="field"><span>${esc(m.name.replace(/_/g, " "))} you observed (${esc(m.unit)})</span><input id="bObs" type="number" step="any" inputmode="decimal"></label>` : ""}
+      <div class="actions"><button class="btn primary sm" id="bConfirm">Confirm</button><button class="btn outline sm" id="bDispute">Dispute</button></div>
+      <span class="muted">Your answer settles the agent’s Score stake and counts toward ${esc(l.vendor || "the seller")}’s verified track record.</span>`;
+    const send = async (verdict) => {
+      const obs = m ? Number($("bObs").value) : undefined;
+      if (m && !Number.isFinite(obs)) return toast(`Enter the ${m.name.replace(/_/g, " ")} you observed.`);
+      const r2 = await J("POST", `/api/agents/${encodeURIComponent(S.agentId)}/bazaar/attest`, { runId: x.run_id, verdict, ...(m ? { observed: obs } : {}) });
+      if (r2.status !== 200) return toast("Not recorded: " + (r2.body.error || r2.status));
+      toast(verdict === "confirm" ? "Confirmed. The stake is settled." : "Disputed. The stake is settled against the agent.");
+      afterChange(); loadAttest();
+    };
+    $("bConfirm").onclick = () => send("confirm"); $("bDispute").onclick = () => send("dispute");
+  };
+  loadAttest();
+  $("bRun").onclick = async () => {
+    $("bInputF").hidden = false;
+    let input; try { input = JSON.parse($("bInput").value || "{}"); } catch (e) { return result($("bOut"), "bad", "Input is not valid JSON."); }
+    $("bRun").disabled = true;
+    const r = await J("POST", `/api/agents/${encodeURIComponent(S.agentId)}/bazaar/run`, { receiptId: bReceipt, input });
+    $("bRun").disabled = false;
+    if (r.status !== 200) return result($("bOut"), "bad", "Run failed: " + esc(r.body.error || r.status));
+    const runId = r.body.runId;
+    result($("bOut"), "ok", `<b>Ran it.</b> ${r.body.runsLeft != null ? r.body.runsLeft + " runs left. " : ""}<pre>${esc(JSON.stringify(r.body.output, null, 2))}</pre>
+      Your agent now reports whether it worked (here, you report for it); then you confirm what you saw.
+      <div class="actions"><button class="btn primary sm" id="bYes">It worked</button><button class="btn outline sm" id="bNo">It didn’t</button></div>`);
+    const report = async (ok) => {
+      const rep = await J("POST", `/api/agents/${encodeURIComponent(S.agentId)}/bazaar/report`, { runId, success: ok });
+      if (rep.status !== 200) return toast("Not reported: " + (rep.body.error || rep.status));
+      afterChange(); loadAttest();
+    };
+    $("bYes").onclick = () => report(true); $("bNo").onclick = () => report(false);
+  };
+  const refresh = async () => {
+    if (!S.agentId) { $("bState").textContent = ""; return; }
+    const r = await J("GET", `/api/agents/${encodeURIComponent(S.agentId)}/bazaar`);
+    const acct = r.body.account;
+    const on = !!(acct && acct.enabled);
+    $("bState").innerHTML = on ? `Enabled: ${usd(acct.perPurchaseCapMinor)} per purchase, minimum tier V${acct.minTier}.` : acct && acct.disabledByOwner ? "You turned AgentBazaar off for this agent." : "AgentBazaar is not enabled for this agent yet.";
+    $("bEnable").hidden = on; $("bBuy").disabled = !on;
+  };
+  $("bEnable").onclick = async () => {
+    const r = await J("POST", `/api/agents/${encodeURIComponent(S.agentId)}/bazaar/enable`, { budgetMinor: 20000, capMinor: Math.max(5000, l.priceMinor) });
+    if (r.status !== 200) result($("bOut"), "bad", "Not enabled: " + esc(r.body.error || r.status)); else toast("AgentBazaar enabled");
+    refresh();
+  };
+  $("bBuy").onclick = async () => {
+    $("bBuy").disabled = true;
+    const r = await J("POST", `/api/agents/${encodeURIComponent(S.agentId)}/bazaar/buy`, { solutionId: l.id, confidencePct: +$("bConf").value });
+    const b = r.body;
+    if (b.status === "PAID") { afterChange(); bReceipt = b.receiptId; $("bRun").hidden = false; result($("bOut"), "ok", `<b>Paid.</b> Receipt <code>${esc(b.receiptId)}</code>${b.receiptVerified ? " (signature verified)" : ""}. Run it now below, or ask your assistant: “Run ${esc(l.name)} with receipt ${esc(b.receiptId)} and report the result.” (MCP: <code>bazaar_run</code> → <code>bazaar_report</code>)`); }
+    else result($("bOut"), "bad", `<b>${esc(b.status || b.error || r.status)}</b> ${esc((b.reasons || []).join(", "))}`);
+    $("bBuy").disabled = false;
+  };
+  refresh();
+}
+
+// ---------------------------------------------------------------- data agents
+const pct = (x) => x == null ? "–" : Math.round(x * 100) + "%";
+const ago = (sec) => sec >= 86400 ? Math.round(sec / 86400) + " d" : sec >= 3600 ? Math.round(sec / 3600) + " h" : sec >= 60 ? Math.round(sec / 60) + " min" : sec + " s";
+const priceText = (p) => p.model === "fixed" ? `${p.baseGas.toLocaleString()} Gas per answer` : `${p.baseGas.toLocaleString()} Gas + ${p.perRowGas} per row scanned${p.perComputeMsGas ? ` + ${p.perComputeMsGas} per ms` : ""}, at most ${p.maxGas.toLocaleString()} Gas`;
+function exampleFor(schema) {
+  const props = (schema && schema.properties) || {}, out = {};
+  for (const [k, v] of Object.entries(props)) out[k] = v.enum ? v.enum[0] : v.type === "integer" || v.type === "number" ? (v.minimum ?? 1) : v.type === "boolean" ? false : /week/.test(k) ? "2026-W44" : /ref/.test(k) ? "AC1234" : "";
+  return out;
+}
+async function openData(slug) {
+  const a = (S.data.dataAgents || []).find((x) => x.slug === slug); if (!a) return;
+  const st = a.stats || {}, perQ = Object.fromEntries((st.questionTypes || []).map((x) => [x.key, x]));
+  openSheet(head(a.name, "Company data agent · answers, not rows"), `
+    ${agentLine()}
+    ${planBlock("data", slug)}
+    <p>${esc(a.description)}</p>
+    <dl class="kv"><dt>Seller identity</dt><dd>${a.sellerAssurance === "kyc" ? "Verified (PayPal)" : "Account only (not identity-verified)"}</dd>
+      <dt>Track record</dt><dd>${(st.answered || 0) + (st.settled || 0)} answers held up · ${st.disputed || 0} disputed · ${st.refused || 0} refused for breaking the contract</dd>
+      <dt>Disputes</dt><dd>Within ${a.disputeWindowHours} h of an answer: full refund, and the company loses its accuracy stake.</dd></dl>
+    <h4>Question types</h4>
+    ${a.questionTypes.map((q) => `<div class="surface"><b>${esc(q.title)}</b> <code>${esc(q.key)}</code>${q.subjectQuery ? ` <span class="pill ok">About you · at cost, no fee</span>` : ""}
+      <div class="muted">${esc(q.description)}</div>
+      <div class="muted">Price: ${esc(priceText(q.pricing))}. Fresh within ${ago(q.freshnessSeconds)}. Claims ${pct(q.accuracyClaim)} accuracy (observed ${pct(perQ[q.key] && perQ[q.key].observedAccuracy)}).</div>
+      <div class="muted">Never returns: ${q.privacy.bannedFields.length ? esc(q.privacy.bannedFields.join(", ")) : "no listed fields"}${q.privacy.minAggregation ? ` · groups of at least ${q.privacy.minAggregation.min}` : ""}. Purposes: ${q.allowedPurposes.length ? esc(q.allowedPurposes.join(", ")) : "any stated purpose"}.</div></div>`).join("")}
+    <h4>Ask a question</h4>
+    <label class="field"><span>Question type</span><select id="dQ">${a.questionTypes.map((q) => `<option value="${esc(q.key)}">${esc(q.title)}</option>`).join("")}</select></label>
+    <label class="field"><span>Purpose (sent with the query)</span><select id="dP"></select></label>
+    <label class="field"><span>Input (JSON, must match the input schema)</span><textarea id="dIn" rows="3" spellcheck="false" style="font:13px ui-monospace,monospace;width:100%;border:1.5px solid var(--line-strong);border-radius:10px;padding:8px;background:var(--surface);color:var(--ink)"></textarea></label>
+    <label class="field"><span>Agent confidence the answer is worth paying for: <b id="dConfV">80</b>%</span><input id="dConf" type="range" min="1" max="99" value="80"></label>
+    <div class="actions"><button class="btn outline" id="dQuote" ${S.agentId ? "" : "disabled"}>Quote</button><button class="btn primary" id="dAsk" ${S.agentId ? "" : "disabled"}>Ask</button>${selBtn("data", slug)}</div>
+    <div id="dOut" hidden></div>
+    <h4>Subscribe</h4>
+    <p class="muted">Standing access with a monthly budget for this company. Connections can only use it if their mandate allows recurring charges.</p>
+    <div class="row2"><label class="field"><span>Monthly budget ($)</span><input id="dBud" type="number" min="1" step="1" value="20"></label><div class="actions" style="align-self:end"><button class="btn outline" id="dSub" ${S.agentId ? "" : "disabled"}>Subscribe</button></div></div>
+    <div id="dSubOut" hidden></div>`);
+  const sync = () => {
+    const q = a.questionTypes.find((x) => x.key === $("dQ").value);
+    $("dP").innerHTML = (q.allowedPurposes.length ? q.allowedPurposes : ["analytics", "planning", "customer_support"]).map((p) => `<option>${esc(p)}</option>`).join("");
+    $("dIn").value = JSON.stringify(exampleFor(q.inputSchema));
+  };
+  $("dQ").onchange = sync; sync();
+  $("dConf").oninput = () => { $("dConfV").textContent = $("dConf").value; };
+  const id = () => encodeURIComponent(S.agentId);
+  const body = () => { let input; try { input = JSON.parse($("dIn").value || "{}"); } catch (e) { throw new Error("Input is not valid JSON"); } return { dataAgent: slug, questionType: $("dQ").value, purpose: $("dP").value, input, confidencePct: +$("dConf").value }; };
+  const fixes = (reasons) => {
+    let h = "";
+    if (reasons.some((x) => /CAPABILITY_NOT_GRANTED|AGENT_NOT_DEVELOPED|NO_SCORE_ACCOUNT/.test(x))) h += `<div class="actions"><button class="btn outline sm" id="dGrant">Allow this agent to buy answers</button></div><span class="muted">Owner act: opens its Score account and grants <code>data.query</code>. Every query still stakes its confidence.</span>`;
+    if (reasons.includes("SUBJECT_KYC_REQUIRED")) h += `<div class="actions"><button class="btn outline sm" id="dKyc">Verify with PayPal</button></div><span class="muted">Questions about you need proof that you are the person the data is about.</span>`;
+    return h;
+  };
+  const wireFixes = () => {
+    if ($("dGrant")) $("dGrant").onclick = async () => {
+      await J("POST", `/api/agentdev/agents/${id()}/develop`, {});
+      const g = await J("POST", `/api/agentdev/agents/${id()}/capabilities`, { capability: "data.query", maxRisk: "HIGH" });
+      if (g.status !== 200) return result($("dOut"), "bad", "Not granted: " + esc(g.body.error || g.status));
+      toast("Data queries allowed"); $("dQuote").click();
+    };
+    if ($("dKyc")) $("dKyc").onclick = async () => {
+      const r = await J("POST", `/api/owners/${encodeURIComponent(S.me.id)}/kyc/sessions`, {});
+      if (r.body.url) window.open(r.body.url, "_blank", "noopener"); else result($("dOut"), "bad", "Verification unavailable: " + esc(r.body.error || r.status));
+    };
+  };
+  $("dQuote").onclick = async () => {
+    let b; try { b = body(); } catch (e) { return result($("dOut"), "bad", esc(e.message)); }
+    const r = await J("POST", `/api/agents/${id()}/data/quote`, b);
+    if (r.status !== 200) return result($("dOut"), "bad", "No quote: " + esc(r.body.error || r.status));
+    const q = r.body;
+    result($("dOut"), q.payable ? "" : "warn", `<b>Hold:</b> up to ${q.gas.maxTotal.toLocaleString()} Gas (${usd(q.heldMinor)}), refunded down to the metered price.${q.maxRows != null ? ` Covers up to ${q.maxRows.toLocaleString()} rows scanned.` : ""}${q.subscription ? `<br>Subscription: ${usd(q.subscription.spentThisMonthMinor)} of ${usd(q.subscription.monthlyBudgetMinor)} used this month.` : ""}`
+      + (q.payable ? "" : `<br>Blocked: ${esc(q.blockers.join(", "))}.`) + fixes(q.blockers));
+    wireFixes();
+  };
+  $("dAsk").onclick = async () => {
+    let b; try { b = body(); } catch (e) { return result($("dOut"), "bad", esc(e.message)); }
+    $("dAsk").disabled = true;
+    const r = await J("POST", `/api/agents/${id()}/data/query`, b);
+    $("dAsk").disabled = false;
+    const q = r.body;
+    if (r.status !== 200) return result($("dOut"), "bad", esc(q.error || r.status));
+    if (q.status !== "ANSWERED") { result($("dOut"), q.status === "FAILED" ? "bad" : "warn", `<b>${esc(q.status)}</b> ${esc((q.reasons || []).join(", "))}${q.queryId ? "<br>Nothing was charged." : ""}` + fixes(q.reasons || [])); return wireFixes(); }
+    const rc = q.receipt && q.receipt.body;
+    afterChange();
+    result($("dOut"), "ok", `<b>Answered</b> for ${(q.gas.price + q.gas.fee).toLocaleString()} Gas (${usd(q.amountMinor)}): ${q.gas.price.toLocaleString()} metered${q.usage ? ` (${q.usage.rows.toLocaleString()} rows, ${q.usage.computeMs} ms)` : ""} + ${q.gas.fee} fee. As of ${esc(new Date(q.asOf).toLocaleString())}.
+      <pre>${esc(JSON.stringify(q.result, null, 2))}</pre>
+      <span class="muted">Receipt ${q.receipt && q.receipt.sig ? "signed by PayPali" : "(unsigned)"} · result hash <code>${esc(rc ? rc.result_sha256.slice(0, 16) : "")}…</code> · disputable until ${esc(new Date(q.disputeUntil).toLocaleString())}</span>
+      <div class="actions"><button class="btn outline sm" id="dDisp">Dispute this answer</button></div>`);
+    $("dDisp").onclick = async () => {
+      const why = window.prompt("What was wrong with the answer?"); if (!why) return;
+      const d = await J("POST", `/api/owners/${encodeURIComponent(S.me.id)}/data-queries/${encodeURIComponent(q.queryId)}/dispute`, { reason: why });
+      if (d.status !== 200) return toast("Not disputed: " + (d.body.error || d.status));
+      toast("Disputed: refunded"); $("dDisp").disabled = true;
+    };
+  };
+  $("dSub").onclick = async () => {
+    const r = await J("POST", `/api/agents/${id()}/data-subscriptions`, { dataAgent: slug, monthlyBudgetMinor: Math.round(+$("dBud").value * 100) });
+    if (r.status !== 201) return result($("dSubOut"), "bad", "Not subscribed: " + esc(r.body.error || r.status));
+    result($("dSubOut"), "ok", `<b>Subscribed.</b> ${usd(r.body.monthlyBudgetMinor)} a month for ${esc(a.name)}; ${usd(r.body.spentThisMonthMinor)} used so far.`);
+  };
+}
+
+// ---------------------------------------------------------------- next steps (plan)
+const KIND_LABEL = { agent: "Your agent", platform: "Platform", service: "Service", bazaar: "Bazaar agent", data: "Data agent" };
+function planFor(kind, id) { return S.plan ? S.plan.items.find((x) => x.kind === kind && x.id === id) : null; }
+function planState(kind, id) {
+  const p = S.saved.includes(`"${kind}:${id}"`) ? planFor(kind, id) : null;
+  if (!p) return "";
+  return ` <span class="state ${p.state}" title="${esc(p.status)}">${p.state === "done" ? "Ready" : p.state === "blocked" ? "Blocked" : "Next step"}</span>`;
+}
+async function loadPlan() {
+  if (!S.agentId || !S.me) { S.plan = null; $("plan").hidden = true; return; }
+  const r = await J("GET", `/api/agents/${encodeURIComponent(S.agentId)}/market/plan`);
+  if (r.status !== 200) { S.plan = null; $("plan").hidden = true; return; }
+  S.plan = r.body; renderPlan();
+}
+function howToHtml(h) {
+  if (!h) return "";
+  return `<details><summary>How your agent uses it</summary><p>${esc(h.prompt)}</p><p class="muted">MCP tools: ${h.tools.map((t) => `<code>${esc(t)}</code>`).join(", ")}${h.http ? ` · HTTP: <code>${esc(h.http)}</code>` : ""}</p></details>`;
+}
+function renderPlan() {
+  const P = S.plan; if (!P) return;
+  const agent = S.agents.find((a) => a.id === S.agentId);
+  const hasSel = P.items.some((x) => x.kind !== "agent");
+  $("plan").hidden = false;
+  $("planTitle").textContent = hasSel ? `Next steps for ${agent ? agent.name : "your agent"}` : `Get ${agent ? agent.name : "your agent"} ready, then select what it may use`;
+  $("planCount").textContent = `${P.ready} of ${P.total} ready`;
+  $("planBar").style.width = (P.total ? Math.round((P.ready / P.total) * 100) : 0) + "%";
+  const order = { blocked: 1, todo: 0, done: 2 };
+  const items = P.items.slice().sort((a, b) => (a.kind === "agent") === (b.kind === "agent") ? order[a.state] - order[b.state] : a.kind === "agent" ? -1 : 1);
+  let step = 0;
+  $("planList").innerHTML = items.map((x) => `<li class="plan-item ${x.state}">
+      <span class="dot">${x.state === "done" ? "✓" : x.state === "blocked" ? "!" : ++step}</span>
+      <div><span class="k">${esc(KIND_LABEL[x.kind])}</span><span class="t">${esc(x.title)}</span><div class="st">${esc(x.status)}</div>${howToHtml(x.howTo)}</div>
+      ${x.action ? `<button class="btn ${x.state === "done" ? "outline" : "primary"} sm" data-plan="${esc(x.key)}">${esc(x.action.label)}</button>` : ""}
+    </li>`).join("");
+  $("planList").classList.toggle("collapsed", false);
+  renderTray();
+}
+async function runPlanAction(key) {
+  const x = S.plan.items.find((i) => i.key === key); if (!x || !x.action) return;
+  const a = x.action, id = encodeURIComponent(S.agentId);
+  if (a.type === "fund") return location.assign(a.href);
+  if (a.type === "open" || a.type === "attest") return open(a.item);
+  if (a.type === "connect") return open("platform:" + (a.platform || "claude"));
+  if (a.type === "sign") {
+    const d = await J("GET", `/api/agents/${id}/power-of-agency`);
+    if (d.status !== 200) return toast("Couldn’t load the terms: " + (d.body.error || d.status));
+    const t = d.body.draft;
+    const summary = `Sign Power of Agency for ${t.agent.name}?\n\nObjective: ${t.objective.type || "—"}\nCapabilities: ${t.capabilities.map((c) => c.capability).join(", ") || "none"}\nConnections: ${t.connections.map((c) => c.label).join(", ") || "none"}\n\nThe agent acts for you under exactly these terms until you stop it or sign a new version.`;
+    if (!window.confirm(summary)) return;
+    const r = await J("POST", `/api/agents/${id}/power-of-agency/sign`, { acceptedTermsSha256: d.body.draftTermsSha256 });
+    toast(r.status === 200 ? `Power of Agency v${r.body.version} signed` : "Not signed: " + (r.body.error || r.status));
+  }
+  if (a.type === "extend") {
+    const lines = a.connections.map((c) => `• ${c.label}: ${[...c.addScopes, ...c.addServices].join(", ")}`).join("\n");
+    if (!window.confirm(`Give your assistant access to your selections?\n\n${lines}\n\nSpending limits stay the same, and every payment is still Score-gated.`)) return;
+    const r = await J("POST", `/api/agents/${id}/market/extend-access`, { connectionIds: a.connections.map((c) => c.id) });
+    toast(r.status === 200 ? "Access updated" : "Not updated: " + (r.body.error || r.status));
+  }
+  if (a.type === "grant") {
+    await J("POST", `/api/agentdev/agents/${id}/develop`, {});
+    const r = await J("POST", `/api/agentdev/agents/${id}/capabilities`, { capability: a.capability, maxRisk: "HIGH" });
+    toast(r.status === 200 ? "Allowed" : "Not allowed: " + (r.body.error || r.status));
+  }
+  if (a.type === "enable_bazaar") {
+    const r = await J("POST", `/api/agents/${id}/bazaar/enable`, { budgetMinor: 20000, capMinor: 6000 });
+    toast(r.status === 200 ? "AgentBazaar enabled" : "Not enabled: " + (r.body.error || r.status));
+  }
+  await loadPlan(); renderGrid();
+}
+$("planList").addEventListener("click", (e) => { const b = e.target.closest("[data-plan]"); if (b) runPlanAction(b.dataset.plan); });
+$("planToggle").addEventListener("click", () => { const l = $("planList"); const hide = !l.hidden; l.hidden = hide; $("planToggle").textContent = hide ? "Show" : "Hide"; });
+$("trayPlan").addEventListener("click", () => { $("planList").hidden = false; $("planToggle").textContent = "Hide"; $("plan").scrollIntoView({ behavior: "smooth", block: "start" }); });
+/** In a drawer: where this item stands for the agent, and how the agent uses it. */
+function planBlock(kind, id) {
+  const p = planFor(kind, id);
+  if (!p || !S.saved.includes(`"${kind}:${id}"`)) return S.agentId ? `<p class="muted">Add it to your selections to see what your agent needs before it can use it.</p>` : "";
+  return `<div class="howto"><b>${p.state === "done" ? "Ready" : p.state === "blocked" ? "Blocked" : "Next step"}: ${esc(p.status)}</b>${p.howTo ? `${esc(p.howTo.prompt)}<br><span class="muted">MCP tools: ${p.howTo.tools.map((t) => `<code>${esc(t)}</code>`).join(", ")}</span>` : ""}</div>`;
+}
+/** After something changes in a drawer (bought, paid, connected…), refresh the plan quietly. */
+function afterChange() { loadPlan().then(renderGrid); }
+
+// ---------------------------------------------------------------- skills (sold by agents, paid in Gas)
+const SKILL_EXAMPLES = {
+  "find-episode": { show: "The Long Orbit", description: "they find a stowaway cat on the ship" },
+  "northwind-catalog-search": { show: "Harbor Lights" },
+};
+const ROLE_TEXT = { seller: "Seller agent (price + its fee)", royalty: "Royalty to the skill it builds on", upstream: "Upstream agent it calls", network: "PayPali network fee" };
+function linesTable(q) {
+  const rows = q.lines.map((l) => `<tr><td>${esc(ROLE_TEXT[l.role] || l.role)}</td><td>${esc(l.agentName || "")}</td><td class="n">${l.gas.toLocaleString()}${l.prepaid ? ` <span class="muted">(${l.prepaid} prepaid)</span>` : ""}</td></tr>`).join("");
+  return `<table class="gas-lines"><thead><tr><th>Line</th><th>Paid to</th><th class="n">Gas</th></tr></thead><tbody>${rows}
+    <tr class="total"><td colspan="2">You pay now${q.payNowGas !== q.totalGas ? " (rest released from your prepaid license)" : ""}</td><td class="n">${q.payNowGas.toLocaleString()} Gas · ${usd(q.amountMinor)}</td></tr></tbody></table>
+    <p class="muted" style="margin:6px 0 0">At 1 Gas = $${(q.priceMilli / 100000).toFixed(5)}. Gas floats with demand: a call is settled at the price it runs at.</p>`;
+}
+async function openSkill(slug) {
+  const r = await J("GET", `/api/skills/${encodeURIComponent(slug)}`); if (r.status !== 200) return toast("Skill not found");
+  const x = r.body, ownIt = !!x.yours;
+  const ex = SKILL_EXAMPLES[slug] || exampleFor(x.inputSchema);
+  openSheet(head(x.name, `Skill · sold by ${x.seller ? x.seller.name : "?"}${x.demo ? " · demo data" : ""}`), `
+    ${agentLine()}
+    ${planBlock("skill", slug)}
+    <p>${esc(x.description)}</p>
+    <dl class="kv"><dt>Sold by</dt><dd><a href="#" data-open="agent:${esc(x.seller ? x.seller.agentId : "")}">${esc(x.seller ? x.seller.name : "?")}</a> · an agent with its own wallet, Score and Power of Agency${x.seller && x.seller.actFeeGas ? ` · charges ${x.seller.actFeeGas} Gas per call to act` : ""}</dd>
+      ${x.dependencies.length ? `<dt>Built on</dt><dd>${x.dependencies.map((d) => `<a href="#" data-open="skill:${esc(d.slug)}">${esc(d.name)}</a> (${d.use === "CALL" ? "called, passed through" : "built in, royalty"})`).join(" · ")}</dd>` : ""}
+      <dt>Track record</dt><dd>${x.stats.callsServed} calls delivered · ${x.stats.activeLicenses} agents hold a license</dd>
+      ${x.status !== "ACTIVE" ? `<dt>Status</dt><dd>Not live yet (its endpoint isn’t verified)</dd>` : ""}</dl>
+    <h4>License it</h4>
+    <div class="offers">${x.offers.map((o) => `<div class="offer"><span><b>${o.mode === "PER_CALL" ? "Per call" : o.mode === "BUNDLE" ? `Bundle of ${o.calls} calls` : `Subscription, ${o.periodDays} days`}</b> · ${o.priceGas.toLocaleString()} Gas${o.mode === "PER_CALL" ? " a call" : " up front"} (≈ ${gasUsd(o.priceGas)})${o.sublicensable ? ` · may be built into your own skills for a ${o.royaltyBps / 100}% royalty` : ""}</span>
+      <button class="btn outline sm" data-license="${esc(o.id)}" ${S.agentId && !ownIt ? "" : "disabled"}>License</button></div>`).join("")}</div>
+    <div id="skLic" class="muted" style="margin-top:8px">${S.agentId ? "Checking your agent’s licenses…" : "Choose one of your agents above to license skills for it."}</div>
+    <h4>What one call costs your agent</h4>
+    <div id="skQuote" class="muted">${S.agentId ? "Pricing…" : "Choose an agent to see its price."}</div>
+    <h4>Try it with your agent</h4>
+    <label class="field"><span>Input (JSON)</span><textarea id="skIn" rows="3" spellcheck="false" style="font:13px ui-monospace,monospace;width:100%;border:1.5px solid var(--line-strong);border-radius:10px;padding:8px;background:var(--surface);color:var(--ink)">${esc(JSON.stringify(ex, null, 1))}</textarea></label>
+    <label class="field"><span>Agent confidence: <b id="skConfV">80</b>%</span><input id="skConf" type="range" min="1" max="99" value="80"></label>
+    <div class="actions"><button class="btn primary" id="skRun" disabled>Run it</button>${selBtn("skill", slug)}${ownIt && !x.hasAgency ? `<button class="btn outline" id="skAgency">Give this skill agency</button>` : ""}</div>
+    <div class="howto"><b>How your agent uses it</b>Ask your assistant: “Use the ${esc(x.name)} skill and tell me what it cost.” MCP tools: <code>skills_search</code>, <code>skill_quote</code>, <code>skill_license</code>, <code>skill_invoke</code>.</div>
+    <div id="skOut" hidden></div>`);
+  $("skConf").oninput = () => { $("skConfV").textContent = $("skConf").value; };
+  const refresh = async () => {
+    if (!S.agentId) return;
+    const [l, q] = await Promise.all([J("GET", `/api/agents/${encodeURIComponent(S.agentId)}/licenses`), J("GET", `/api/agents/${encodeURIComponent(S.agentId)}/skills/quote?skill=${encodeURIComponent(slug)}`)]);
+    const held = (l.body.licenses || []).find((x) => x.skillRef === "skill:" + slug && x.status === "ACTIVE");
+    $("skLic").innerHTML = ownIt ? "You sell this skill." : held ? `<b>Licensed</b> (${held.mode.toLowerCase().replace("_", " ")}${held.callsTotal ? `, ${held.callsTotal - held.callsUsed} of ${held.callsTotal} calls left` : ""}${held.prepaidGas ? `, ${held.prepaidGas} Gas prepaid` : ""}). <button class="btn outline sm" data-unlicense="${esc(held.id)}">Revoke</button>` : "Not licensed yet.";
+    if (q.status === 200) $("skQuote").innerHTML = linesTable(q.body) + (q.body.blockers.length ? `<p class="muted">Before it can run: ${q.body.blockers.map((b) => b === "NOT_LICENSED" ? "license it" : esc(b)).join(", ")}.</p>` : "");
+    $("skRun").disabled = !held || x.status !== "ACTIVE";
+  };
+  refresh();
+  $("dlgBody").onclick = async (e) => {
+    const lb = e.target.closest("[data-license]"), ub = e.target.closest("[data-unlicense]");
+    if (lb) {
+      lb.disabled = true;
+      const r = await J("POST", `/api/agents/${encodeURIComponent(S.agentId)}/skills/license`, { skill: slug, offerId: lb.dataset.license });
+      result($("skOut"), r.status === 200 ? "ok" : "bad", r.status === 200 ? `<b>Licensed.</b> ${r.body.paidGas ? `Paid ${r.body.paidGas.toLocaleString()} Gas (${usd(r.body.amountMinor)}) into escrow; it’s released to ${esc(x.seller.name)} as calls are delivered.` : "Nothing to pay until your agent uses it."}` : "Not licensed: " + esc(r.body.error || r.status));
+      lb.disabled = false; await refresh(); afterChange();
+    }
+    if (ub && window.confirm("Revoke this license? Unused prepaid Gas returns to your agent.")) {
+      const r = await J("POST", `/api/agents/${encodeURIComponent(S.agentId)}/licenses/${encodeURIComponent(ub.dataset.unlicense)}/revoke`);
+      toast(r.status === 200 ? "License revoked" : "Not revoked: " + (r.body.error || r.status)); await refresh(); afterChange();
+    }
+  };
+  $("skRun").onclick = async () => {
+    let input; try { input = JSON.parse($("skIn").value || "{}"); } catch (e) { return result($("skOut"), "bad", "The input isn’t valid JSON."); }
+    $("skRun").disabled = true;
+    const r = await J("POST", `/api/agents/${encodeURIComponent(S.agentId)}/skills/invoke`, { skill: slug, input, confidencePct: +$("skConf").value });
+    const b = r.body;
+    if (r.status !== 200) result($("skOut"), "bad", "Not run: " + esc(b.error || r.status));
+    else if (b.status === "SETTLED") result($("skOut"), "ok", `<b>Delivered.</b> Paid ${b.payNowGas.toLocaleString()} Gas (${usd(b.amountMinor)}), split as shown above${b.settlement ? `; your agent’s Score stake was ${b.settlement.status === "WON" ? "won" : b.settlement.status.toLowerCase()}` : ""}.<pre>${esc(JSON.stringify(b.output, null, 2))}</pre>`);
+    else result($("skOut"), "bad", `<b>${b.status === "FAILED" ? "Failed, refunded" : "Not run"}:</b> ${esc((b.reasons || []).join(", "))}`);
+    await refresh(); afterChange();
+  };
+  if ($("skAgency")) $("skAgency").onclick = async () => {
+    if (!window.confirm(`Give “${x.name}” agency?\n\nA new agent is created around this skill, with its own wallet, Score and Power of Agency. It sells the skill and is paid for it; you stay its beneficiary. The licenses it relies on move with it.`)) return;
+    const r = await J("POST", `/api/skills/${encodeURIComponent(slug)}/agency`, {});
+    if (r.status !== 200) return toast("Not done: " + (r.body.error || r.status));
+    result($("skOut"), "ok", `<b>${esc(r.body.agent.name)}</b> now owns and sells this skill. Sign its Power of Agency on the <a href="/dashboard?agent=${encodeURIComponent(r.body.agent.id)}">dashboard</a> so it can act.`);
+    $("skAgency").remove(); await reloadMarket();
+  };
+}
+async function openAgent(id) {
+  const a = (S.data.agents || []).find((x) => x.id === id);
+  const sk = (S.data.skills || []).filter((x) => x.seller && x.seller.agentId === id);
+  if (!a && !sk.length) return toast("This agent sells nothing listed here.");
+  const name = a ? a.name : sk[0].seller.name;
+  openSheet(head(name, `${a && a.access ? "Provider agent" : "Agent"} · ${a && !a.active ? "stopped" : "selling"}`), `
+    <p>An agent: it has its own wallet, Score and Power of Agency, a human it answers to, and it is paid in Gas for acting with the skills below.</p>
+    <h4>Skills it sells</h4>
+    ${sk.map((x) => { const pc = perCallOf(x); return `<div class="surface"><b><a href="#" data-open="skill:${esc(x.slug)}">${esc(x.name)}</a></b> <span class="pill ${x.kind === "ACCESS" ? "info" : "ok"}">${x.kind === "ACCESS" ? "Access" : "Skill"}</span>
+      <div class="muted">${esc(x.description)}</div><div class="muted">${pc ? `${pc.priceGas} Gas per call` : ""}${x.seller.actFeeGas ? ` + ${x.seller.actFeeGas} Gas to act` : ""} · ${x.stats.callsServed} calls delivered</div></div>`; }).join("")}`);
+}
+async function reloadMarket() {
+  const m = await J("GET", "/api/marketplace");
+  if (m.status === 200) { S.data = m.body; renderFeatured(); renderGrid(); }
+}
+$("provToggle").onclick = () => { $("provForm").hidden = !$("provForm").hidden; };
+$("pvName").addEventListener("input", () => { if (!$("pvSlug").dataset.touched) $("pvSlug").value = ($("pvCo").value + " " + $("pvName").value).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 50); });
+$("pvSlug").addEventListener("input", () => { $("pvSlug").dataset.touched = "1"; });
+$("provForm").onsubmit = async (e) => {
+  e.preventDefault();
+  const r = await J("POST", "/api/providers", { company: $("pvCo").value.trim(), endpointUrl: $("pvUrl").value.trim(),
+    skill: { slug: $("pvSlug").value.trim(), name: $("pvName").value.trim(), description: $("pvDesc").value.trim(), perCallGas: +$("pvGas").value } });
+  const out = $("pvOut");
+  if (r.status !== 200) return result(out, "bad", "Not created: " + esc(r.body.error || r.status));
+  const slug = r.body.skill.slug;
+  result(out, "ok", `<b>${esc($("pvCo").value)}</b> now has a provider agent selling <b>${esc(r.body.skill.name)}</b>.<br>
+    Endpoint secret (shown once): <code>${esc(r.body.endpointSecret)}</code><br>
+    <span class="muted">PayPali POSTs <code>{type: "skill.invoke", call_id, skill, input, caller}</code> with <code>x-paypali-skill-ts</code> and <code>x-paypali-skill-signature</code> = <code>v1=</code>HMAC-SHA256(secret, ts + "." + sha256(body)). Answer <code>{output}</code> signed in <code>x-skill-signature</code> over call_id + "." + sha256(answer). A <code>challenge</code> is answered with <code>{challenge}</code>.</span><br>
+    <button class="btn outline sm" id="pvVerify" style="margin-top:8px">Verify endpoint and go live</button>`);
+  $("pvVerify").onclick = async () => { const v = await J("POST", `/api/skills/${encodeURIComponent(slug)}/verify`); toast(v.status === 200 ? "Live" : "Not verified: " + (v.body.error || v.status)); if (v.status === 200) reloadMarket(); };
+  reloadMarket();
+};
+
+function open(kindId) { const i = kindId.indexOf(":"); const kind = kindId.slice(0, i), id = kindId.slice(i + 1); ({ platform: openPlatform, service: openService, bazaar: openBazaar, data: openData, skill: openSkill, agent: openAgent, invite: openInvite })[kind]?.(id); }
+function openInvite(id) {
+  const x = (S.data.invitations || []).find((i) => i.id === id); if (!x) return;
+  openSheet(head(x.name, "Invitation · not on PayPali yet"), `
+    <p><b>${esc(x.name)}</b> has been invited to open a provider agent account: its own PayPali agent, selling access skills over its own ${esc(x.category)} catalog on its terms.</p>
+    <p>Until it partners, nobody else can open an account or sell a skill under the ${esc(x.name)} name, so any access you buy here is from the company itself.</p>
+    <p class="muted">Your agent can still manage your own ${esc(x.name)} subscription under Services.</p>
+    <div class="actions"><button class="btn outline" data-open="service:${esc(x.id)}">Open ${esc(x.name)} under Services</button></div>`);
+}
+
+// ---------------------------------------------------------------- wiring
+document.addEventListener("click", (e) => {
+  const t = e.target.closest("[data-open],[data-sel],[data-tab],[data-jump]"); if (!t) return;
+  if (t.dataset.sel) { const [kind, ...rest] = t.dataset.sel.split(":"); toggle(kind, rest.join(":")); if (t.dataset.sheet) t.textContent = S.sel.has(t.dataset.sel) ? "Remove from selections" : "Add to selections"; return; }
+  if (t.dataset.open) { e.preventDefault(); return open(t.dataset.open); }
+  if (t.dataset.tab || t.dataset.jump) { S.tab = t.dataset.tab || t.dataset.jump; for (const b of document.querySelectorAll(".tab")) b.setAttribute("aria-pressed", b.dataset.tab === S.tab); renderGrid(); renderFarm(); }
+});
+$("dlg").addEventListener("click", (e) => { if (e.target === $("dlg")) $("dlg").close(); });
+$("q").addEventListener("input", (e) => { S.q = e.target.value; renderGrid(); });
+$("agentSel").addEventListener("change", async (e) => {
+  if (S.saved !== JSON.stringify([...S.sel.keys()].sort()) && !confirmDiscard()) { e.target.value = S.agentId; return; }
+  S.agentId = e.target.value; try { localStorage.setItem("pp.market.agent", S.agentId); } catch (x) {}
+  await loadSelections();
+});
+function confirmDiscard() { return S.sel.size === 0 || window.confirm("Discard unsaved selections?"); }
+$("traySave").onclick = saveSelections;
+$("trayClear").onclick = () => { S.sel.clear(); renderGrid(); };
+
+
+// Shared: if we just came back from a sign-in link but the session cookie isn't there, the browser dropped it.
+function cookieBlockedNotice(signedIn) {
+  var justSignedIn = location.hash === "#pp-signed-in";
+  if (justSignedIn) history.replaceState(null, "", location.pathname + location.search);
+  var embedded = false; try { embedded = window.top !== window.self; } catch (e) { embedded = true; }
+  if (signedIn || (!justSignedIn && !embedded)) return;
+  var d = document.createElement("div");
+  d.setAttribute("role", "alert");
+  d.style.cssText = "position:sticky;top:0;z-index:60;background:#fbe3e3;color:#5a1016;padding:12px 16px;font:600 14px/1.45 system-ui,sans-serif;border-bottom:1px solid #e8b4b4";
+  d.innerHTML = (embedded
+    ? "This page is open inside another app (an editor or preview pane), so your browser won’t keep PayPali’s sign-in. "
+    : "Your sign-in worked, but this browser didn’t keep PayPali’s sign-in cookie. ")
+    + "Open <a style=\"color:inherit\" href=\"" + location.origin + "/login\" target=\"_blank\" rel=\"noopener\">" + location.origin + "</a> in a regular browser window (Chrome, Safari, Firefox), not a private window, and allow cookies for this site.";
+  document.body.prepend(d);
+}
+function renderAcct() {
+  $("acct").innerHTML = S.me
+    ? `<span class="who" title="Signed in">${esc(S.me.email)}</span><a class="btn primary sm" href="/dashboard">Dashboard</a><button class="btn outline sm" id="signOut">Sign out</button>`
+    : `<a class="btn outline sm" href="${loginHref()}">Log in</a><a class="btn primary sm" href="/">Sign up</a>`;
+  if (S.me) $("signOut").onclick = async () => { await J("POST", "/api/session/logout"); location.reload(); };
+}
+(async function boot() {
+  const [m, sess] = await Promise.all([J("GET", "/api/marketplace"), J("GET", "/api/session")]);
+  if (m.status !== 200) { $("grid").innerHTML = `<p class="empty">Marketplace unavailable (${esc(m.body.error || m.status)}).</p>`; return; }
+  S.data = m.body;
+  // Only the signed-in owner's own agents (shared session with Onboarding and the Dashboard).
+  S.me = sess.body.signedIn ? sess.body.owner : null;
+  S.agents = S.me ? (sess.body.agents || []).filter((x) => x.isActive) : [];
+  renderAcct();
+  cookieBlockedNotice(!!S.me);
+  $("disclaimer").textContent = S.data.disclaimer;
+  let saved = ""; try { saved = localStorage.getItem("pp.market.agent") || ""; } catch (x) {}
+  $("agentSel").innerHTML = !S.me ? `<option value="">Log in to select for your agents</option>`
+    : S.agents.length ? S.agents.map((x) => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("") : `<option value="">No agents yet: create one</option>`;
+  $("agentSel").disabled = !S.agents.length;
+  S.agentId = S.agents.some((x) => x.id === saved) ? saved : (S.agents[0] ? S.agents[0].id : "");
+  $("agentSel").value = S.agentId;
+  if (/^#(bazaar|skills)$/.test(location.hash)) { S.tab = "skills"; for (const b of document.querySelectorAll(".tab")) b.setAttribute("aria-pressed", b.dataset.tab === S.tab); }
+  await loadFarm();
+  await loadApprovals();
+  await loadGasPrice(); setInterval(loadGasPrice, 30000);
+  renderFeatured(); renderNames();
+  await loadSelections();
+})();
+</script>
+</body>
+</html>
